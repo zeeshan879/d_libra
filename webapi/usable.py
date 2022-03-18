@@ -3,6 +3,7 @@ import jwt
 from decouple import config
 import re
 from PIL import Image
+import random
 
 
 
@@ -126,3 +127,10 @@ def tokenauth(tokencatch,role="superadmin"):
 
     except:
         return False
+
+
+
+def randomcodegenrator():
+
+    randomcode = random.randint(1000,10000)
+    return randomcode

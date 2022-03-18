@@ -42,7 +42,7 @@ class signup(APIView):
                     return Response({'status':False,'data':"Email already exist"})
 
                 else:
-                    username = email.split('@')[0]
+                    username = email.split('@')[0] + str(uc.randomcodegenrator())
                     data = User(email=email,password=handler.hash(password),username = username)
                     data.save()
                     return Response({'status':True,'message':'Account Created Successfully'})  
@@ -159,6 +159,58 @@ class userprofile(APIView):
 
             else:
                 return Response({'status':False,'message':'token is expire'})
+
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message)
+
+
+
+class changepassword(APIView):
+    def put(self,request):
+        ##validator keys and required
+        try:
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+            if my_token:
+                requireFields = ['oldpassword','password']
+                validator = uc.keyValidation(True,True,request.data,requireFields)
+                if validator:
+                    return Response(validator)
+                
+                
+                else:
+                    data = User.objects.filter(uid = my_token['id']).first()
+                    if data:
+                        if handler.verify(request.data['oldpassword'],data.password):
+                            ##check if user again use old password
+                            if not handler.verify(request.data['password'],data.password):
+                                
+                                #password length validation
+                                checkpassword = uc.passwordLengthValidator( request.data['password'])
+                                if not checkpassword:
+                                    return Response({'status':False,'message':'Password must be 8 or less than 20 characters'})
+
+                                else:
+                                    data.password = handler.hash(request.data['password'])
+                                    data.save()
+                                    return Response({'status':True,'message':'Password Update Successfully'})
+
+                            else:
+                                return Response({'status':False,'message':'You choose old password try another one'})
+
+
+                        else:
+                            return Response({'status':False,'message':'Your Old Password is Wrong'})
+
+
+
+                    else:
+                        return Response({'status':"error",'message':'userid is incorrect'})
+            
+            else:
+                return Response({'status':False,'message':'token is expire'})
+
 
 
         except Exception as e:
