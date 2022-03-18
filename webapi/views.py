@@ -7,9 +7,13 @@ import jwt
 import webapi.usable as uc
 from django.db.models import Q
 import datetime
+from django.http import HttpResponse
 
 # Create your views here.
 
+
+def index(request):
+    return HttpResponse('<h1>Project libra</h1>')
 
 class signup(APIView):
     def post(self,request):
