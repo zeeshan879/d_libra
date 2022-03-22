@@ -8,6 +8,7 @@ import webapi.usable as uc
 from django.db.models import Q
 import datetime
 from django.http import HttpResponse
+from django.db.models import F
 
 # Create your views here.
 
@@ -220,3 +221,201 @@ class changepassword(APIView):
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message)
+
+class GetParentCategories(APIView):
+
+    def get(self,request):
+
+        try:
+
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+            if my_token:
+
+                data = Category.objects.filter(CategoryType="Category").values('id',CategoryName=F('name'))
+                return Response({'status':True,'data':data})
+            
+            else:
+                return Response({'status':False,'message':'token is expire'})
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message)
+
+class GetChildCategories(APIView):
+
+    def get(self,request):
+
+        try:
+
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+            if my_token:
+                id = request.GET['id']
+                data = Category.objects.filter(parent__id=id).values('id',CategoryName=F('name'))
+                return Response({'status':True,'data':data})
+            
+            else:
+                return Response({'status':False,'message':'token is expire'})
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message)
+
+
+class AddPost(APIView):
+
+    def get(self,request):
+
+        try:
+
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+            if my_token:
+
+                id = request.GET['id']
+                data = ReviewModel.objects.filter(id = id).values('id','title','images','categories__name','content','tags',Categroyid=F('categories__id'))
+
+                return Response({'status':True,'data':data})
+
+            else:
+                return Response({'status':False,'message':'token is expire'})
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message)
+
+
+
+    def post(self,request):
+
+        try:
+            
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+            if my_token:
+
+                requireFields = ['title','Categroyid','tags','image','content','only_to_my_page']
+                validator = uc.requireKeys(requireFields,request.data)
+                
+                if not validator:
+                    return Response({'status':'error','message':f'{requireFields} all keys are required'})
+
+                else:
+
+
+                    title = request.data['title']
+                    Categroyid = request.data['Categroyid']
+                    tags = request.data['tags']
+                    only_to_my_page = request.data['only_to_my_page']
+                    image = request.FILES['image']
+                    content = request.data['content']
+
+                    checkAlreadyExist = ReviewModel.objects.filter(title=title).first()
+                    if checkAlreadyExist:
+                        return Response({'status':False,'message':"title Already Exist"})
+                    else:
+
+                        data = ReviewModel(title=title,tags=tags,only_to_my_page=only_to_my_page,images=image,categories = Category.objects.filter(id = Categroyid).first(),author = User.objects.filter(uid = my_token['id']).first(),content=content)
+                        data.save()
+
+                        return Response({'status':True,'message':"Add Post Successfully"})
+
+
+
+
+            else:
+                return Response({'status':False,'message':'token is expire'})
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message)
+
+
+    def put(self,request):
+
+        try:
+            
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+            if my_token:
+
+                requireFields = ['Postid','title','Categroyid','tags','image','content','only_to_my_page']
+                validator = uc.requireKeys(requireFields,request.data)
+                
+                if not validator:
+                    return Response({'status':'error','message':f'{requireFields} all keys are required'})
+
+                else:
+
+                    Postid = request.data['Postid']
+                    title = request.data.get('title',False)
+                    tags = request.data['tags']
+                    only_to_my_page = request.data.get('only_to_my_page',False)
+                    image = request.FILES.get('image',False)
+                    content = request.data['content']
+                    Categroyid = request.data.get('Categroyid',False)
+
+                    
+
+                    data = ReviewModel.objects.filter(id = Postid).first()
+                    
+                    if data:
+
+                        if data.title == title:
+                            
+                            data.tags = tags
+                            data.only_to_my_page = only_to_my_page
+                            data.content = content
+
+
+                            if Categroyid != False:
+
+                                data.categories = Category.objects.filter(id = Categroyid).first()
+                                
+                                data.save()
+                                return Response({'status':True,'message':"Update Post Successfully"})
+
+                            if image != False:
+
+                                data.save()
+                                return Response({'status':True,'message':"Update Post Successfully"})
+
+                            else:
+
+                                data.save()
+                                return Response({'status':True,'message':"Update Post Successfully"})
+                            return Response({'status':False,'message':"Title Already Exist"})
+
+                        else:
+                        
+
+                            data.title = title
+                            data.tags = tags
+                            data.only_to_my_page = only_to_my_page
+                            data.content = content
+
+
+                            if Categroyid != False:
+
+                                data.categories = Category.objects.filter(id = Categroyid).first()
+                                
+                                data.save()
+                                return Response({'status':True,'message':"Update Post Successfully"})
+
+                            if image != False:
+
+                                data.save()
+                                return Response({'status':True,'message':"Update Post Successfully"})
+
+                            else:
+
+                                data.save()
+                                return Response({'status':True,'message':"Update Post Successfully"})
+
+                    else:
+                        return Response({'status':False,'message':'Data not found'})
+
+
+            else:
+                return Response({'status':False,'message':'token is expire'})
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message)
+

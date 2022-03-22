@@ -40,7 +40,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'webapi',
     'ckeditor',
-    'django_cleanup.apps.CleanupConfig'
+    'django_cleanup.apps.CleanupConfig',
+    'import_export',
+    'mptt',
+    'taggit',
 ]
 
 MIDDLEWARE = [
