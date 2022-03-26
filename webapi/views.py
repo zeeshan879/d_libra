@@ -9,6 +9,7 @@ from django.db.models import Q
 import datetime
 from django.http import HttpResponse
 from django.db.models import F
+from rest_framework import status
 
 # Create your views here.
 
@@ -54,7 +55,7 @@ class signup(APIView):
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
-            return Response(message)
+            return Response(message,status=500)
 
 
 
@@ -66,7 +67,7 @@ class userlogin(APIView):
             ##required field validation
             validator = uc.keyValidation(True,True,request.data,requireFields)
             if validator:
-                    return Response(validator)
+                    return Response(validator,status = 422)
 
             else:
                 password = request.data['password']
@@ -86,7 +87,7 @@ class userlogin(APIView):
 
                     userpayload = { 'id': fetchuser.uid,'username': fetchuser.username,'email':fetchuser.email,'fname':fetchuser.fname,'lname':fetchuser.lname,'profile':fetchuser.profile.url}
 
-                    return Response({'status':True,'message':'Login SuccessFully','token':access_token,'data':userpayload})
+                    return Response({'status':True,'message':'Login SuccessFully','token':access_token,'data':userpayload},status=200)
 
                 else:
                     return Response({'status':False,'message':'Invalid Credential'})
@@ -94,7 +95,7 @@ class userlogin(APIView):
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
-            return Response(message)
+            return Response(message,status=500)
 
 
 
@@ -115,18 +116,18 @@ class userprofile(APIView):
                         'profile':data.profile.url,
                     
 
-                    }})
+                    }},status=200)
 
                 else:
-                    return Response({'status':"error",'message':'userid is incorrect'})
+                    return Response({'status':"error",'message':'userid is incorrect'},status=404)
 
             else:
-                return Response({'status':False,'message':'token is expire'})
+                return Response({'status':False,'message':'Unauthorized'},status=401)
 
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
-            return Response(message)
+            return Response(message,status=500)
 
     
 
@@ -163,12 +164,12 @@ class userprofile(APIView):
 
 
             else:
-                return Response({'status':False,'message':'token is expire'})
+                return Response({'status':False,'message':'Unauthorized'})
 
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
-            return Response(message)
+            return Response(message,status=500)
 
 
 
@@ -214,13 +215,13 @@ class changepassword(APIView):
                         return Response({'status':"error",'message':'userid is incorrect'})
             
             else:
-                return Response({'status':False,'message':'token is expire'})
+                return Response({'status':False,'message':'Unauthorized'})
 
 
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
-            return Response(message)
+            return Response(message,status=500)
 
 class GetParentCategories(APIView):
 
@@ -235,11 +236,11 @@ class GetParentCategories(APIView):
                 return Response({'status':True,'data':data})
             
             else:
-                return Response({'status':False,'message':'token is expire'})
+                return Response({'status':False,'message':'Unauthorized'})
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
-            return Response(message)
+            return Response(message,status=500)
 
 class GetChildCategories(APIView):
 
@@ -254,11 +255,11 @@ class GetChildCategories(APIView):
                 return Response({'status':True,'data':data})
             
             else:
-                return Response({'status':False,'message':'token is expire'})
+                return Response({'status':False,'message':'Unauthorized'})
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
-            return Response(message)
+            return Response(message,status=500)
 
 
 class AddPost(APIView):
@@ -276,11 +277,11 @@ class AddPost(APIView):
                 return Response({'status':True,'data':data})
 
             else:
-                return Response({'status':False,'message':'token is expire'})
+                return Response({'status':False,'message':'Unauthorized'})
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
-            return Response(message)
+            return Response(message,status=500)
 
 
 
@@ -321,11 +322,11 @@ class AddPost(APIView):
 
 
             else:
-                return Response({'status':False,'message':'token is expire'})
+                return Response({'status':False,'message':'Unauthorized'})
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
-            return Response(message)
+            return Response(message,status=500)
 
 
     def put(self,request):
@@ -413,9 +414,9 @@ class AddPost(APIView):
 
 
             else:
-                return Response({'status':False,'message':'token is expire'})
+                return Response({'status':False,'message':'Unauthorized'})
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
-            return Response(message)
+            return Response(message,status=500)
 
