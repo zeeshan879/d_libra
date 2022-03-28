@@ -233,10 +233,10 @@ class GetParentCategories(APIView):
             if my_token:
 
                 data = Category.objects.filter(CategoryType="Category").values('id',CategoryName=F('name'))
-                return Response({'status':True,'data':data})
+                return Response({'status':True,'data':data},status=200)
             
             else:
-                return Response({'status':False,'message':'Unauthorized'})
+                return Response({'status':False,'message':'Unauthorized'},status=401)
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
@@ -252,10 +252,10 @@ class GetChildCategories(APIView):
             if my_token:
                 id = request.GET['id']
                 data = Category.objects.filter(parent__id=id).values('id',CategoryName=F('name'))
-                return Response({'status':True,'data':data})
+                return Response({'status':True,'data':data},status=200)
             
             else:
-                return Response({'status':False,'message':'Unauthorized'})
+                return Response({'status':False,'message':'Unauthorized'},status=401)
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
@@ -274,10 +274,10 @@ class AddPost(APIView):
                 id = request.GET['id']
                 data = ReviewModel.objects.filter(id = id).values('id','title','images','categories__name','content','tags',Categroyid=F('categories__id'))
 
-                return Response({'status':True,'data':data})
+                return Response({'status':True,'data':data},status=200)
 
             else:
-                return Response({'status':False,'message':'Unauthorized'})
+                return Response({'status':False,'message':'Unauthorized'},status=401)
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
@@ -310,19 +310,19 @@ class AddPost(APIView):
 
                     checkAlreadyExist = ReviewModel.objects.filter(title=title).first()
                     if checkAlreadyExist:
-                        return Response({'status':False,'message':"title Already Exist"})
+                        return Response({'status':False,'message':"title Already Exist"},status=409)
                     else:
 
                         data = ReviewModel(title=title,tags=tags,only_to_my_page=only_to_my_page,images=image,categories = Category.objects.filter(id = Categroyid).first(),author = User.objects.filter(uid = my_token['id']).first(),content=content)
                         data.save()
 
-                        return Response({'status':True,'message':"Add Post Successfully"})
+                        return Response({'status':True,'message':"Add Post Successfully"},status=201)
 
 
 
 
             else:
-                return Response({'status':False,'message':'Unauthorized'})
+                return Response({'status':False,'message':'Unauthorized'},status=401)
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
@@ -370,18 +370,18 @@ class AddPost(APIView):
                                 data.categories = Category.objects.filter(id = Categroyid).first()
                                 
                                 data.save()
-                                return Response({'status':True,'message':"Update Post Successfully"})
+                                return Response({'status':True,'message':"Update Post Successfully"},status=200)
 
                             if image != False:
 
                                 data.save()
-                                return Response({'status':True,'message':"Update Post Successfully"})
+                                return Response({'status':True,'message':"Update Post Successfully"},status=200)
 
                             else:
 
                                 data.save()
-                                return Response({'status':True,'message':"Update Post Successfully"})
-                            return Response({'status':False,'message':"Title Already Exist"})
+                                return Response({'status':True,'message':"Update Post Successfully"},status=200)
+                            return Response({'status':False,'message':"Title Already Exist"},status=409)
 
                         else:
                         
@@ -397,26 +397,46 @@ class AddPost(APIView):
                                 data.categories = Category.objects.filter(id = Categroyid).first()
                                 
                                 data.save()
-                                return Response({'status':True,'message':"Update Post Successfully"})
+                                return Response({'status':True,'message':"Update Post Successfully"},status=200)
 
                             if image != False:
 
                                 data.save()
-                                return Response({'status':True,'message':"Update Post Successfully"})
+                                return Response({'status':True,'message':"Update Post Successfully"},status=200)
 
                             else:
 
                                 data.save()
-                                return Response({'status':True,'message':"Update Post Successfully"})
+                                return Response({'status':True,'message':"Update Post Successfully"},status=200)
 
                     else:
-                        return Response({'status':False,'message':'Data not found'})
+                        return Response({'status':False,'message':'Data not found'},status=404)
 
 
             else:
-                return Response({'status':False,'message':'Unauthorized'})
+                return Response({'status':False,'message':'Unauthorized'},status=401)
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
+
+
+class GetDashboardData(APIView):
+
+    def get(self,request):
+
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+        if my_token:
+
+            data = Category.objects.all().values('id',CategoryName=F('name'))
+
+            for i in range(len(data)):
+
+                mydata = ReviewModel.objects.filter(categories__id = data[i]['id']).values('id','title','images')
+                data[i]['lecture'] = mydata
+                
+            return Response({'status':True,'data':data},status=200)
+
+        else:
+            return Response({'status':False,'message':'Unauthorized'},status=401)
 
