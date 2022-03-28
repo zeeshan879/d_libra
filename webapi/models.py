@@ -38,7 +38,7 @@ class MembershipPlan(models.Model):
 
 
 class Category(MPTTModel):
-    
+
     name = models.CharField(max_length=200)
     image = models.FileField(upload_to="category_pic", blank=True, null=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name= 'children', db_index=True, on_delete=models.CASCADE)
@@ -60,7 +60,7 @@ class ReviewModel(models.Model):
     liked = models.ManyToManyField(User, blank=True, related_name='likes')
     only_to_my_page = models.BooleanField(default=False,)
     unique_identifier = models.BigIntegerField(unique=True,null=True, blank=True, help_text="You don't have to do it manually, & After you save it you can also edit")
-    meta_keywords = models.CharField("Meta keywords", max_length=255, help_text='Comma-delimited set of SEO keywords for meta tag', blank=True, null=True)      
+    meta_keywords = models.CharField("Meta keywords", max_length=255, help_text='Comma-delimited set of SEO keywords for meta tag', blank=True, null=True)
     meta_description = models.CharField("Meta Description", max_length=255, help_text='Content for meta description' ,blank=True, null=True)
     content = RichTextField()
     tags = TaggableManager()
