@@ -268,16 +268,16 @@ class AddPost(APIView):
 
         try:
 
-            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
-            if my_token:
+            # my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+            # if my_token:
 
-                id = request.GET['id']
-                data = ReviewModel.objects.filter(id = id).values('id','title','images','categories__name','content','tags',Categroyid=F('categories__id'))
+            id = request.GET['id']
+            data = ReviewModel.objects.filter(id = id).values('id','title','images','categories__name','content','tags',Categroyid=F('categories__id'))
+            
+            return Response({'status':True,'data':data},status=200)
 
-                return Response({'status':True,'data':data},status=200)
-
-            else:
-                return Response({'status':False,'message':'Unauthorized'},status=401)
+            # else:
+            #     return Response({'status':False,'message':'Unauthorized'},status=401)
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
@@ -425,9 +425,10 @@ class GetDashboardData(APIView):
 
     def get(self,request):
 
-        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
-        if my_token:
+        # my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+        # if my_token:  
 
+        try:
             data = Category.objects.all().values('id',CategoryName=F('name'))
 
             for i in range(len(data)):
@@ -437,6 +438,11 @@ class GetDashboardData(APIView):
                 
             return Response({'status':True,'data':data},status=200)
 
-        else:
-            return Response({'status':False,'message':'Unauthorized'},status=401)
+        
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+
+        # else:
+        #     return Response({'status':False,'message':'Unauthorized'},status=401)
 
