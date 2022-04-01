@@ -20,7 +20,7 @@ def index(request):
 class signup(APIView):
     def post(self,request):
         try:
-            requireFields = ['email','password']
+            requireFields = ['email','password','username']
             ##required field validation
             validator = uc.keyValidation(True,True,request.data,requireFields)
             if validator:
@@ -41,14 +41,16 @@ class signup(APIView):
                 
                 email = request.POST['email']
                 password = request.POST['password']
+                username = request.POST['username']
                 
 
-                data = User.objects.filter(email = email)
+                data = User.objects.filter(Q(email = email) | Q(username = username))
                 if data:
-                    return Response({'status':False,'data':"Email already exist"})
+                    return Response({'status':False,'data':"Email or Username already exist"})
+
+            
 
                 else:
-                    username = email.split('@')[0] + str(uc.randomcodegenrator())
                     data = User(email=email,password=handler.hash(password),username = username)
                     data.save()
                     return Response({'status':True,'message':'Account Created Successfully'})  
