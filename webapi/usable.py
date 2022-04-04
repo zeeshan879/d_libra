@@ -118,6 +118,10 @@ def tokenauth(tokencatch,role="superadmin"):
             my_token = jwt.decode(tokencatch,config('normaluserkey'), algorithms=["HS256"])
             return my_token
 
+        elif role == "editor":
+            my_token = jwt.decode(tokencatch,config('editorkey'), algorithms=["HS256"])
+            return my_token
+
 
      
 
@@ -134,3 +138,5 @@ def randomcodegenrator():
 
     randomcode = random.randint(1000,10000)
     return randomcode
+
+

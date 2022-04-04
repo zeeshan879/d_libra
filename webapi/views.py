@@ -85,11 +85,21 @@ class userlogin(APIView):
                         'iat': datetime.datetime.utcnow(),
 
                     }
-                    access_token = jwt.encode(access_token_payload,config('normaluserkey'), algorithm='HS256')
+                    if fetchuser.role == "normaluser":
+                        access_token = jwt.encode(access_token_payload,config('normaluserkey'), algorithm='HS256')
 
-                    userpayload = { 'id': fetchuser.uid,'username': fetchuser.username,'email':fetchuser.email,'fname':fetchuser.fname,'lname':fetchuser.lname,'profile':fetchuser.profile.url}
+                        userpayload = { 'id': fetchuser.uid,'username': fetchuser.username,'email':fetchuser.email,'fname':fetchuser.fname,'lname':fetchuser.lname,'profile':fetchuser.profile.url,'role':fetchuser.role}
 
-                    return Response({'status':True,'message':'Login SuccessFully','token':access_token,'data':userpayload},status=200)
+                        return Response({'status':True,'message':'Login SuccessFully','token':access_token,'data':userpayload},status=200)
+
+                    if fetchuser.role == "editor":
+                        access_token = jwt.encode(access_token_payload,config('editorkey'), algorithm='HS256')
+
+                        userpayload = { 'id': fetchuser.uid,'username': fetchuser.username,'email':fetchuser.email,'fname':fetchuser.fname,'lname':fetchuser.lname,'profile':fetchuser.profile.url,'role':fetchuser.role}
+
+                        return Response({'status':True,'message':'Login SuccessFully','token':access_token,'data':userpayload},status=200)
+                    else:
+                        None
 
                 else:
                     return Response({'status':False,'message':'Invalid Credential'})
@@ -231,7 +241,7 @@ class GetParentCategories(APIView):
 
         try:
 
-            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
 
                 data = Category.objects.filter(CategoryType="Category").values('id',CategoryName=F('name'))
@@ -244,13 +254,74 @@ class GetParentCategories(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
 
+    def post(self,request):
+
+        try:
+
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+            if my_token:
+
+                requireFields = ['name','slug','image',"parentCategoryid"]
+                validator = uc.keyValidation(True,True,request.data,requireFields[:-1])
+                if validator:
+                    return Response(validator)
+                else:
+                    name = request.data.get('name')
+                    Categoryid = request.data.get('parentCategoryid')
+                    slug = request.data.get('slug')
+                    image = request.FILES.get('image')
+
+                    categoryExist = Category.objects.filter(name=name)
+                    if categoryExist:
+                        return Response({
+                            'status':False,
+                            'message':'Category Name Already Exist'
+                        })
+
+                    slugExist = Category.objects.filter(slug=slug)
+                    if slugExist:
+                        return Response({
+                            'status':False,
+                            'message':'Slug Name Already Exist'
+                        })
+                    
+                    if Categoryid == "":
+
+                        data = Category(name=name,slug=slug,image=image,unique_identifier = uc.randomcodegenrator(),CategoryType = "Category")
+                        data.save()
+                        return Response({'status':True,'message':"Add Categroy Successfully"},status=201)
+
+                    else:
+                        fetchparent = Category.objects.filter(id = Categoryid).first()
+                        if fetchparent:
+                            data = Category(name=name,slug=slug,image=image,unique_identifier = uc.randomcodegenrator(),parent = fetchparent)
+                            data.save()
+                            return Response({'status':True,'message':"Add Sub Category Successfully"},status=201)
+
+                        else:
+                            return Response({'status':False,'message':'Category id is incorrect'})
+
+
+
+                    return HttpResponse("ok")
+
+
+            else:
+                return Response({'status':False,'message':'Unauthorized'},status=401)
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+
+
+
 class GetChildCategories(APIView):
 
     def get(self,request):
 
         try:
 
-            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
                 id = request.GET['id']
                 data = Category.objects.filter(parent__id=id).values('id',CategoryName=F('name'))
@@ -270,16 +341,16 @@ class AddPost(APIView):
 
         try:
 
-            # my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
-            # if my_token:
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+            if my_token:
 
-            id = request.GET['id']
-            data = ReviewModel.objects.filter(id = id).values('id','title','images','categories__name','content','tags',Categroyid=F('categories__id'))
-            
-            return Response({'status':True,'data':data},status=200)
+                id = request.GET['id']
+                data = ReviewModel.objects.filter(id = id).values('id','title','images','categories__name','content','tags',Categroyid=F('categories__id'))
+                
+                return Response({'status':True,'data':data},status=200)
 
-            # else:
-            #     return Response({'status':False,'message':'Unauthorized'},status=401)
+            else:
+                return Response({'status':False,'message':'Unauthorized'},status=401)
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
@@ -291,7 +362,7 @@ class AddPost(APIView):
 
         try:
             
-            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
 
                 requireFields = ['title','Categroyid','tags','image','content','only_to_my_page']
@@ -335,7 +406,7 @@ class AddPost(APIView):
 
         try:
             
-            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
 
                 requireFields = ['Postid','title','Categroyid','tags','image','content','only_to_my_page']
@@ -448,3 +519,33 @@ class GetDashboardData(APIView):
         # else:
         #     return Response({'status':False,'message':'Unauthorized'},status=401)
 
+class GetParentChildCategories(APIView):
+
+    def get(self,request):
+
+        try:
+
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+            if my_token:
+
+                data = Category.objects.filter(CategoryType = "Category").values('id','CategoryType',CategoryName=F('name'))
+                if data:
+                    for i in range(len(data)):
+
+                        mydata  = Category.objects.filter(parent__id= data[i]['id']).values('id',CategoryName=F('name'))
+                        
+                        data[i]['SubCategory'] = mydata
+
+                    return Response({'status':True,'data':data},status=200)
+
+                else:
+                    return Response({'status':True,'data':[]},status=200)
+
+
+
+            else:
+                return Response({'status':False,'message':'Unauthorized'},status=401)
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)

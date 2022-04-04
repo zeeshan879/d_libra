@@ -13,6 +13,7 @@ path('GetParentCategories',GetParentCategories.as_view()),
 path('GetChildCategories',GetChildCategories.as_view()),
 path('AddPost',AddPost.as_view()),
 path('GetDashboardData',GetDashboardData.as_view()),
+path('GetParentChildCategories',GetParentChildCategories.as_view()),
 
 
 

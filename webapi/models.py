@@ -5,7 +5,14 @@ from mptt.models import MPTTModel, TreeForeignKey
 from django.core.validators import FileExtensionValidator
 from taggit.managers import TaggableManager
 from taggit.models import TaggedItem, TaggedItemBase
+from rest_framework import serializers
 # Create your models here.
+
+user_role =(
+    ("normaluser", "normaluser"),
+    ("editor", "editor"),
+    
+)
 
 
 class User(models.Model):
@@ -16,6 +23,7 @@ class User(models.Model):
     email=models.EmailField(max_length=255, default="")
     username=models.CharField(max_length=255, default="")
     password=models.TextField(default="")
+    role = models.CharField(choices = user_role,max_length=20,default="normaluser")
     profile= models.ImageField(upload_to='Users/',default="SuperAdmin/dummy.jpg")
     def __str__(self):
         return self.username
@@ -51,6 +59,14 @@ class Category(MPTTModel):
 
     def __str__(self):
         return self.name
+
+class SerSubCategories(serializers.ModelSerializer):
+
+    
+    
+    class Meta:
+        model = Category
+        fields = ['id','name']
 
 class ReviewModel(models.Model):
     title = models.CharField(max_length=100)
