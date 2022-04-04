@@ -300,12 +300,6 @@ class GetParentCategories(APIView):
 
                         else:
                             return Response({'status':False,'message':'Category id is incorrect'})
-
-
-
-                    return HttpResponse("ok")
-
-
             else:
                 return Response({'status':False,'message':'Unauthorized'},status=401)
 
@@ -532,7 +526,7 @@ class GetParentChildCategories(APIView):
                 if data:
                     for i in range(len(data)):
 
-                        mydata  = Category.objects.filter(parent__id= data[i]['id']).values('id',CategoryName=F('name'))
+                        mydata  = Category.objects.filter(parent__id= data[i]['id']).values('id','image','unique_identifier','created_at','updated_at',CategoryName=F('name'))
                         
                         data[i]['SubCategory'] = mydata
 
