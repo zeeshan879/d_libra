@@ -365,7 +365,7 @@ class AddPost(APIView):
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
 
-                requireFields = ['title','Categroyid','tags','image','content','only_to_my_page']
+                requireFields = ['title','Categroyid','tags','image','content','meta_description','OGP']
                 validator = uc.requireKeys(requireFields,request.data)
                 
                 if not validator:
@@ -377,16 +377,18 @@ class AddPost(APIView):
                     title = request.data['title']
                     Categroyid = request.data['Categroyid']
                     tags = request.data['tags']
-                    only_to_my_page = request.data['only_to_my_page']
+                    
                     image = request.FILES['image']
                     content = request.data['content']
+                    meta_description = request.data['meta_description']
+                    OGP = request.data['OGP']
 
                     checkAlreadyExist = ReviewModel.objects.filter(title=title).first()
                     if checkAlreadyExist:
                         return Response({'status':False,'message':"title Already Exist"},status=409)
                     else:
 
-                        data = ReviewModel(title=title,tags=tags,only_to_my_page=only_to_my_page,images=image,categories = Category.objects.filter(id = Categroyid).first(),author = User.objects.filter(uid = my_token['id']).first(),content=content)
+                        data = ReviewModel(title=title,tags=tags,images=image,categories = Category.objects.filter(id = Categroyid).first(),author = User.objects.filter(uid = my_token['id']).first(),content=content,meta_description=meta_description,OGP=OGP)
                         data.save()
 
                         return Response({'status':True,'message':"Add Post Successfully"},status=201)
@@ -409,7 +411,7 @@ class AddPost(APIView):
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
 
-                requireFields = ['Postid','title','Categroyid','tags','image','content','only_to_my_page']
+                requireFields = ['Postid','title','Categroyid','tags','image','content','meta_description','OGP']
                 validator = uc.requireKeys(requireFields,request.data)
                 
                 if not validator:
@@ -420,10 +422,11 @@ class AddPost(APIView):
                     Postid = request.data['Postid']
                     title = request.data.get('title',False)
                     tags = request.data['tags']
-                    only_to_my_page = request.data.get('only_to_my_page',False)
                     image = request.FILES.get('image',False)
                     content = request.data['content']
                     Categroyid = request.data.get('Categroyid',False)
+                    meta_description = request.data['meta_description']
+                    OGP = request.data['OGP']
 
                     
 
@@ -434,8 +437,9 @@ class AddPost(APIView):
                         if data.title == title:
                             
                             data.tags = tags
-                            data.only_to_my_page = only_to_my_page
                             data.content = content
+                            data.meta_description = meta_description
+                            data.OGP = OGP
 
 
                             if Categroyid != False:
@@ -461,8 +465,9 @@ class AddPost(APIView):
 
                             data.title = title
                             data.tags = tags
-                            data.only_to_my_page = only_to_my_page
                             data.content = content
+                            data.meta_description = meta_description
+                            data.OGP = OGP
 
 
                             if Categroyid != False:
