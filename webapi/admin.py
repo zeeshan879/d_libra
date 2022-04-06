@@ -1,3 +1,5 @@
+
+  
 from django.contrib import admin
 from webapi.models import *
 from import_export.admin import ImportExportModelAdmin
@@ -31,7 +33,7 @@ admin.site.register(Category, CategoryAdmin)
 
 class ReviewModelAdmin(ImportExportModelAdmin):
 	# change_list_template = "admin/import_export/reviewmodel_change_form.html"
-	list_display = ['author', 'title', 'unique_identifiers', 'tag_list', 'only_to_my_page' , 'ceated_date', 'update_date']
+	list_display = ['author', 'title', 'unique_identifiers', 'only_to_my_page' , 'ceated_date', 'update_date']
 	ordering = ('unique_identifier',)
 	search_fields = ['unique_identifier', 'title', 'author__username',]
 	list_filter = ['only_to_my_page', 'created_at',]
@@ -51,11 +53,11 @@ class ReviewModelAdmin(ImportExportModelAdmin):
 
 	unique_identifiers.admin_order_field = "unique_identifier"
 
-	def get_queryset(self, request):
-		return super().get_queryset(request).prefetch_related('tags')
+	# def get_queryset(self, request):
+	# 	return super().get_queryset(request).prefetch_related('tags')
 
-	def tag_list(self, obj):
-		return u", ".join(o.name for o in obj.tags.all())
+	# def tag_list(self, obj):
+	# 	return u", ".join(o.name for o in obj.tags.all())
 
 	def ceated_date(self, obj):
 		if obj:
@@ -70,7 +72,3 @@ class ReviewModelAdmin(ImportExportModelAdmin):
 	pass	
 
 admin.site.register(ReviewModel,ReviewModelAdmin)
-
-
-
-

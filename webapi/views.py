@@ -337,10 +337,8 @@ class AddPost(APIView):
 
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
-
                 id = request.GET['id']
-                data = ReviewModel.objects.filter(id = id).values('id','title','images','categories__name','content','tags',Categroyid=F('categories__id'))
-                
+                data = ReviewModel.objects.filter(id = id).values('id','title','images','categories__name','OGP','meta_description','content','tags',Categroyid=F('categories__id'))
                 return Response({'status':True,'data':data},status=200)
 
             else:
@@ -359,31 +357,42 @@ class AddPost(APIView):
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
 
-                requireFields = ['title','Categroyid','tags','image','content','only_to_my_page']
-                validator = uc.requireKeys(requireFields,request.data)
+                requireFields = ['title','Categroyid','tags','image','content','meta_description','OGP']
+                validator = uc.keyValidation(True,True,request.data,requireFields)
                 
-                if not validator:
-                    return Response({'status':'error','message':f'{requireFields} all keys are required'})
+                if validator:
+                    return Response(validator,status=409)
 
                 else:
-
-
                     title = request.data['title']
                     Categroyid = request.data['Categroyid']
                     tags = request.data['tags']
-                    only_to_my_page = request.data['only_to_my_page']
                     image = request.FILES['image']
                     content = request.data['content']
+                    meta_description = request.data['meta_description']
+                    OGP = request.data['OGP']
+
+                    ##Image validation
+                    filenameStaus = uc.imageValidator(image,False,False)
+                    if not filenameStaus:
+                        return Response({'status':False,'message':'Image format is incorrect'},status=409)
+
 
                     checkAlreadyExist = ReviewModel.objects.filter(title=title).first()
                     if checkAlreadyExist:
                         return Response({'status':False,'message':"title Already Exist"},status=409)
                     else:
+                        catgory = Category.objects.filter(id = Categroyid).first()
+                        if catgory:
+                            data = ReviewModel(title=title,tags=tags,images=image,categories = catgory,author = User.objects.filter(uid = my_token['id']).first(),content=content,meta_description=meta_description,OGP=OGP,unique_identifier = uc.randomcodegenrator())
+                            data.save()
+                        
 
-                        data = ReviewModel(title=title,tags=tags,only_to_my_page=only_to_my_page,images=image,categories = Category.objects.filter(id = Categroyid).first(),author = User.objects.filter(uid = my_token['id']).first(),content=content)
-                        data.save()
+                            return Response({'status':True,'message':"Add Post Successfully"},status=201)
 
-                        return Response({'status':True,'message':"Add Post Successfully"},status=201)
+                        else:
+                            return Response({'status':False,'message':"Wrong Course id"},status=409)
+
 
 
 
@@ -403,7 +412,7 @@ class AddPost(APIView):
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
 
-                requireFields = ['Postid','title','Categroyid','tags','image','content','only_to_my_page']
+                requireFields = ['Postid','title','Categroyid','tags','image','content','meta_description','OGP']
                 validator = uc.requireKeys(requireFields,request.data)
                 
                 if not validator:
@@ -414,10 +423,11 @@ class AddPost(APIView):
                     Postid = request.data['Postid']
                     title = request.data.get('title',False)
                     tags = request.data['tags']
-                    only_to_my_page = request.data.get('only_to_my_page',False)
                     image = request.FILES.get('image',False)
                     content = request.data['content']
                     Categroyid = request.data.get('Categroyid',False)
+                    meta_description = request.data['meta_description']
+                    OGP = request.data['OGP']
 
                     
 
@@ -428,8 +438,9 @@ class AddPost(APIView):
                         if data.title == title:
                             
                             data.tags = tags
-                            data.only_to_my_page = only_to_my_page
                             data.content = content
+                            data.meta_description = meta_description
+                            data.OGP = OGP
 
 
                             if Categroyid != False:
@@ -455,8 +466,9 @@ class AddPost(APIView):
 
                             data.title = title
                             data.tags = tags
-                            data.only_to_my_page = only_to_my_page
                             data.content = content
+                            data.meta_description = meta_description
+                            data.OGP = OGP
 
 
                             if Categroyid != False:
@@ -486,6 +498,43 @@ class AddPost(APIView):
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
+
+
+
+
+    def delete(self,request):
+        try:
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+            if my_token:
+                requireFields = ['id']
+                validator = uc.keyValidation(True,True,request.GET,requireFields)
+                
+                if validator:
+                    return Response(validator,status=409)
+
+                else:
+                    data = ReviewModel.objects.filter(id = request.GET['id']).first()
+                    if data:
+                        data.delete()
+                        return Response({'status':True,'message':'Delete successfully'},status=200)
+
+                    else:
+                        return Response({'status':False,'message':'Nothing to delete'},status=404)
+
+
+            else:
+                return Response({'status':False,'message':'Unauthorized'},status=401)
+
+        
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+            
+            
+
+
+
+
 
 
 class GetDashboardData(APIView):

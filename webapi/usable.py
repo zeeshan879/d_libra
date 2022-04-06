@@ -136,7 +136,7 @@ def tokenauth(tokencatch,role="superadmin"):
 
 def randomcodegenrator():
 
-    randomcode = random.randint(1000,10000)
+    randomcode = "%0.12d" % random.randint(0,999999999999)
     return randomcode
 
 
