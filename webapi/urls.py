@@ -23,6 +23,7 @@ path('GetParentChildCategories',GetParentChildCategories.as_view()),
 
 
 
+
 ]
 
 

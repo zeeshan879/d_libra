@@ -10,7 +10,7 @@ import datetime
 from django.http import HttpResponse
 from django.db.models import F
 from rest_framework import status
-
+from .permission import authorization
 # Create your views here.
 
 
@@ -592,3 +592,8 @@ class GetParentChildCategories(APIView):
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
+
+
+
+
+
