@@ -59,9 +59,6 @@ class signup(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
 
-
-
-
 class userlogin(APIView):
     def post(self,request):
         try:
@@ -108,9 +105,6 @@ class userlogin(APIView):
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
-
-
-
 
 class userprofile(APIView):
     def get(self,request):
@@ -182,8 +176,6 @@ class userprofile(APIView):
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
-
-
 
 class changepassword(APIView):
     def put(self,request):
@@ -307,8 +299,6 @@ class GetParentCategories(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
 
-
-
 class GetChildCategories(APIView):
 
     def get(self,request):
@@ -328,7 +318,6 @@ class GetChildCategories(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
 
-
 class AddPost(APIView):
 
     def get(self,request):
@@ -338,8 +327,22 @@ class AddPost(APIView):
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
                 id = request.GET['id']
-                data = ReviewModel.objects.filter(id = id).values('id','title','images','categories__name','OGP','meta_description','content','tags',Categroyid=F('categories__id'))
-                return Response({'status':True,'data':data},status=200)
+                data = ReviewModel.objects.filter(id = id).values('id','title','images','categories__name','OGP','meta_description','content','tags',Categroyid=F('categories__id')).first()
+                if data:
+                
+                    mylist = list()
+                    catData = ReviewModel.objects.filter(categories__id = data['Categroyid']).values('id')
+                    
+                    for i in range(len(catData)):
+
+                        mydata = ReviewModel.objects.filter(categories__id = data['Categroyid']).values('id','title','images','categories__name','OGP','meta_description','content','tags',Categroyid=F('categories__id'))
+
+
+                    return Response({'status':True,'data':mydata},status=200)
+
+                else:
+                    return Response({'status':True,'data':[]},status=200)
+
 
             else:
                 return Response({'status':False,'message':'Unauthorized'},status=401)
@@ -403,7 +406,6 @@ class AddPost(APIView):
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
-
 
     def put(self,request):
 
@@ -506,9 +508,6 @@ class AddPost(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
 
-
-
-
     def delete(self,request):
         try:
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
@@ -537,13 +536,6 @@ class AddPost(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
             
-            
-
-
-
-
-
-
 class GetDashboardData(APIView):
 
     def get(self,request):
