@@ -323,23 +323,27 @@ class AddPost(APIView):
     def get(self,request):
 
         try:
-
-            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+            
+            role = request.GET['role']
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
             if my_token:
-                id = request.GET['id']
-                data = ReviewModel.objects.filter(id = id).values('id','title','images','categories__name','OGP','meta_description','content','tags',Categroyid=F('categories__id')).first()
+                postid = request.GET['postid']
+                categoryid = request.GET['categoryid']
+                data = ReviewModel.objects.filter(categories = categoryid).values('id','title','images','categories__name','OGP','meta_description','content','tags',Categroyid=F('categories__id'))
+
                 if data:
-                
-                    mylist = list()
-                    catData = ReviewModel.objects.filter(categories__id = data['Categroyid']).values('id')
+                    nextcategory = Category.objects.all().values_list('id',flat=True)
+                    nextindex = list(nextcategory).index(int(categoryid))
+                    if int(categoryid) == list(nextcategory)[-1]:
+                        nextindex = "null"
+
+                    else:
+                        nextindex = nextcategory[nextindex + 1]
                     
-                    for i in range(len(catData)):
-
-                        mydata = ReviewModel.objects.filter(categories__id = data['Categroyid']).values('id','title','images','categories__name','OGP','meta_description','content','tags',Categroyid=F('categories__id'))
-
-
-                    return Response({'status':True,'data':mydata},status=200)
-
+                    
+                    return Response({'status':True,'data':data,'nextcategory':nextindex},status=200)
+                
+               
                 else:
                     return Response({'status':True,'data':[]},status=200)
 
@@ -466,6 +470,11 @@ class AddPost(APIView):
                             return Response({'status':True,'message':"Update Post Successfully"},status=200)
 
                         else:
+
+                            checktitleexist = ReviewModel.objects.filter(title = title).first()
+                            if checktitleexist:
+                                return Response({'status':True,'message':"Title Already  Successfully"},status=409)
+
                            
 
                             data.title = title
