@@ -412,11 +412,13 @@ class AddPost(APIView):
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
 
-                requireFields = ['Postid','title','Categroyid','tags','image','content','meta_description','OGP']
+                requireFields = ['Postid','title','Categroyid','tags','content','meta_description','OGP','image']
                 validator = uc.requireKeys(requireFields,request.data)
+
+                validator = uc.keyValidation(True,True,request.data,requireFields[:-1])
                 
-                if not validator:
-                    return Response({'status':'error','message':f'{requireFields} all keys are required'})
+                if validator:
+                    return Response(validator,status=409)
 
                 else:
 
@@ -428,7 +430,6 @@ class AddPost(APIView):
                     Categroyid = request.data.get('Categroyid',False)
                     meta_description = request.data['meta_description']
                     OGP = request.data['OGP']
-
                     
 
                     data = ReviewModel.objects.filter(id = Postid).first()
@@ -445,24 +446,27 @@ class AddPost(APIView):
 
                             if Categroyid != False:
 
-                                data.categories = Category.objects.filter(id = Categroyid).first()
+                                checkCategoryexist = Category.objects.filter(id = Categroyid).first()
+                                if checkCategoryexist:
+
+
+                                    data.categories = Category.objects.filter(id = Categroyid).first()
                                 
-                                data.save()
-                                return Response({'status':True,'message':"Update Post Successfully"},status=200)
+                                else:
+                                    return Response({'status':False,'message':'Category not found'},status=404)
+                                
 
                             if image != False:
+                                
+                                data.images = image
 
-                                data.save()
-                                return Response({'status':True,'message':"Update Post Successfully"},status=200)
+                            
 
-                            else:
-
-                                data.save()
-                                return Response({'status':True,'message':"Update Post Successfully"},status=200)
-                            return Response({'status':False,'message':"Title Already Exist"},status=409)
+                            data.save()
+                            return Response({'status':True,'message':"Update Post Successfully"},status=200)
 
                         else:
-                        
+                            return HttpResponse("else")
 
                             data.title = title
                             data.tags = tags
@@ -473,20 +477,23 @@ class AddPost(APIView):
 
                             if Categroyid != False:
 
-                                data.categories = Category.objects.filter(id = Categroyid).first()
+                                checkCategoryexist = Category.objects.filter(id = Categroyid).first()
+                                if checkCategoryexist:
+
+
+                                    data.categories = Category.objects.filter(id = Categroyid).first()
                                 
-                                data.save()
-                                return Response({'status':True,'message':"Update Post Successfully"},status=200)
+                                else:
+                                    return Response({'status':False,'message':'Category not found'},status=404)
+                                
 
                             if image != False:
+                                data.images = image
 
-                                data.save()
-                                return Response({'status':True,'message':"Update Post Successfully"},status=200)
+                           
 
-                            else:
-
-                                data.save()
-                                return Response({'status':True,'message':"Update Post Successfully"},status=200)
+                            data.save()
+                            return Response({'status':True,'message':"Update Post Successfully"},status=200)
 
                     else:
                         return Response({'status':False,'message':'Data not found'},status=404)
