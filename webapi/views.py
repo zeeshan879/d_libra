@@ -351,8 +351,6 @@ class AddPost(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
 
-
-
     def post(self,request):
 
         try:
@@ -468,7 +466,7 @@ class AddPost(APIView):
                             return Response({'status':True,'message':"Update Post Successfully"},status=200)
 
                         else:
-                            return HttpResponse("else")
+                           
 
                             data.title = title
                             data.tags = tags
