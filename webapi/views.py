@@ -323,8 +323,9 @@ class AddPost(APIView):
     def get(self,request):
 
         try:
-
-            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+            
+            role = request.GET['role']
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
             if my_token:
                 postid = request.GET['postid']
                 categoryid = request.GET['categoryid']
