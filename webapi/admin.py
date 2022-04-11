@@ -72,3 +72,7 @@ class ReviewModelAdmin(ImportExportModelAdmin):
 	pass	
 
 admin.site.register(ReviewModel,ReviewModelAdmin)
+admin.site.register(RecentlyviewCourse)
+admin.site.register(RecentlyviewContent)
+
+

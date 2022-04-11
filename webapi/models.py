@@ -15,6 +15,7 @@ user_role =(
 )
 
 
+
 class User(models.Model):
 
     uid = models.AutoField(primary_key=True)
@@ -83,3 +84,18 @@ class ReviewModel(models.Model):
     tags =   models.TextField(default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+class RecentlyviewCourse(models.Model):
+
+    author = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, null=True)
+    course_id = models.ForeignKey(Category, on_delete=models.CASCADE,blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    BookmarkStatus = models.BooleanField(default=0)
+
+
+class RecentlyviewContent(models.Model):
+
+    author = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, null=True)
+    content_id = models.ForeignKey(ReviewModel, on_delete=models.CASCADE,blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    BookmarkStatus = models.BooleanField(default=0)
