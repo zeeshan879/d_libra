@@ -327,7 +327,7 @@ class AddPost(APIView):
             role = request.GET['role']
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
             if my_token:
-                postid = request.GET['postid']
+                postid = request.GET.get('postid',False)
                 categoryid = request.GET['categoryid']
                 data = ReviewModel.objects.filter(categories = categoryid).values('id','title','images','categories__name','OGP','meta_description','content','tags',Categroyid=F('categories__id'))
 
@@ -340,12 +340,25 @@ class AddPost(APIView):
                     else:
                         nextindex = nextcategory[nextindex + 1]
                     
+
+                    ##if post id exist
+                    if postid:
+                        for j in data:
+                            if j['id'] == int(postid):
+                                post = j
+                                break
+
+                            else:
+                                post = "null"
+
+                    else:
+                        post = data.first()
                     
-                    return Response({'status':True,'data':data,'nextcategory':nextindex},status=200)
+                    return Response({'status':True,'post':post,'all':data,'nextcategory':nextindex},status=200)
                 
                
                 else:
-                    return Response({'status':True,'data':[]},status=200)
+                    return Response({'status':True,'post':"null",'all':[]},status=200)
 
 
             else:
@@ -417,7 +430,6 @@ class AddPost(APIView):
             if my_token:
 
                 requireFields = ['Postid','title','Categroyid','tags','content','meta_description','OGP','image']
-                validator = uc.requireKeys(requireFields,request.data)
 
                 validator = uc.keyValidation(True,True,request.data,requireFields[:-1])
                 
@@ -439,70 +451,44 @@ class AddPost(APIView):
                     data = ReviewModel.objects.filter(id = Postid).first()
                     
                     if data:
-
-                        if data.title == title:
-                            
-                            data.tags = tags
-                            data.content = content
-                            data.meta_description = meta_description
-                            data.OGP = OGP
-
-
-                            if Categroyid != False:
-
-                                checkCategoryexist = Category.objects.filter(id = Categroyid).first()
-                                if checkCategoryexist:
-
-
-                                    data.categories = Category.objects.filter(id = Categroyid).first()
-                                
-                                else:
-                                    return Response({'status':False,'message':'Category not found'},status=404)
-                                
-
-                            if image != False:
-                                
-                                data.images = image
-
-                            
-
-                            data.save()
-                            return Response({'status':True,'message':"Update Post Successfully"},status=200)
-
-                        else:
-
-                            checktitleexist = ReviewModel.objects.filter(title = title).first()
-                            if checktitleexist:
-                                return Response({'status':True,'message':"Title Already  Successfully"},status=409)
-
-                           
-
+                        checktitleexist = ReviewModel.objects.filter(title = title).first()
+                        if not checktitleexist:
                             data.title = title
-                            data.tags = tags
-                            data.content = content
-                            data.meta_description = meta_description
-                            data.OGP = OGP
+                              
+                      
+                        
+                        data.tags = tags
+                        data.content = content
+                        data.meta_description = meta_description
+                        data.OGP = OGP
 
 
-                            if Categroyid != False:
+                        if Categroyid != False:
 
-                                checkCategoryexist = Category.objects.filter(id = Categroyid).first()
-                                if checkCategoryexist:
+                            checkCategoryexist = Category.objects.filter(id = Categroyid).first()
+                            if checkCategoryexist:
+                                data.categories =checkCategoryexist
+                            
+                            else:
+                                return Response({'status':False,'message':'Category not found'},status=404)
+                            
 
-
-                                    data.categories = Category.objects.filter(id = Categroyid).first()
-                                
-                                else:
-                                    return Response({'status':False,'message':'Category not found'},status=404)
-                                
-
-                            if image != False:
+                        if image != False:
+                            ##Image validation
+                            filenameStaus = uc.imageValidator(image,False,False)
+                            if not filenameStaus:
+                                return Response({'status':False,'message':'Image format is incorrect'},status=409)
+                            else:
                                 data.images = image
 
-                           
+                        
 
-                            data.save()
-                            return Response({'status':True,'message':"Update Post Successfully"},status=200)
+                        data.save()
+                        return Response({'status':True,'message':"Update Post Successfully"},status=200)
+
+                      
+
+                           
 
                     else:
                         return Response({'status':False,'message':'Data not found'},status=404)
