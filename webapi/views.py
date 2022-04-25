@@ -232,15 +232,10 @@ class GetParentCategories(APIView):
     def get(self,request):
 
         try:
-
-            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
-            if my_token:
-
-                data = Category.objects.filter(CategoryType="Category").values('id',CategoryName=F('name'))
-                return Response({'status':True,'data':data},status=200)
+            data = Category.objects.filter(CategoryType="Category").values('id','image',CategoryName=F('name'))
+            return Response({'status':True,'data':data},status=200)
             
-            else:
-                return Response({'status':False,'message':'Unauthorized'},status=401)
+       
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
@@ -617,9 +612,9 @@ class recentlyViewCourseStatus(APIView):
         my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
         if my_token:
 
-            recentlyviewdata = RecentlyviewCourse.objects.filter(author__uid = my_token['id']).values(Courseid=F('course_id__id'),title=F('course_id__name'),images=F('course_id__image')) 
+            recentlyviewdata = RecentlyviewCourse.objects.filter(author__uid = my_token['id']).values(Courseid=F('course_id__id'),title=F('course_id__name'),images=F('course_id__image'),created = F('course_id__created_at')) 
 
-            bookmarkContent = RecentlyviewCourse.objects.filter(author__uid = my_token['id'],BookmarkStatus = 1).values(Courseid=F('course_id__id'),title=F('course_id__name'),images=F('course_id__image')) 
+            bookmarkContent = RecentlyviewCourse.objects.filter(author__uid = my_token['id'],BookmarkStatus = 1).values(Courseid=F('course_id__id'),title=F('course_id__name'),images=F('course_id__image'),created = F('course_id__created_at')) 
 
             return Response({'status':True,'RecentlyViewdCourse':recentlyviewdata,'BookmarkContent':bookmarkContent},status=200) 
 
@@ -642,16 +637,22 @@ class recentlyViewCourseStatus(APIView):
                 
                 checkContent = Category.objects.filter(id = course_id).first()
                 if checkContent:
+                   
+                    if checkContent.CategoryType == "Category":
+                        checkStatus = RecentlyviewCourse.objects.filter(course_id__id = course_id).first()
+                        if not checkStatus:
 
-                    checkStatus = RecentlyviewCourse.objects.filter(course_id__id = course_id).first()
-                    if not checkStatus:
+                            data = RecentlyviewCourse(author = User.objects.filter(uid = my_token['id']).first(),course_id = checkContent)
+                            data.save()
+                            return Response({'status':True,'message':"View Course Successfully"},status=201)
 
-                        data = RecentlyviewCourse(author = User.objects.filter(uid = my_token['id']).first(),course_id = checkContent)
-                        data.save()
-                        return Response({'status':True,'message':"View Course Successfully"},status=201)
+                        else:
+                            return Response({'status':True,'message':"Already Viewed"},status=409)
+                    
 
                     else:
-                        return Response({'status':True,'message':"Already Viewed"},status=409)
+                        return Response({'status':False,'message':"Something went wrong"},status=409)
+
 
                 else:
                     
@@ -709,9 +710,9 @@ class recentlyViewContentStatus(APIView):
         my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
         if my_token:
 
-            recentlyviewdata = RecentlyviewContent.objects.filter(author__uid = my_token['id']).values(Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images')) 
+            recentlyviewdata = RecentlyviewContent.objects.filter(author__uid = my_token['id']).values(Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at')) 
 
-            bookmarkContent = RecentlyviewContent.objects.filter(author__uid = my_token['id'],BookmarkStatus = 1).values(RecentlyviewContent=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images')) 
+            bookmarkContent = RecentlyviewContent.objects.filter(author__uid = my_token['id'],BookmarkStatus = 1).values(RecentlyviewContent=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at')) 
 
             return Response({'status':True,'RecentlyViewdCourse':recentlyviewdata,'BookmarkContent':bookmarkContent},status=200) 
 
@@ -740,10 +741,10 @@ class recentlyViewContentStatus(APIView):
 
                         data = RecentlyviewContent(author = User.objects.filter(uid = my_token['id']).first(),content_id = checkContent)
                         data.save()
-                        return Response({'status':True,'message':"View Content Successfully"},status=201)
+                        return Response({'status':True,'message':"Bookmark Successfully"},status=201)
 
                     else:
-                        return Response({'status':True,'message':"Already Viewed"},status=409)
+                        return Response({'status':True,'message':"Already Bookmark"},status=409)
 
                 else:
                     
