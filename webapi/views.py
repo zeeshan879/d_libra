@@ -702,7 +702,6 @@ class recentlyViewCourseStatus(APIView):
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
 
-
 class recentlyViewContentStatus(APIView):
 
     def get(self,request):
@@ -793,4 +792,40 @@ class recentlyViewContentStatus(APIView):
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
 
+class CourseAccorddingtoPost(APIView):
+
+    def get(self,request):
+
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+        if my_token:  
+
+            Postid = request.GET['Postid']
+            data = Category.objects.filter(id = Postid).values('id','name','image').first()
+
+            mydata = Category.objects.filter(CategoryType = "Category",id = Postid).values('id','CategoryType',CategoryName=F('name'))
+
+            childdata = Category.objects.filter(CategoryType = "SubCategory",parent__id = Postid).values('id','CategoryType',CategoryName=F('name'))
+
+            if mydata:
+            
+                for i in range(len(mydata)):
+                    parentCategories = ReviewModel.objects.filter(categories__id = mydata[i]['id'],categories__CategoryType = "Category").values('id','title','images')
+
+                    mydata[i]['ParentCategoryCourse'] = parentCategories
+                    
+
+                for i in range(len(childdata)):
+
+
+                    childcategories = ReviewModel.objects.filter(categories__id = childdata[i]['id'],categories__CategoryType = "SubCategory").values('id','title','images')
+
+                    childdata[i]['ChildCategoryCourse'] = childcategories
+                    
+
+                return Response({'status':True,'CourseDetails':data,'ParentCategoryCourse':mydata,'ChildCategoryCourse':childdata},status=200)
+
+
+           
+        else:
+            return Response({'status':False,'message':'Unauthorized'},status=401)
 

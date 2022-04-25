@@ -17,6 +17,7 @@ path('GetParentChildCategories',GetParentChildCategories.as_view()),
 path('GetDashboardDataWithAuthorization',GetDashboardDataWithAuthorization.as_view()),
 path('recentlyViewCourseStatus',recentlyViewCourseStatus.as_view()),
 path('recentlyViewContentStatus',recentlyViewContentStatus.as_view()),
+path('CourseAccorddingtoPost',CourseAccorddingtoPost.as_view()),
 
 
 
