@@ -232,15 +232,10 @@ class GetParentCategories(APIView):
     def get(self,request):
 
         try:
-
-            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
-            if my_token:
-
-                data = Category.objects.filter(CategoryType="Category").values('id',CategoryName=F('name'))
-                return Response({'status':True,'data':data},status=200)
+            data = Category.objects.filter(CategoryType="Category").values('id','image',CategoryName=F('name'))
+            return Response({'status':True,'data':data},status=200)
             
-            else:
-                return Response({'status':False,'message':'Unauthorized'},status=401)
+       
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
