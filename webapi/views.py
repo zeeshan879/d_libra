@@ -612,11 +612,15 @@ class recentlyViewCourseStatus(APIView):
         my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
         if my_token:
 
-            recentlyviewdata = RecentlyviewCourse.objects.filter(author__uid = my_token['id']).values(Courseid=F('course_id__id'),title=F('course_id__name'),images=F('course_id__image'),created = F('course_id__created_at')) 
+            recentlyviewdata = RecentlyviewCourse.objects.filter(author__uid = my_token['id']).values(Courseid=F('course_id__id'),title=F('course_id__name'),images=F('course_id__image'),created = F('course_id__created_at'))
+            
 
             bookmarkContent = RecentlyviewCourse.objects.filter(author__uid = my_token['id'],BookmarkStatus = 1).values(Courseid=F('course_id__id'),title=F('course_id__name'),images=F('course_id__image'),created = F('course_id__created_at')) 
 
-            return Response({'status':True,'RecentlyViewdCourse':recentlyviewdata,'BookmarkContent':bookmarkContent},status=200) 
+            data = [{'chapterName':"Recently Viewed Courses",'items':recentlyviewdata},{'chapterName': "Courses with Bookmark Contents",'items':bookmarkContent}]
+            
+            return Response(data,status=200)
+
 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
@@ -713,7 +717,11 @@ class recentlyViewContentStatus(APIView):
 
             bookmarkContent = RecentlyviewContent.objects.filter(author__uid = my_token['id'],BookmarkStatus = 1).values(RecentlyviewContent=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at')) 
 
-            return Response({'status':True,'RecentlyViewdCourse':recentlyviewdata,'BookmarkContent':bookmarkContent},status=200) 
+            data = [{'chapterName':"Recently Viewed Content",'items':recentlyviewdata},{'chapterName': "Courses with Bookmark Contents",'items':bookmarkContent}]
+            
+            return Response(data,status=200)
+
+          
 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
@@ -829,3 +837,197 @@ class CourseAccorddingtoPost(APIView):
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
 
+class EditorrecentlyViewCourseStatus(APIView):
+
+    def get(self,request):
+
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+        if my_token:
+
+            recentlyviewdata = RecentlyviewCourse.objects.filter(author__uid = my_token['id']).values(Courseid=F('course_id__id'),title=F('course_id__name'),images=F('course_id__image'),created = F('course_id__created_at'))
+            
+
+            bookmarkContent = RecentlyviewCourse.objects.filter(author__uid = my_token['id'],BookmarkStatus = 1).values(Courseid=F('course_id__id'),title=F('course_id__name'),images=F('course_id__image'),created = F('course_id__created_at')) 
+
+            data = [{'chapterName':"Recently Viewed Courses",'items':recentlyviewdata},{'chapterName': "Courses with Bookmark Contents",'items':bookmarkContent}]
+            
+            return Response(data,status=200)
+
+
+        else:
+            return Response({'status':False,'message':'Unauthorized'},status=401)
+
+    def post(self,request):
+
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+        if my_token:
+
+            requireFields = ['course_id']
+            validator = uc.keyValidation(True,True,request.data,requireFields)
+            
+            if validator:
+                return Response(validator,status=409)
+
+            else:
+                course_id = request.data['course_id']
+                
+                checkContent = Category.objects.filter(id = course_id).first()
+                if checkContent:
+                   
+                    if checkContent.CategoryType == "Category":
+                        checkStatus = RecentlyviewCourse.objects.filter(course_id__id = course_id).first()
+                        if not checkStatus:
+
+                            data = RecentlyviewCourse(author = User.objects.filter(uid = my_token['id']).first(),course_id = checkContent)
+                            data.save()
+                            return Response({'status':True,'message':"View Course Successfully"},status=201)
+
+                        else:
+                            return Response({'status':True,'message':"Already Viewed"},status=409)
+                    
+
+                    else:
+                        return Response({'status':False,'message':"Something went wrong"},status=409)
+
+
+                else:
+                    
+                    return Response({'status':False,'message':"Wrong Course id"},status=409)
+
+
+
+
+        else:
+            return Response({'status':False,'message':'Unauthorized'},status=401)
+
+
+    def put(self,request):
+
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+        if my_token:
+
+            requireFields = ['course_id']
+            validator = uc.keyValidation(True,True,request.data,requireFields)
+            
+            if validator:
+                return Response(validator,status=409)
+
+            else:
+                course_id = request.data['course_id']
+                
+                checkContent = Category.objects.filter(id = course_id).first()
+                if checkContent:
+
+                    checkStatus = RecentlyviewCourse.objects.filter(BookmarkStatus = 0).first()
+                    if checkStatus:
+
+                        checkStatus.BookmarkStatus = 1
+                        checkStatus.save()
+                        return Response({'status':True,'message':"Course Bookmark Successfully"},status=201)
+
+                    else:
+                        return Response({'status':True,'message':"Already Viewed"},status=409)
+
+                else:
+                    
+                    return Response({'status':False,'message':"Wrong Course id"},status=409)
+
+
+
+
+        else:
+            return Response({'status':False,'message':'Unauthorized'},status=401)
+
+class EditorrecentlyViewContentStatus(APIView):
+
+    def get(self,request):
+
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+        if my_token:
+
+            recentlyviewdata = RecentlyviewContent.objects.filter(author__uid = my_token['id']).values(Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at')) 
+
+            bookmarkContent = RecentlyviewContent.objects.filter(author__uid = my_token['id'],BookmarkStatus = 1).values(RecentlyviewContent=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at')) 
+
+            data = [{'chapterName':"Recently Viewed Content",'items':recentlyviewdata},{'chapterName': "Courses with Bookmark Contents",'items':bookmarkContent}]
+            
+            return Response(data,status=200)
+
+          
+
+        else:
+            return Response({'status':False,'message':'Unauthorized'},status=401)
+
+    def post(self,request):
+
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+        if my_token:
+
+            requireFields = ['content_id']
+            validator = uc.keyValidation(True,True,request.data,requireFields)
+            
+            if validator:
+                return Response(validator,status=409)
+
+            else:
+                content_id = request.data['content_id']
+                
+                checkContent = ReviewModel.objects.filter(id = content_id).first()
+                if checkContent:
+
+                    checkStatus = RecentlyviewContent.objects.filter(content_id__id = content_id).first()
+                    if not checkStatus:
+
+                        data = RecentlyviewContent(author = User.objects.filter(uid = my_token['id']).first(),content_id = checkContent)
+                        data.save()
+                        return Response({'status':True,'message':"Bookmark Successfully"},status=201)
+
+                    else:
+                        return Response({'status':True,'message':"Already Bookmark"},status=409)
+
+                else:
+                    
+                    return Response({'status':False,'message':"Wrong Content id"},status=409)
+
+
+
+
+        else:
+            return Response({'status':False,'message':'Unauthorized'},status=401)
+
+    def put(self,request):
+
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+        if my_token:
+
+            requireFields = ['content_id']
+            validator = uc.keyValidation(True,True,request.data,requireFields)
+            
+            if validator:
+                return Response(validator,status=409)
+
+            else:
+                content_id = request.data['content_id']
+                
+                checkContent = ReviewModel.objects.filter(id = content_id).first()
+                if checkContent:
+
+                    checkStatus = RecentlyviewContent.objects.filter(BookmarkStatus = 0).first()
+                    if checkStatus:
+
+                        checkStatus.BookmarkStatus = 1
+                        checkStatus.save()
+                        return Response({'status':True,'message':"Content Bookmark Successfully"},status=201)
+
+                    else:
+                        return Response({'status':True,'message':"Already Viewed"},status=409)
+
+                else:
+                    
+                    return Response({'status':False,'message':"Wrong Content id"},status=409)
+
+
+
+
+        else:
+            return Response({'status':False,'message':'Unauthorized'},status=401)
