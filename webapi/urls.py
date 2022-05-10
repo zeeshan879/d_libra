@@ -18,6 +18,8 @@ path('GetDashboardDataWithAuthorization',GetDashboardDataWithAuthorization.as_vi
 path('recentlyViewCourseStatus',recentlyViewCourseStatus.as_view()),
 path('recentlyViewContentStatus',recentlyViewContentStatus.as_view()),
 path('CourseAccorddingtoPost',CourseAccorddingtoPost.as_view()),
+path('RatingContent',RatingContent.as_view()),
+path('RatingCourse',RatingCourse.as_view()),
 
 
 

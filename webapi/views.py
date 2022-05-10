@@ -840,3 +840,95 @@ class CourseAccorddingtoPost(APIView):
            
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
+
+
+
+class RatingContent(APIView):
+
+    def put(self,request):
+
+        role = request.data.get('role')
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
+        if my_token:
+
+            requireFields = ['content_id']
+            validator = uc.keyValidation(True,True,request.data,requireFields)
+            
+            if validator:
+                return Response(validator,status=409)
+
+            else:
+
+                content_id = request.data.get('content_id')
+                rating = request.data.get('rating')
+                comment = request.data.get('comment')
+
+                if rating == "":
+
+                    rating = 0
+
+                checkContent = ReviewModel.objects.filter(id = content_id).first()
+                if not checkContent:
+                    return Response({'status':False,'message':'Content id is incorrect'})
+
+                if comment:
+
+                    data = ContentRating(content_id = checkContent,rating=rating,comment=comment,ratingStatus="True",commentstatus="True")
+                    data.save()
+                
+                    return Response({'status':True,'message':'Rating Content Sucessfully'})
+
+                else:
+
+                    data = ContentRating(content_id = checkContent,rating=rating,comment=comment,ratingStatus="True")
+                    data.save()
+                    return Response({'status':True,'message':'Rating Content Sucessfully'})
+                
+        else:
+            return Response({'status':False,'message':'Unauthorized'},status=401)
+
+
+
+class RatingCourse(APIView):
+
+    def put(self,request):
+
+        role = request.data.get('role')
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
+        if my_token:
+
+            requireFields = ['course_id']
+            validator = uc.keyValidation(True,True,request.data,requireFields)
+            
+            if validator:
+                return Response(validator,status=409)
+
+            else:
+
+                course_id = request.data.get('course_id')
+                rating = request.data.get('rating')
+                comment = request.data.get('comment')
+
+                if rating == "":
+
+                    rating = 0
+
+                checkCourse = Category.objects.filter(id = course_id).first()
+                if not checkCourse:
+                    return Response({'status':False,'message':'Course id is incorrect'})
+
+                if comment:
+
+                    data = CourseRating(course_id = checkCourse,rating=rating,comment=comment,ratingStatus="True",commentstatus="True")
+                    data.save()
+                
+                    return Response({'status':True,'message':'Rating Course Sucessfully'})
+
+                else:
+
+                    data = CourseRating(course_id = checkCourse,rating=rating,comment=comment,ratingStatus="True")
+                    data.save()
+                    return Response({'status':True,'message':'Rating Course Sucessfully'})
+                
+        else:
+            return Response({'status':False,'message':'Unauthorized'},status=401)

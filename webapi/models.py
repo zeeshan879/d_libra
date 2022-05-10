@@ -14,6 +14,11 @@ user_role =(
     
 )
 
+RatingStatus = (
+    ('True','True'),
+    ('False','False')
+)
+
 
 
 class User(models.Model):
@@ -99,3 +104,20 @@ class RecentlyviewContent(models.Model):
     content_id = models.ForeignKey(ReviewModel, on_delete=models.CASCADE,blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     BookmarkStatus = models.BooleanField(default=0)
+
+class CourseRating(models.Model):
+
+    course_id = models.ForeignKey(Category, on_delete=models.CASCADE,blank=True, null=True)
+    rating = models.IntegerField(default=0)
+    comment = models.TextField(default="")
+    ratingStatus = models.CharField(max_length=20,choices=RatingStatus,default="False")
+    commentstatus = models.CharField(max_length=20,choices=RatingStatus,default="False")
+
+
+class ContentRating(models.Model):
+
+    content_id = models.ForeignKey(ReviewModel, on_delete=models.CASCADE,blank=True, null=True)
+    rating = models.IntegerField(default=0)
+    comment = models.TextField(default="")
+    ratingStatus = models.CharField(max_length=20,choices=RatingStatus,default="False")
+    commentstatus = models.CharField(max_length=20,choices=RatingStatus,default="False")
