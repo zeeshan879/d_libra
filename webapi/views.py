@@ -841,8 +841,6 @@ class CourseAccorddingtoPost(APIView):
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
 
-
-
 class RatingContent(APIView):
 
     def put(self,request):
@@ -871,23 +869,28 @@ class RatingContent(APIView):
                 if not checkContent:
                     return Response({'status':False,'message':'Content id is incorrect'})
 
+                authorobj = User.objects.filter(uid = my_token['id']).first()
+
+                checkAlready = ContentRating.objects.filter(content_id = content_id).first()
+                if checkAlready:
+
+                    return Response({'status':False,'message':'Already rated'})
+
                 if comment:
 
-                    data = ContentRating(content_id = checkContent,rating=rating,comment=comment,ratingStatus="True",commentstatus="True")
+                    data = ContentRating(content_id = checkContent,rating=rating,comment=comment,ratingStatus="True",commentstatus="True",author=authorobj)
                     data.save()
                 
                     return Response({'status':True,'message':'Rating Content Sucessfully'})
 
                 else:
 
-                    data = ContentRating(content_id = checkContent,rating=rating,comment=comment,ratingStatus="True")
+                    data = ContentRating(content_id = checkContent,rating=rating,comment=comment,ratingStatus="True",author=authorobj)
                     data.save()
                     return Response({'status':True,'message':'Rating Content Sucessfully'})
                 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
-
-
 
 class RatingCourse(APIView):
 
@@ -912,21 +915,30 @@ class RatingCourse(APIView):
                 if rating == "":
 
                     rating = 0
-
+                
+                
                 checkCourse = Category.objects.filter(id = course_id).first()
                 if not checkCourse:
                     return Response({'status':False,'message':'Course id is incorrect'})
+                    
+                authorobj = User.objects.filter(uid = my_token['id']).first()
+
+                checkAlready = CourseRating.objects.filter(course_id = course_id).first()
+                if checkAlready:
+
+                    return Response({'status':False,'message':'Already rated'})
+
 
                 if comment:
 
-                    data = CourseRating(course_id = checkCourse,rating=rating,comment=comment,ratingStatus="True",commentstatus="True")
+                    data = CourseRating(course_id = checkCourse,rating=rating,comment=comment,ratingStatus="True",commentstatus="True",author=authorobj)
                     data.save()
                 
                     return Response({'status':True,'message':'Rating Course Sucessfully'})
 
                 else:
 
-                    data = CourseRating(course_id = checkCourse,rating=rating,comment=comment,ratingStatus="True")
+                    data = CourseRating(course_id = checkCourse,rating=rating,comment=comment,ratingStatus="True",author=authorobj)
                     data.save()
                     return Response({'status':True,'message':'Rating Course Sucessfully'})
                 
