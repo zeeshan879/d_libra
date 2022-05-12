@@ -944,3 +944,25 @@ class RatingCourse(APIView):
                 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
+
+class GetTopicContent(APIView):
+
+    def get(self,request):
+
+        role = request.GET['role']
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
+        if my_token:
+                course_id = request.GET['course_id']
+
+                checkCourse = Category.objects.filter(id = course_id).first()
+                if not checkCourse:
+                    return Response({'status':False,'message':'Course id is incorrect'})
+
+                data = ReviewModel.objects.filter(categories__id = course_id).values('id','title')
+                return Response({'status':True,'data':data},status=200)
+               
+
+
+        else:
+            return Response({'status':False,'message':'Unauthorized'},status=401)
+
