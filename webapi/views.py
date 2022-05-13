@@ -944,7 +944,7 @@ class RatingCourse(APIView):
                 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
-
+from itertools import chain
 class GetTopicContent(APIView):
 
     def get(self,request):
@@ -958,14 +958,13 @@ class GetTopicContent(APIView):
                 if not checkCourse:
                     return Response({'status':False,'message':'Course id is incorrect'})
 
-                if checkCourse.CategoryType == "Category":
+                mydata = ReviewModel.objects.filter(categories__id = course_id).values('id','title')
+                data = ReviewModel.objects.filter(categories__parent = course_id).values('id','title')
+                print(type(data))
+                combined_results = list(chain(mydata, data))
+                return Response({'status':True,'data':combined_results},status=200)
 
-                    data = ReviewModel.objects.filter(categories__parent = course_id).values('id','title')
-                    return Response({'status':True,'data':data},status=200)
-
-                else:
-                    data = ReviewModel.objects.filter(categories__id = course_id).values('id','title')
-                    return Response({'status':True,'data':data},status=200)
+               
 
                
 
