@@ -958,8 +958,15 @@ class GetTopicContent(APIView):
                 if not checkCourse:
                     return Response({'status':False,'message':'Course id is incorrect'})
 
-                data = ReviewModel.objects.filter(categories__id = course_id).values('id','title')
-                return Response({'status':True,'data':data},status=200)
+                if checkCourse.CategoryType == "Category":
+
+                    data = ReviewModel.objects.filter(categories__parent = course_id).values('id','title')
+                    return Response({'status':True,'data':data},status=200)
+
+                else:
+                    data = ReviewModel.objects.filter(categories__id = course_id).values('id','title')
+                    return Response({'status':True,'data':data},status=200)
+
                
 
 
