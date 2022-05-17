@@ -233,6 +233,8 @@ class GetParentCategories(APIView):
 
         try:
             data = Category.objects.filter(CategoryType="Category").values('id','image',CategoryName=F('name'))
+
+            data = [{'chapterName':"popular courses",'items':data}]
             return Response({'status':True,'data':data},status=200)
             
        
@@ -944,7 +946,9 @@ class RatingCourse(APIView):
                 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
+
 from itertools import chain
+
 class GetTopicContent(APIView):
 
     def get(self,request):
