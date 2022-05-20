@@ -18,7 +18,11 @@ RatingStatus = (
     ('True','True'),
     ('False','False')
 )
-
+Priority = (
+    ('highpriority','highpriority'),
+    ('reviewlist','reviewlist'),
+    ('futureread','futureread'),
+)
 
 
 class User(models.Model):
@@ -123,3 +127,12 @@ class ContentRating(models.Model):
     ratingStatus = models.CharField(max_length=20,choices=RatingStatus,default="False")
     commentstatus = models.CharField(max_length=20,choices=RatingStatus,default="False")
     author = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, null=True)
+
+class CoursePriority(models.Model):
+
+    author = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, null=True)
+    content_id = models.ForeignKey(ReviewModel, on_delete=models.CASCADE,blank=True, null=True)
+    PriorityType = models.CharField(max_length=20,choices=Priority,default="highpriority")
+
+
+    

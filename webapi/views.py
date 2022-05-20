@@ -985,16 +985,66 @@ class SearchCourse(APIView):
         my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
         if my_token:
                 coursename = request.GET['coursename']
-
-                
-
                 data = ReviewModel.objects.filter(title__icontains = coursename).values('id','title','images')
 
                 return Response({'status':True,'data':data},status=200)
 
-               
+        else:
+            return Response({'status':False,'message':'Unauthorized'},status=401)
 
-               
+
+class SetPriority(APIView):
+
+    def get(self,request):
+
+        role = request.GET['role']
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
+        if my_token:
+
+          gethighpriority = CoursePriority.objects.filter(author = my_token['id'],PriorityType="highpriority").values(Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))  
+
+          getreviewlist = CoursePriority.objects.filter(author = my_token['id'],PriorityType="reviewlist").values(Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))  
+
+          getfutureread = CoursePriority.objects.filter(author = my_token['id'],PriorityType="futureread").values(Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))  
+
+          data = [{'PriorityType':"High Priority Review List",'items':gethighpriority},{'PriorityType':"Review List",'items':getreviewlist},{'PriorityType':"For Future read",'items':getfutureread}]
+
+          return Response({'status':True,'data':data},status=200)
+
+        else:
+            return Response({'status':False,'message':'Unauthorized'},status=401)
+
+
+
+    def post(self,request):
+
+        role = request.data.get('role')
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
+        if my_token:
+
+            course_id = request.data.get('content_id')
+            PriorityType = request.data.get('PriorityType')
+
+            prioritylist = ['highpriority','reviewlist','futureread']
+
+            if PriorityType not in prioritylist:
+
+                return Response({'status':False,'message':'Incorrect Priority type'})
+
+            checkCourse = ReviewModel.objects.filter(id = course_id).first()
+            if not checkCourse:
+                return Response({'status':False,'message':'Content id is incorrect'})
+
+            checkPriority = CoursePriority.objects.filter(content_id__id = course_id,PriorityType=PriorityType).first()
+            if checkPriority:
+                
+                return Response({'status':False,'message':'You have already set this priority'})
+
+            data = CoursePriority(PriorityType=PriorityType,content_id = checkCourse,author = User.objects.filter(uid = my_token['id']).first())
+            data.save()
+
+            return Response({'status':True,'message':'Set Priority Successfully'},status=201)
+
 
 
         else:

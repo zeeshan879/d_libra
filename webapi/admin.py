@@ -76,5 +76,6 @@ admin.site.register(RecentlyviewCourse)
 admin.site.register(RecentlyviewContent)
 admin.site.register(CourseRating)
 admin.site.register(ContentRating)
+admin.site.register(CoursePriority)
 
 
