@@ -976,3 +976,26 @@ class GetTopicContent(APIView):
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
 
+
+class SearchCourse(APIView):
+
+    def get(self,request):
+
+        role = request.GET['role']
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
+        if my_token:
+                coursename = request.GET['coursename']
+
+                
+
+                data = ReviewModel.objects.filter(title__icontains = coursename).values('id','title','images')
+
+                return Response({'status':True,'data':data},status=200)
+
+               
+
+               
+
+
+        else:
+            return Response({'status':False,'message':'Unauthorized'},status=401)

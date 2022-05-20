@@ -21,6 +21,7 @@ path('CourseAccorddingtoPost',CourseAccorddingtoPost.as_view()),
 path('RatingContent',RatingContent.as_view()),
 path('RatingCourse',RatingCourse.as_view()),
 path('GetTopicContent',GetTopicContent.as_view()),
+path('SearchCourse',SearchCourse.as_view()),
 
 
 
