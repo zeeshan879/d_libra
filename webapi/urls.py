@@ -23,7 +23,9 @@ path('RatingCourse',RatingCourse.as_view()),
 path('GetTopicContent',GetTopicContent.as_view()),
 path('SearchCourse',SearchCourse.as_view()),
 path('SetPriority',SetPriority.as_view()),
-
+path('SendVerificationCode',SendVerificationCode.as_view()),
+path('ChangePassword',ChangePassword.as_view()),
+path('VerifyCode',VerifyCode.as_view()),
 
 
 

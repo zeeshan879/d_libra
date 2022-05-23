@@ -11,6 +11,7 @@ from django.http import HttpResponse
 from django.db.models import F
 from rest_framework import status
 from .permission import authorization
+import api.emailpattern as em
 # Create your views here.
 
 
@@ -376,7 +377,7 @@ class AddPost(APIView):
                 validator = uc.keyValidation(True,True,request.data,requireFields)
                 
                 if validator:
-                    return Response(validator,status=409)
+                    return Response(validator,status=200)
 
                 else:
                     title = request.data['title']
@@ -390,12 +391,12 @@ class AddPost(APIView):
                     ##Image validation
                     filenameStaus = uc.imageValidator(image,False,False)
                     if not filenameStaus:
-                        return Response({'status':False,'message':'Image format is incorrect'},status=409)
+                        return Response({'status':False,'message':'Image format is incorrect'},status=200)
 
 
                     checkAlreadyExist = ReviewModel.objects.filter(title=title).first()
                     if checkAlreadyExist:
-                        return Response({'status':False,'message':"title Already Exist"},status=409)
+                        return Response({'status':False,'message':"title Already Exist"},status=200)
                     else:
                         catgory = Category.objects.filter(id = Categroyid).first()
                         if catgory:
@@ -406,7 +407,7 @@ class AddPost(APIView):
                             return Response({'status':True,'message':"Add Post Successfully"},status=201)
 
                         else:
-                            return Response({'status':False,'message':"Wrong Course id"},status=409)
+                            return Response({'status':False,'message':"Wrong Course id"},status=200)
 
 
 
@@ -431,7 +432,7 @@ class AddPost(APIView):
                 validator = uc.keyValidation(True,True,request.data,requireFields[:-1])
                 
                 if validator:
-                    return Response(validator,status=409)
+                    return Response(validator,status=200)
 
                 else:
 
@@ -474,7 +475,7 @@ class AddPost(APIView):
                             ##Image validation
                             filenameStaus = uc.imageValidator(image,False,False)
                             if not filenameStaus:
-                                return Response({'status':False,'message':'Image format is incorrect'},status=409)
+                                return Response({'status':False,'message':'Image format is incorrect'},status=200)
                             else:
                                 data.images = image
 
@@ -506,7 +507,7 @@ class AddPost(APIView):
                 validator = uc.keyValidation(True,True,request.GET,requireFields)
                 
                 if validator:
-                    return Response(validator,status=409)
+                    return Response(validator,status=200)
 
                 else:
                     data = ReviewModel.objects.filter(id = request.GET['id']).first()
@@ -638,7 +639,7 @@ class recentlyViewCourseStatus(APIView):
             validator = uc.keyValidation(True,True,request.data,requireFields)
             
             if validator:
-                return Response(validator,status=409)
+                return Response(validator,status=200)
 
             else:
                 course_id = request.data['course_id']
@@ -655,16 +656,16 @@ class recentlyViewCourseStatus(APIView):
                             return Response({'status':True,'message':"View Course Successfully"},status=201)
 
                         else:
-                            return Response({'status':True,'message':"Already Viewed"},status=409)
+                            return Response({'status':True,'message':"Already Viewed"},status=200)
                     
 
                     else:
-                        return Response({'status':False,'message':"Something went wrong"},status=409)
+                        return Response({'status':False,'message':"Something went wrong"},status=200)
 
 
                 else:
                     
-                    return Response({'status':False,'message':"Wrong Course id"},status=409)
+                    return Response({'status':False,'message':"Wrong Course id"},status=200)
 
 
 
@@ -682,7 +683,7 @@ class recentlyViewCourseStatus(APIView):
             validator = uc.keyValidation(True,True,request.data,requireFields)
             
             if validator:
-                return Response(validator,status=409)
+                return Response(validator,status=200)
 
             else:
                 course_id = request.data['course_id']
@@ -698,11 +699,11 @@ class recentlyViewCourseStatus(APIView):
                         return Response({'status':True,'message':"Course Bookmark Successfully"},status=201)
 
                     else:
-                        return Response({'status':True,'message':"Already Viewed"},status=409)
+                        return Response({'status':True,'message':"Already Viewed"},status=200)
 
                 else:
                     
-                    return Response({'status':False,'message':"Wrong Course id"},status=409)
+                    return Response({'status':False,'message':"Wrong Course id"},status=200)
 
 
 
@@ -741,7 +742,7 @@ class recentlyViewContentStatus(APIView):
             validator = uc.keyValidation(True,True,request.data,requireFields)
             
             if validator:
-                return Response(validator,status=409)
+                return Response(validator,status=200)
 
             else:
                 content_id = request.data['content_id']
@@ -757,11 +758,11 @@ class recentlyViewContentStatus(APIView):
                         return Response({'status':True,'message':"Bookmark Successfully"},status=201)
 
                     else:
-                        return Response({'status':True,'message':"Already Bookmark"},status=409)
+                        return Response({'status':True,'message':"Already Bookmark"},status=200)
 
                 else:
                     
-                    return Response({'status':False,'message':"Wrong Content id"},status=409)
+                    return Response({'status':False,'message':"Wrong Content id"},status=200)
 
 
 
@@ -778,7 +779,7 @@ class recentlyViewContentStatus(APIView):
             validator = uc.keyValidation(True,True,request.data,requireFields)
             
             if validator:
-                return Response(validator,status=409)
+                return Response(validator,status=200)
 
             else:
                 content_id = request.data['content_id']
@@ -794,11 +795,11 @@ class recentlyViewContentStatus(APIView):
                         return Response({'status':True,'message':"Content Bookmark Successfully"},status=201)
 
                     else:
-                        return Response({'status':True,'message':"Already Viewed"},status=409)
+                        return Response({'status':True,'message':"Already Viewed"},status=200)
 
                 else:
                     
-                    return Response({'status':False,'message':"Wrong Content id"},status=409)
+                    return Response({'status':False,'message':"Wrong Content id"},status=200)
 
 
 
@@ -855,7 +856,7 @@ class RatingContent(APIView):
             validator = uc.keyValidation(True,True,request.data,requireFields)
             
             if validator:
-                return Response(validator,status=409)
+                return Response(validator,status=200)
 
             else:
 
@@ -906,7 +907,7 @@ class RatingCourse(APIView):
             validator = uc.keyValidation(True,True,request.data,requireFields)
             
             if validator:
-                return Response(validator,status=409)
+                return Response(validator,status=200)
 
             else:
 
@@ -976,7 +977,6 @@ class GetTopicContent(APIView):
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
 
-
 class SearchCourse(APIView):
 
     def get(self,request):
@@ -991,7 +991,6 @@ class SearchCourse(APIView):
 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
-
 
 class SetPriority(APIView):
 
@@ -1013,8 +1012,6 @@ class SetPriority(APIView):
 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
-
-
 
     def post(self,request):
 
@@ -1049,3 +1046,140 @@ class SetPriority(APIView):
 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
+
+class SendVerificationCode(APIView):
+
+    def post(self,request):
+
+        requireFields = ['Email']
+        validator = uc.keyValidation(True,True,request.data,requireFields)
+        
+        if validator:
+            return Response(validator,status=200)
+
+        else:
+
+            Email = request.data.get('Email')
+
+            checkEmailExist = User.objects.filter(email=Email).first()
+            if checkEmailExist:
+                token = uc.emailrandomcodegenrator()
+                checkSendEmail = em.forgetPassword('Verification',config('fromemail'),Email,token)
+                checkEmailExist.Otp = token
+                checkEmailExist.OtpStatus = "True"
+                checkEmailExist.OtpCount = 0
+                checkEmailExist.save()
+
+
+                return Response({
+                    'status':True,
+                    'message':"Please Check Your Email",
+                    'Email':Email
+                },200)
+            else:
+                return Response({
+                    'status':False,
+                    'message':"Email Doesnot Exist"
+                },404)
+
+class VerifyCode(APIView):
+
+    def post(self,request):
+
+        requireFields = ['Email','Code']
+        validator = uc.keyValidation(True,True,request.data,requireFields)
+        
+        if validator:
+            return Response(validator,status=200)
+
+        else:
+
+            Email = request.data.get('Email')
+            Code = int(request.data.get('Code'))
+
+            userObj = User.objects.filter(email=Email).first()
+
+            if userObj:
+
+                if userObj.OtpStatus == "True":
+
+                    if userObj.OtpCount < 3:
+
+                        if userObj.Otp == Code:
+                                        
+                            userObj.OtpCount = 0
+                            userObj.OtpStatus = "False"
+                            userObj.passwordstatus = "False"
+                            userObj.save()
+                            return Response({'status':True})
+
+                        else:
+                        
+                            userObj.OtpCount = userObj.OtpCount + 1
+                            userObj.save()
+                            return Response({'status':False,'message':"Invalid Code"},404)
+
+                    
+
+                    else:
+                        return Response({'status':False,'message':"Code is expire"},410)
+
+                else:
+                    return Response({'status':False,'message':"Code is expire"},410)
+
+            else:
+                return Response({'status':False,'message':"Account Doesnot Exist"},404)
+
+class ChangePassword(APIView):
+
+    def post(self,request):
+
+        requireFields = ['Email','Password']
+        validator = uc.keyValidation(True,True,request.data,requireFields)
+        
+        if validator:
+            return Response(validator,status=200)
+
+        else:
+
+            Email = request.data.get('Email')
+            Password = request.data.get('Password')
+
+            if Email:
+
+                checkpassword = uc.passwordLengthValidator(request.POST['Password'])
+                if not checkpassword:
+                    return Response({'status':False,'message':'Password must be 8 or less than 20 characters'})
+
+                data = User.objects.filter(email=Email).first()
+                if data:
+
+                    if data.passwordstatus == "False":
+
+                        data.password = handler.hash(Password)
+                        data.passwordstatus = "True"
+                        data.save()
+
+                        return Response({
+                            'status':True,
+                            'message':'Change Password Sussessfully'
+                        },200)
+
+                    else:
+                        return Response({
+                            'status':False,
+                            'message':"You have not rights to change Password Please follow the steps"
+                        },404)
+
+                else:
+                    return Response({
+                        'status':False,
+                        'message':"Email Doesnot Exist"
+                    },404)
+
+            else:
+                return Response({
+                    'status':False,
+                    'message':"You have not rights to change Password Please follow the steps"
+                },403)
+

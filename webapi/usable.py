@@ -94,7 +94,7 @@ def keyValidation(keyStatus,reqStatus,requestData,requireFields):
     if keyStatus:
         keysStataus = requireKeys(requireFields,requestData)
         if not keysStataus:
-            return {'status':'error','message':f'{requireFields} all keys are required'}
+            return {'status':False,'message':f'{requireFields} all keys are required'}
 
 
 
@@ -139,4 +139,8 @@ def randomcodegenrator():
     randomcode = "%0.12d" % random.randint(0,999999999999)
     return randomcode
 
+def emailrandomcodegenrator():
+
+    randomcode = random.randint(1000,10000)
+    return randomcode
 
