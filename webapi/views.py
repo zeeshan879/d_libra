@@ -39,22 +39,22 @@ class signup(APIView):
                 checkpassword = uc.passwordLengthValidator(request.POST['password'])
                 if not checkpassword:
                     return Response({'status':False,'message':'Password must be 8 or less than 20 characters'})
-                
+
                 email = request.POST['email']
                 password = request.POST['password']
                 username = request.POST['username']
-                
+
 
                 data = User.objects.filter(Q(email = email) | Q(username = username))
                 if data:
                     return Response({'status':False,'data':"Email or Username already exist"})
 
-            
+
 
                 else:
                     data = User(email=email,password=handler.hash(password),username = username)
                     data.save()
-                    return Response({'status':True,'message':'Account Created Successfully'})  
+                    return Response({'status':True,'message':'Account Created Successfully'})
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
@@ -121,7 +121,7 @@ class userprofile(APIView):
                         'email':data.email,
                         'username':data.username,
                         'profile':data.profile.url,
-                    
+
 
                     }},status=200)
 
@@ -136,7 +136,7 @@ class userprofile(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
 
-    
+
 
     def put(self,request):
         try:
@@ -145,7 +145,7 @@ class userprofile(APIView):
                 ##validator keys and required
                 requireFields = ['fname','lname','img']
                 validator = uc.requireKeys(requireFields,request.data)
-                
+
                 if not validator:
                     return Response({'status':'error','message':f'{requireFields} all keys are required'})
 
@@ -188,15 +188,15 @@ class changepassword(APIView):
                 validator = uc.keyValidation(True,True,request.data,requireFields)
                 if validator:
                     return Response(validator)
-                
-                
+
+
                 else:
                     data = User.objects.filter(uid = my_token['id']).first()
                     if data:
                         if handler.verify(request.data['oldpassword'],data.password):
                             ##check if user again use old password
                             if not handler.verify(request.data['password'],data.password):
-                                
+
                                 #password length validation
                                 checkpassword = uc.passwordLengthValidator( request.data['password'])
                                 if not checkpassword:
@@ -218,7 +218,7 @@ class changepassword(APIView):
 
                     else:
                         return Response({'status':"error",'message':'userid is incorrect'})
-            
+
             else:
                 return Response({'status':False,'message':'Unauthorized'})
 
@@ -232,17 +232,66 @@ class GetParentCategories(APIView):
 
     def get(self,request):
 
-        try:
-            data = Category.objects.filter(CategoryType="Category").values('id','image',CategoryName=F('name'))
-
-            data = [{'chapterName':"popular courses",'items':data}]
-            return Response({'status':True,'data':data},status=200)
-            
+        # try:
        
+        data = CourseRating.objects.all().values('rating',courseid=F('course_id__id'))
+        mydata = Category.objects.filter(CategoryType="Category").values('id','image',CategoryName=F('name'))
 
-        except Exception as e:
-            message = {'status':"error",'message':str(e)}
-            return Response(message,status=500)
+        ##calculate total person and their rating
+        starobj = list()
+        for i in data:
+            for j in mydata:
+                if i['courseid'] == j['id']:
+                    starobj.append({"courseid":i['courseid'],"rating":i["rating"]})
+                   
+
+
+        ##populate the data
+
+        for k in mydata:
+            for l in starobj:
+                if l["courseid"] == k["id"]:
+                    if not k.get('rating',False):
+                        k["rating"] = l['rating']
+                        k["totalperson"] = 1
+                        k['totalratinng'] = k["rating"] / k["totalperson"]
+
+                    else:
+                        k["rating"] = k["rating"] + l['rating']
+                        k["totalperson"] = k["totalperson"] + 1
+                        k['totalratinng'] = k["rating"] / k["totalperson"]
+
+
+
+        ##Add keys
+        for k in mydata:
+            if not k.get('rating',False):
+                k["totalperson"] = 0
+                k['totalratinng'] = 0
+            else:
+                del k['rating']
+                
+            
+
+        Data = [{'status':True,'chapterName':"popular courses",'items':mydata}]
+
+        return Response(Data,status=200)
+
+        
+
+       
+    
+        
+
+
+        
+
+
+
+
+        # except Exception as e:
+        #     message = {'status':"error",'message':str(e)}
+        #     return Response(message,status=500)
 
     def post(self,request):
 
@@ -274,7 +323,7 @@ class GetParentCategories(APIView):
                             'status':False,
                             'message':'Slug Name Already Exist'
                         })
-                    
+
                     if Categoryid == "":
 
                         data = Category(name=name,slug=slug,image=image,unique_identifier = uc.randomcodegenrator(),CategoryType = "Category")
@@ -308,7 +357,7 @@ class GetChildCategories(APIView):
                 id = request.GET['id']
                 data = Category.objects.filter(parent__id=id).values('id',CategoryName=F('name'))
                 return Response({'status':True,'data':data},status=200)
-            
+
             else:
                 return Response({'status':False,'message':'Unauthorized'},status=401)
 
@@ -321,7 +370,7 @@ class AddPost(APIView):
     def get(self,request):
 
         try:
-            
+
             role = request.GET['role']
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
             if my_token:
@@ -337,7 +386,7 @@ class AddPost(APIView):
 
                     else:
                         nextindex = nextcategory[nextindex + 1]
-                    
+
 
                     ##if post id exist
                     if postid:
@@ -351,10 +400,10 @@ class AddPost(APIView):
 
                     else:
                         post = data.first()
-                    
+
                     return Response({'status':True,'post':post,'all':data,'nextcategory':nextindex},status=200)
-                
-               
+
+
                 else:
                     return Response({'status':True,'post':"null",'all':[]},status=200)
 
@@ -369,13 +418,13 @@ class AddPost(APIView):
     def post(self,request):
 
         try:
-            
+
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
 
                 requireFields = ['title','Categroyid','tags','image','content','meta_description','OGP']
                 validator = uc.keyValidation(True,True,request.data,requireFields)
-                
+
                 if validator:
                     return Response(validator,status=200)
 
@@ -402,7 +451,7 @@ class AddPost(APIView):
                         if catgory:
                             data = ReviewModel(title=title,tags=tags,images=image,categories = catgory,author = User.objects.filter(uid = my_token['id']).first(),content=content,meta_description=meta_description,OGP=OGP,unique_identifier = uc.randomcodegenrator())
                             data.save()
-                        
+
 
                             return Response({'status':True,'message':"Add Post Successfully"},status=201)
 
@@ -423,14 +472,14 @@ class AddPost(APIView):
     def put(self,request):
 
         try:
-            
+
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
 
                 requireFields = ['Postid','title','Categroyid','tags','content','meta_description','OGP','image']
 
                 validator = uc.keyValidation(True,True,request.data,requireFields[:-1])
-                
+
                 if validator:
                     return Response(validator,status=200)
 
@@ -444,17 +493,17 @@ class AddPost(APIView):
                     Categroyid = request.data.get('Categroyid',False)
                     meta_description = request.data['meta_description']
                     OGP = request.data['OGP']
-                    
+
 
                     data = ReviewModel.objects.filter(id = Postid).first()
-                    
+
                     if data:
                         checktitleexist = ReviewModel.objects.filter(title = title).first()
                         if not checktitleexist:
                             data.title = title
-                              
-                      
-                        
+
+
+
                         data.tags = tags
                         data.content = content
                         data.meta_description = meta_description
@@ -466,10 +515,10 @@ class AddPost(APIView):
                             checkCategoryexist = Category.objects.filter(id = Categroyid).first()
                             if checkCategoryexist:
                                 data.categories =checkCategoryexist
-                            
+
                             else:
                                 return Response({'status':False,'message':'Category not found'},status=404)
-                            
+
 
                         if image != False:
                             ##Image validation
@@ -479,14 +528,14 @@ class AddPost(APIView):
                             else:
                                 data.images = image
 
-                        
+
 
                         data.save()
                         return Response({'status':True,'message':"Update Post Successfully"},status=200)
 
-                      
 
-                           
+
+
 
                     else:
                         return Response({'status':False,'message':'Data not found'},status=404)
@@ -505,7 +554,7 @@ class AddPost(APIView):
             if my_token:
                 requireFields = ['id']
                 validator = uc.keyValidation(True,True,request.GET,requireFields)
-                
+
                 if validator:
                     return Response(validator,status=200)
 
@@ -522,17 +571,17 @@ class AddPost(APIView):
             else:
                 return Response({'status':False,'message':'Unauthorized'},status=401)
 
-        
+
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
-            
+
 class GetDashboardData(APIView):
 
     def get(self,request):
 
         # my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
-        # if my_token:  
+        # if my_token:
 
         try:
             data = Category.objects.all().values('id',CategoryName=F('name'))
@@ -541,10 +590,10 @@ class GetDashboardData(APIView):
 
                 mydata = ReviewModel.objects.filter(categories__id = data[i]['id']).values('id','title','images')
                 data[i]['lecture'] = mydata
-                
+
             return Response({'status':True,'data':data},status=200)
 
-        
+
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
@@ -566,7 +615,7 @@ class GetParentChildCategories(APIView):
                     for i in range(len(data)):
 
                         mydata  = Category.objects.filter(parent__id= data[i]['id']).values('id','image','unique_identifier','created_at','updated_at',CategoryName=F('name'))
-                        
+
                         data[i]['SubCategory'] = mydata
 
                     return Response({'status':True,'data':data},status=200)
@@ -588,7 +637,7 @@ class GetDashboardDataWithAuthorization(APIView):
     def get(self,request):
 
         my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
-        if my_token:  
+        if my_token:
 
             try:
                 data = Category.objects.all().values('id',CategoryName=F('name'))
@@ -597,10 +646,10 @@ class GetDashboardDataWithAuthorization(APIView):
 
                     mydata = ReviewModel.objects.filter(categories__id = data[i]['id']).values('id','title','images')
                     data[i]['lecture'] = mydata
-                    
+
                 return Response({'status':True,'data':data},status=200)
 
-            
+
             except Exception as e:
                 message = {'status':"error",'message':str(e)}
                 return Response(message,status=500)
@@ -617,12 +666,12 @@ class recentlyViewCourseStatus(APIView):
         if my_token:
 
             recentlyviewdata = RecentlyviewCourse.objects.filter(author__uid = my_token['id']).values(Courseid=F('course_id__id'),title=F('course_id__name'),images=F('course_id__image'),created = F('course_id__created_at'))
-            
 
-            bookmarkContent = RecentlyviewCourse.objects.filter(author__uid = my_token['id'],BookmarkStatus = 1).values(Courseid=F('course_id__id'),title=F('course_id__name'),images=F('course_id__image'),created = F('course_id__created_at')) 
+
+            bookmarkContent = RecentlyviewCourse.objects.filter(author__uid = my_token['id'],BookmarkStatus = 1).values(Courseid=F('course_id__id'),title=F('course_id__name'),images=F('course_id__image'),created = F('course_id__created_at'))
 
             data = [{'chapterName':"Recently Viewed Courses",'items':recentlyviewdata},{'chapterName': "Courses with Bookmark Contents",'items':bookmarkContent}]
-            
+
             return Response(data,status=200)
 
 
@@ -637,16 +686,16 @@ class recentlyViewCourseStatus(APIView):
 
             requireFields = ['course_id']
             validator = uc.keyValidation(True,True,request.data,requireFields)
-            
+
             if validator:
                 return Response(validator,status=200)
 
             else:
                 course_id = request.data['course_id']
-                
+
                 checkContent = Category.objects.filter(id = course_id).first()
                 if checkContent:
-                   
+
                     if checkContent.CategoryType == "Category":
                         checkStatus = RecentlyviewCourse.objects.filter(course_id__id = course_id).first()
                         if not checkStatus:
@@ -657,14 +706,14 @@ class recentlyViewCourseStatus(APIView):
 
                         else:
                             return Response({'status':True,'message':"Already Viewed"},status=200)
-                    
+
 
                     else:
                         return Response({'status':False,'message':"Something went wrong"},status=200)
 
 
                 else:
-                    
+
                     return Response({'status':False,'message':"Wrong Course id"},status=200)
 
 
@@ -681,13 +730,13 @@ class recentlyViewCourseStatus(APIView):
 
             requireFields = ['course_id']
             validator = uc.keyValidation(True,True,request.data,requireFields)
-            
+
             if validator:
                 return Response(validator,status=200)
 
             else:
                 course_id = request.data['course_id']
-                
+
                 checkContent = Category.objects.filter(id = course_id).first()
                 if checkContent:
 
@@ -702,7 +751,7 @@ class recentlyViewCourseStatus(APIView):
                         return Response({'status':True,'message':"Already Viewed"},status=200)
 
                 else:
-                    
+
                     return Response({'status':False,'message':"Wrong Course id"},status=200)
 
 
@@ -719,34 +768,34 @@ class recentlyViewContentStatus(APIView):
         my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
         if my_token:
 
-            recentlyviewdata = RecentlyviewContent.objects.filter(author__uid = my_token['id']).values(Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at')) 
+            recentlyviewdata = RecentlyviewContent.objects.filter(author__uid = my_token['id']).values(Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
 
-            bookmarkContent = RecentlyviewContent.objects.filter(author__uid = my_token['id'],BookmarkStatus = 1).values(RecentlyviewContent=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at')) 
+            bookmarkContent = RecentlyviewContent.objects.filter(author__uid = my_token['id'],BookmarkStatus = 1).values(RecentlyviewContent=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
 
             data = [{'chapterName':"Recently Viewed Content",'items':recentlyviewdata},{'chapterName': "Courses with Bookmark Contents",'items':bookmarkContent}]
-            
+
             return Response(data,status=200)
 
-          
+
 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
 
     def post(self,request):
-        
+
         role = request.data.get('role')
         my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
         if my_token:
 
             requireFields = ['content_id']
             validator = uc.keyValidation(True,True,request.data,requireFields)
-            
+
             if validator:
                 return Response(validator,status=200)
 
             else:
                 content_id = request.data['content_id']
-                
+
                 checkContent = ReviewModel.objects.filter(id = content_id).first()
                 if checkContent:
 
@@ -761,7 +810,7 @@ class recentlyViewContentStatus(APIView):
                         return Response({'status':True,'message':"Already Bookmark"},status=200)
 
                 else:
-                    
+
                     return Response({'status':False,'message':"Wrong Content id"},status=200)
 
 
@@ -777,13 +826,13 @@ class recentlyViewContentStatus(APIView):
 
             requireFields = ['content_id']
             validator = uc.keyValidation(True,True,request.data,requireFields)
-            
+
             if validator:
                 return Response(validator,status=200)
 
             else:
                 content_id = request.data['content_id']
-                
+
                 checkContent = ReviewModel.objects.filter(id = content_id).first()
                 if checkContent:
 
@@ -798,7 +847,7 @@ class recentlyViewContentStatus(APIView):
                         return Response({'status':True,'message':"Already Viewed"},status=200)
 
                 else:
-                    
+
                     return Response({'status':False,'message':"Wrong Content id"},status=200)
 
 
@@ -812,7 +861,7 @@ class CourseAccorddingtoPost(APIView):
     def get(self,request):
 
         my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
-        if my_token:  
+        if my_token:
 
             Postid = request.GET['Postid']
             data = Category.objects.filter(id = Postid).values('id','name','image').first()
@@ -822,12 +871,12 @@ class CourseAccorddingtoPost(APIView):
             childdata = Category.objects.filter(CategoryType = "SubCategory",parent__id = Postid).values('id','CategoryType',CategoryName=F('name'))
 
             if mydata:
-            
+
                 for i in range(len(mydata)):
                     parentCategories = ReviewModel.objects.filter(categories__id = mydata[i]['id'],categories__CategoryType = "Category").values('id','title','images')
 
                     mydata[i]['ParentCategoryCourse'] = parentCategories
-                    
+
 
                 for i in range(len(childdata)):
 
@@ -835,12 +884,12 @@ class CourseAccorddingtoPost(APIView):
                     childcategories = ReviewModel.objects.filter(categories__id = childdata[i]['id'],categories__CategoryType = "SubCategory").values('id','title','images')
 
                     childdata[i]['ChildCategoryCourse'] = childcategories
-                    
+
 
                 return Response({'status':True,'CourseDetails':data,'ParentCategoryCourse':mydata,'ChildCategoryCourse':childdata},status=200)
 
 
-           
+
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
 
@@ -854,7 +903,7 @@ class RatingContent(APIView):
 
             requireFields = ['content_id']
             validator = uc.keyValidation(True,True,request.data,requireFields)
-            
+
             if validator:
                 return Response(validator,status=200)
 
@@ -883,7 +932,7 @@ class RatingContent(APIView):
 
                     data = ContentRating(content_id = checkContent,rating=rating,comment=comment,ratingStatus="True",commentstatus="True",author=authorobj)
                     data.save()
-                
+
                     return Response({'status':True,'message':'Rating Content Sucessfully'})
 
                 else:
@@ -891,7 +940,7 @@ class RatingContent(APIView):
                     data = ContentRating(content_id = checkContent,rating=rating,comment=comment,ratingStatus="True",author=authorobj)
                     data.save()
                     return Response({'status':True,'message':'Rating Content Sucessfully'})
-                
+
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
 
@@ -905,7 +954,7 @@ class RatingCourse(APIView):
 
             requireFields = ['course_id']
             validator = uc.keyValidation(True,True,request.data,requireFields)
-            
+
             if validator:
                 return Response(validator,status=200)
 
@@ -918,12 +967,12 @@ class RatingCourse(APIView):
                 if rating == "":
 
                     rating = 0
-                
-                
+
+
                 checkCourse = Category.objects.filter(id = course_id).first()
                 if not checkCourse:
                     return Response({'status':False,'message':'Course id is incorrect'})
-                    
+
                 authorobj = User.objects.filter(uid = my_token['id']).first()
 
                 checkAlready = CourseRating.objects.filter(course_id = course_id).first()
@@ -936,7 +985,7 @@ class RatingCourse(APIView):
 
                     data = CourseRating(course_id = checkCourse,rating=rating,comment=comment,ratingStatus="True",commentstatus="True",author=authorobj)
                     data.save()
-                
+
                     return Response({'status':True,'message':'Rating Course Sucessfully'})
 
                 else:
@@ -944,7 +993,7 @@ class RatingCourse(APIView):
                     data = CourseRating(course_id = checkCourse,rating=rating,comment=comment,ratingStatus="True",author=authorobj)
                     data.save()
                     return Response({'status':True,'message':'Rating Course Sucessfully'})
-                
+
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
 
@@ -969,9 +1018,9 @@ class GetTopicContent(APIView):
                 combined_results = list(chain(mydata, data))
                 return Response({'status':True,'data':combined_results},status=200)
 
-               
 
-               
+
+
 
 
         else:
@@ -985,7 +1034,8 @@ class SearchCourse(APIView):
         my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
         if my_token:
                 coursename = request.GET['coursename']
-                data = ReviewModel.objects.filter(title__icontains = coursename).values('id','title','images')
+                data = ReviewModel.objects.filter(Q(title__icontains = coursename) | Q(tags__icontains = coursename)).values('id','title','images')
+                data = [{"items":data}]
 
                 return Response({'status':True,'data':data},status=200)
 
@@ -1000,11 +1050,11 @@ class SetPriority(APIView):
         my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
         if my_token:
 
-          gethighpriority = CoursePriority.objects.filter(author = my_token['id'],PriorityType="highpriority").values(Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))  
+          gethighpriority = CoursePriority.objects.filter(author = my_token['id'],PriorityType="highpriority").values(Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))
 
-          getreviewlist = CoursePriority.objects.filter(author = my_token['id'],PriorityType="reviewlist").values(Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))  
+          getreviewlist = CoursePriority.objects.filter(author = my_token['id'],PriorityType="reviewlist").values(Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))
 
-          getfutureread = CoursePriority.objects.filter(author = my_token['id'],PriorityType="futureread").values(Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))  
+          getfutureread = CoursePriority.objects.filter(author = my_token['id'],PriorityType="futureread").values(Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))
 
           data = [{'PriorityType':"High Priority Review List",'items':gethighpriority},{'PriorityType':"Review List",'items':getreviewlist},{'PriorityType':"For Future read",'items':getfutureread}]
 
@@ -1034,7 +1084,7 @@ class SetPriority(APIView):
 
             checkPriority = CoursePriority.objects.filter(content_id__id = course_id,PriorityType=PriorityType).first()
             if checkPriority:
-                
+
                 return Response({'status':False,'message':'You have already set this priority'})
 
             data = CoursePriority(PriorityType=PriorityType,content_id = checkCourse,author = User.objects.filter(uid = my_token['id']).first())
@@ -1053,7 +1103,7 @@ class SendVerificationCode(APIView):
 
         requireFields = ['Email']
         validator = uc.keyValidation(True,True,request.data,requireFields)
-        
+
         if validator:
             return Response(validator,status=200)
 
@@ -1080,7 +1130,7 @@ class SendVerificationCode(APIView):
                 return Response({
                     'status':False,
                     'message':"Email Doesnot Exist"
-                },404)
+                },200)
 
 class VerifyCode(APIView):
 
@@ -1088,7 +1138,7 @@ class VerifyCode(APIView):
 
         requireFields = ['Email','Code']
         validator = uc.keyValidation(True,True,request.data,requireFields)
-        
+
         if validator:
             return Response(validator,status=200)
 
@@ -1106,7 +1156,7 @@ class VerifyCode(APIView):
                     if userObj.OtpCount < 3:
 
                         if userObj.Otp == Code:
-                                        
+
                             userObj.OtpCount = 0
                             userObj.OtpStatus = "False"
                             userObj.passwordstatus = "False"
@@ -1114,21 +1164,21 @@ class VerifyCode(APIView):
                             return Response({'status':True})
 
                         else:
-                        
+
                             userObj.OtpCount = userObj.OtpCount + 1
                             userObj.save()
-                            return Response({'status':False,'message':"Invalid Code"},404)
+                            return Response({'status':False,'message':"Invalid Code"},200)
 
-                    
+
 
                     else:
-                        return Response({'status':False,'message':"Code is expire"},410)
+                        return Response({'status':False,'message':"Code is expire"},200)
 
                 else:
-                    return Response({'status':False,'message':"Code is expire"},410)
+                    return Response({'status':False,'message':"Code is expire"},200)
 
             else:
-                return Response({'status':False,'message':"Account Doesnot Exist"},404)
+                return Response({'status':False,'message':"Account Doesnot Exist"},200)
 
 class ChangePassword(APIView):
 
@@ -1136,7 +1186,7 @@ class ChangePassword(APIView):
 
         requireFields = ['Email','Password']
         validator = uc.keyValidation(True,True,request.data,requireFields)
-        
+
         if validator:
             return Response(validator,status=200)
 
@@ -1169,13 +1219,13 @@ class ChangePassword(APIView):
                         return Response({
                             'status':False,
                             'message':"You have not rights to change Password Please follow the steps"
-                        },404)
+                        },200)
 
                 else:
                     return Response({
                         'status':False,
                         'message':"Email Doesnot Exist"
-                    },404)
+                    },200)
 
             else:
                 return Response({
