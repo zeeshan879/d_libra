@@ -374,7 +374,7 @@ class AddPost(APIView):
             role = request.GET['role']
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
             if my_token:
-                postid = request.GET.get('postid',False)
+                postid = request.GET.get('id',False)
                 categoryid = request.GET['categoryid']
                 data = ReviewModel.objects.filter(categories = categoryid).values('id','title','images','categories__name','OGP','meta_description','content','tags',Categroyid=F('categories__id'))
 
@@ -389,18 +389,18 @@ class AddPost(APIView):
 
 
                     ##if post id exist
+                    post=""
                     if postid:
                         for j in data:
                             if j['id'] == int(postid):
+                                print("condition is true")
                                 post = j
                                 break
 
                             else:
                                 post = "null"
 
-                    else:
-                        post = data.first()
-
+                
                     return Response({'status':True,'post':post,'all':data,'nextcategory':nextindex},status=200)
 
 

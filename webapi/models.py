@@ -64,7 +64,7 @@ class Category(MPTTModel):
     name = models.CharField(max_length=200)
     image = models.FileField(upload_to="category_pic", blank=True, null=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name= 'children', db_index=True, on_delete=models.CASCADE)
-    unique_identifier = models.IntegerField(unique=True,null=True, blank=True,
+    unique_identifier = models.BigIntegerField(unique=True,null=True, blank=True,
     help_text="You don't have to do it manually, & After you save it you can also edit")
     slug = models.SlugField(unique=True,db_index=True,help_text='slug is an Unique value for singel categories page URL, Same as category Name',blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
