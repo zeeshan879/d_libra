@@ -30,21 +30,5 @@ psycopg2-binary==2.9.3
 
 
 
-server {
-    listen 80;
-    server_name api.libraa.ml;
 
-    location / {
 
-        proxy_pass http://52.15.181.26:8005;
-    }
-
-     location /static/ {
-      alias /hnh/backend/libra/staticfiles/;
-    }
-    location /media/{
-
-    alias /hnh/backend/libra/media/;
-    }
-
-}
