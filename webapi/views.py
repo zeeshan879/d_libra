@@ -1233,3 +1233,33 @@ class ChangePassword(APIView):
                     'message':"You have not rights to change Password Please follow the steps"
                 },403)
 
+class UpdatePassword(APIView):
+
+    def put(self,request):
+
+        role = request.GET['role']
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
+        if my_token:
+
+            requireFields = ['Password']
+            validator = uc.keyValidation(True,True,request.data,requireFields)
+
+            if validator:
+                return response(validator,status=200)
+
+            else:
+                Password = request.data.get('Password')
+                checkpassword = uc.passwordLengthValidator(request.POST['Password'])
+                if not checkpassword:
+                    return Response({'status':False,'message':'Password must be 8 or less than 20 characters'})
+
+                data = User.objects.filter(uid = my_token['id']).first()
+                data.password = handler.hash(Password)
+                data.save()
+
+                return Response({'status':True,'message':'Change Password Successfully'},status=200)
+
+
+        else:
+            return Response({'status':False,'message':'Unauthorized'},status=401)
+
