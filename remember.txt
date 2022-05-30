@@ -1,0 +1,35 @@
+def post(self,request):
+        try:
+            requireFields = ['oldpassword','password']
+            validator = uc.keyValidation(True,True,request.data,requireFields)
+            if validator:
+                return Response(validator,status = 422)
+
+            
+            
+            if request.GET['role'] == "superadmin":
+                data = SuperAdmin.objects.filter(id = request.GET['token']['id']).first()
+                    
+            elif request.GET['role'] == "subadmin":
+                data = Manager.objects.filter(id = request.GET['token']['id']).first()
+            
+            if handler.verify(request.data['oldpassword'],data.password):
+                ##check if user again use old password
+                if not handler.verify(request.data['password'],data.password):
+                    
+                    #password length validation
+                    checkpassword = uc.passwordLengthValidator( request.data['password'])
+                    if not checkpassword:
+                        return Response({'status':False,'message':'Password must be 8 or less than 20 characters'})
+
+                    else:
+                        data.password = handler.hash(request.data['password'])
+                        data.save()
+                        return Response({'status':True,'message':'Password Update Successfully'})
+
+                else:
+                    return Response({'status':False,'message':'You choose old password try another one'})
+
+
+            else:
+                return Response({'status':False,'message':'Your Old Password is Wrong'})
