@@ -12,6 +12,7 @@ from django.db.models import F
 from rest_framework import status
 from .permission import authorization
 import api.emailpattern as em
+from datetime import timedelta
 # Create your views here.
 
 
@@ -625,8 +626,59 @@ class GetDashboardDataWithAuthorization(APIView):
         my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
         if my_token:
 
-            try:
-                data = Category.objects.all().values('id',CategoryName=F('name'))
+            # try:
+
+            id = request.GET.get('id')
+
+            if id:
+
+                checkdata = Category.objects.filter(id=id).first()
+                if checkdata.CategoryType == "Category":
+
+                    data = Category.objects.filter(parent__id=id,CategoryType="SubCategory").values('id',CategoryName=F('name'))
+
+                    myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'))
+
+
+
+                    if data:
+
+                        for i in range(len(myCategorydata)):
+
+                            mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images')
+                            myCategorydata[i]['lecture'] = mydata
+
+                        for j in range(len(data)):
+
+                            mydata = ReviewModel.objects.filter(categories__id = data[j]['id']).values('id','title','images')
+                            data[j]['lecture'] = mydata
+                    
+
+                        return Response({'status':True,'data':list(myCategorydata)+list(data)},status=200)
+
+                    else:
+
+                        data = Category.objects.filter(id=id,CategoryType="SubCategory").values('id',CategoryName=F('name'))
+
+                        if data:
+
+                            for i in range(len(data)):
+
+                                mydata = ReviewModel.objects.filter(categories__id = data[i]['id']).values('id','title','images')
+                                data[i]['lecture'] = mydata
+
+                            return Response({'status':True,'data':data},status=200)
+
+                else:
+
+                    return Response({'status':True,'data':[]},status=200)
+
+
+
+              
+
+            else:
+                data = Category.objects.filter(CategoryType="SubCategory").values('id',CategoryName=F('name'))
 
                 for i in range(len(data)):
 
@@ -635,10 +687,12 @@ class GetDashboardDataWithAuthorization(APIView):
 
                 return Response({'status':True,'data':data},status=200)
 
+            
 
-            except Exception as e:
-                message = {'status':"error",'message':str(e)}
-                return Response(message,status=500)
+
+            # except Exception as e:
+        #         message = {'status':"error",'message':str(e)}
+        #         return Response(message,status=500)
 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
@@ -1395,4 +1449,40 @@ class UpdatePassword(APIView):
 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
+            
+class recentlyViewContenthistory(APIView):
 
+    def get(self,request):
+
+        role = request.GET['role']
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
+        if my_token:
+
+            yesterday = datetime.datetime.now().date() - timedelta(days=1)
+            today = datetime.datetime.now().date()
+
+            today_min = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
+            today_max = datetime.datetime.combine(datetime.date.today(), datetime.time.max)
+            
+            weekly = datetime.datetime.now().date() - timedelta(days=7)
+            monthly = datetime.datetime.now().date() - timedelta(days=30)
+     
+
+            todaydata = RecentlyviewContent.objects.filter(created_at__range=(today_min, today_max),author__uid = my_token['id']).values(Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
+
+            yesterddaydata = RecentlyviewContent.objects.filter(created_at__range=(yesterday, today),author__uid = my_token['id']).values(Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
+
+            weeklydata = RecentlyviewContent.objects.filter(created_at__range=[weekly,today],author__uid = my_token['id']).values(Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
+
+            monthlydata = RecentlyviewContent.objects.filter(created_at__range=[monthly,today],author__uid = my_token['id']).values(Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
+
+           
+
+            data = [{'chapterName':"Today",'items':todaydata},{'chapterName': "Yesterday",'items':yesterddaydata},{'chapterName': "This Week",'items':weeklydata},{'chapterName': "This Month",'items':monthlydata}]
+
+            return Response(data,status=200)
+
+
+
+        else:
+            return Response({'status':False,'message':'Unauthorized'},status=401)
