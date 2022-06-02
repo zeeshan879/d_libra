@@ -278,8 +278,6 @@ class GetParentCategories(APIView):
 
         return Response(Data,status=200)
 
-
-
     def post(self,request):
 
         try:
@@ -332,6 +330,35 @@ class GetParentCategories(APIView):
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
+
+    def delete(self,request):
+        try:
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+            if my_token:
+                requireFields = ['id']
+                validator = uc.keyValidation(True,True,request.GET,requireFields)
+
+                if validator:
+                    return Response(validator,status=200)
+
+                else:
+                    data = Category.objects.filter(id = request.GET['id']).first()
+                    if data:
+                        data.delete()
+                        return Response({'status':True,'message':'Delete successfully'},status=200)
+
+                    else:
+                        return Response({'status':False,'message':'Nothing to delete'},status=404)
+
+
+            else:
+                return Response({'status':False,'message':'Unauthorized'},status=401)
+
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+
 
 class GetChildCategories(APIView):
 
