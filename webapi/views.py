@@ -1587,20 +1587,26 @@ class GetTopicData(APIView):
 
     def get(self,request):
 
-        role = request.GET['role']
-        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
-        if my_token:
+        try:
 
-            Postid = request.GET['Postid']
-            data = Category.objects.filter(id = Postid).values('id','name','image').first()
-        
+            role = request.GET['role']
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
+            if my_token:
 
-            if data:
-                mydata = ReviewModel.objects.filter(categories__id = data['id']).values('id','title','images')
+                Postid = request.GET['Postid']
+                data = Category.objects.filter(id = Postid).values('id','name','image').first()
+            
 
-                return Response({'status':True,"data":mydata},status=200)
+                if data:
+                    mydata = ReviewModel.objects.filter(categories__id = data['id']).values('id','title','images')
 
-            else:
-                return Response({'status':False,'message':'Invalid id'},status=401)
+                    return Response({'status':True,"data":mydata},status=200)
+
+                else:
+                    return Response({'status':False,'message':'Invalid id'},status=401)
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
 
            
