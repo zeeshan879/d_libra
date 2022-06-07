@@ -709,19 +709,17 @@ class GetDashboardDataWithAuthorization(APIView):
 
                             else:
 
+                                myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'))
+                                
+                                if myCategorydata:
 
+                                    for i in range(len(myCategorydata)):
 
-                                data = Category.objects.filter(id=id).values('id',CategoryName=F('name'))
+                                    
+                                        mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images')
+                                        myCategorydata[i]['lecture'] = mydata
 
-                            
-                                if data:
-
-                                    for i in range(len(data)):
-
-                                        mydata = ReviewModel.objects.filter(categories__id = data[i]['id']).values('id','title','images')
-                                        data[i]['lecture'] = mydata
-
-                                        data = list(myCategorydata)+list(data)
+                                        data = list(myCategorydata)
                             
                             
                                     ##prepare dropdown
@@ -1581,7 +1579,6 @@ class logout(APIView):
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
-
 
 class GetTopicData(APIView):
 
