@@ -366,7 +366,6 @@ class GetParentCategories(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
 
-
 class GetChildCategories(APIView):
 
     def get(self,request):
@@ -1176,21 +1175,25 @@ class RatingContent(APIView):
                 checkAlready = ContentRating.objects.filter(content_id = content_id).first()
                 if checkAlready:
 
-                    return Response({'status':False,'message':'Already rated'})
+                    checkAlready.rating = rating
+                    checkAlready.save()
+
+                    
+
+                    return Response({'status':False,'message':'Rating Content Sucessfully',"data":{'content_id':content_id,'rating':rating}})
 
                 if comment:
 
                     data = ContentRating(content_id = checkContent,rating=rating,comment=comment,ratingStatus="True",commentstatus="True",author=authorobj)
                     data.save()
 
-                    return Response({'status':True,'message':'Rating Content Sucessfully'})
+                    return Response({'status':False,'message':'Rating Content Sucessfully',"data":{'content_id':content_id,'rating':rating}})
 
                 else:
 
                     data = ContentRating(content_id = checkContent,rating=rating,comment=comment,ratingStatus="True",author=authorobj)
                     data.save()
-                    return Response({'status':True,'message':'Rating Content Sucessfully'})
-
+                    return Response({'status':False,'message':'Rating Content Sucessfully',"data":{'content_id':content_id,'rating':rating}})
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
 
@@ -1228,7 +1231,14 @@ class RatingCourse(APIView):
                 checkAlready = CourseRating.objects.filter(course_id = course_id).first()
                 if checkAlready:
 
-                    return Response({'status':False,'message':'Already rated'})
+                    checkAlready.rating = rating
+                    checkAlready.save()
+
+
+                   
+
+
+                    return Response({'status':False,'message':'Rating Course Sucessfully',"data":{'content_id':course_id,'rating':rating}})
 
 
                 if comment:
@@ -1236,13 +1246,13 @@ class RatingCourse(APIView):
                     data = CourseRating(course_id = checkCourse,rating=rating,comment=comment,ratingStatus="True",commentstatus="True",author=authorobj)
                     data.save()
 
-                    return Response({'status':True,'message':'Rating Course Sucessfully'})
+                    return Response({'status':False,'message':'Rating Course Sucessfully',"data":{'course_id':course_id,'rating':rating}})
 
                 else:
 
                     data = CourseRating(course_id = checkCourse,rating=rating,comment=comment,ratingStatus="True",author=authorobj)
                     data.save()
-                    return Response({'status':True,'message':'Rating Course Sucessfully'})
+                    return Response({'status':False,'message':'Rating Course Sucessfully',"data":{'course_id':course_id,'rating':rating}})
 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
@@ -1601,6 +1611,9 @@ class GetTopicData(APIView):
 
                 else:
                     return Response({'status':False,'message':'Invalid id'},status=401)
+
+            else:
+                return Response({'status':False,'message':'Unauthorized'},status=401)
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
