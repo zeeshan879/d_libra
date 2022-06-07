@@ -141,7 +141,8 @@ class userprofile(APIView):
 
     def put(self,request):
         try:
-            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+            role = request.GET.get("role","normaluser")
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
             if my_token:
                 ##validator keys and required
                 requireFields = ['fname','lname','img']
@@ -165,7 +166,7 @@ class userprofile(APIView):
                                 data.profile = filename
 
                         data.save()
-                        return Response({'status':True,'message':'Update Successfully'})
+                        return Response({'status':True,'message':'Update Successfully',"data":{"fname":data.fname,"lname":data.lname,"profile":data.profile.url}})
 
                     else:
                         return Response({'status':"error",'message':'userid is incorrect'})
@@ -233,10 +234,16 @@ class GetParentCategories(APIView):
 
     def get(self,request):
 
-    
-       
+        
+        
         data = CourseRating.objects.all().values('rating',courseid=F('course_id__id'))
-        mydata = Category.objects.filter(CategoryType="Category").values('id','image',CategoryName=F('name'))
+        query = request.GET.get("search",False)
+        if not query:
+            mydata = Category.objects.filter(CategoryType="Category").values('id','image',CategoryName=F('name'))
+
+        else:
+            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).values('id','image',CategoryName=F('name'))
+
 
         ##calculate total person and their rating
         starobj = list()
@@ -1230,14 +1237,15 @@ class SearchCourse(APIView):
 
     def get(self,request):
 
-        role = request.GET['role']
+        role = request.GET.get('role',"superadmin")
         my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
         if my_token:
-                coursename = request.GET['coursename']
-                data = ReviewModel.objects.filter(Q(title__icontains = coursename) | Q(tags__icontains = coursename)).values('id','title','images')
-                data = [{"items":data}]
+        
+            coursename = request.GET['coursename']
+            data = ReviewModel.objects.filter(Q(title__icontains = coursename) | Q(tags__icontains = coursename)).values('id','title','images')
+            data = [{"items":data}]
+            return Response({'status':True,'data':data},status=200)
 
-                return Response({'status':True,'data':data},status=200)
 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
@@ -1513,3 +1521,24 @@ class recentlyViewContenthistory(APIView):
 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
+
+
+
+class logout(APIView):
+    def post(self,request):
+        try:
+            role = request.GET.get('role',"superadmin")
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
+            if my_token:
+                fetchuser = User.objects.get(uid = my_token['id'])
+                blacklistToken(user = fetchuser,token = request.META['HTTP_AUTHORIZATION'][7:]).save()
+                return Response({"status":True,"message":"logout successfully"})
+
+            
+            else:
+                return Response({'status':False,'message':'Unauthorized'},status=401)
+
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)

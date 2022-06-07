@@ -4,6 +4,7 @@ from decouple import config
 import re
 from PIL import Image
 import random
+from webapi.models import *
 
 
 
@@ -49,6 +50,8 @@ def imageValidator(img,ignoredimension = True,formatcheck = False):
 
     try:
 
+        if img.name[-3:] == "svg":
+            return True
         im = Image.open(img)
         width, height = im.size
         if ignoredimension:
@@ -67,8 +70,7 @@ def imageValidator(img,ignoredimension = True,formatcheck = False):
                 
                 return False
             
-        else:
-            return True
+        return True
     
     except:
         return False
@@ -116,12 +118,23 @@ def tokenauth(tokencatch,role="superadmin"):
 
         elif role == "normaluser":
             my_token = jwt.decode(tokencatch,config('normaluserkey'), algorithms=["HS256"])
+            blacklistCheck = blacklistToken.objects.filter(user = my_token['id'],token = tokencatch)
+            if blacklistCheck:
+                return False
             return my_token
 
         elif role == "editor":
             my_token = jwt.decode(tokencatch,config('editorkey'), algorithms=["HS256"])
+            blacklistCheck = blacklistToken.objects.filter(user = my_token['id'],token = tokencatch)
+            if blacklistCheck:
+                return False
+
             return my_token
 
+
+
+        else:
+            return False
 
      
 
