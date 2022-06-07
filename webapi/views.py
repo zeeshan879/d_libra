@@ -657,7 +657,8 @@ class GetDashboardDataWithAuthorization(APIView):
 
     def get(self,request):
 
-        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+        role = request.GET.get('role','normaluser')
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
         if my_token:
 
             # try:
@@ -674,23 +675,39 @@ class GetDashboardDataWithAuthorization(APIView):
                     myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'))
 
 
-
                     if data:
 
                         for i in range(len(myCategorydata)):
 
+                            
                             mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images')
                             myCategorydata[i]['lecture'] = mydata
 
                         for j in range(len(data)):
-
+                            
+                        
                             mydata = ReviewModel.objects.filter(categories__id = data[j]['id']).values('id','title','images')
                             data[j]['lecture'] = mydata
                     
+                        
+                        data = list(myCategorydata)+list(data)
+                       
+                       
+                       ##prepare dropdown
+                        dropdown = list()
+                        for j in range(1,len(data)):
+                            obj = {"id":data[j]['id'],"CategoryName":data[j]['CategoryName']}
+                            dropdown.append(obj)
+                        
+                        
+                        return Response({'status':True,'data':data,"dropdown":{
 
-                        return Response({'status':True,'data':list(myCategorydata)+list(data)},status=200)
+                            "parent":data[0]['CategoryName'],
+                            "childs":dropdown
+                        }},status=200)
 
                     else:
+
 
                         data = Category.objects.filter(id=id,CategoryType="SubCategory").values('id',CategoryName=F('name'))
 
