@@ -27,7 +27,6 @@ SECRET_KEY = config('SECRET_KEY')
 # Live
 DEBUG = True
 
-DEBUG = True
 
 ALLOWED_HOSTS = ['localhost','127.0.0.1','52.15.181.26']
 
