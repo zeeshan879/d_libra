@@ -43,6 +43,13 @@ class User(models.Model):
         return self.username
 
 
+class blacklistToken(models.Model):
+    token = models.TextField(default="")
+    user = models.ForeignKey(User, on_delete =models.CASCADE)
+
+
+
+
 class MembershipPlan(models.Model):
     name = models.CharField(max_length=30, null=True, blank=True)
     description = RichTextField()

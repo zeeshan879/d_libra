@@ -141,7 +141,8 @@ class userprofile(APIView):
 
     def put(self,request):
         try:
-            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+            role = request.GET.get("role","normaluser")
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
             if my_token:
                 ##validator keys and required
                 requireFields = ['fname','lname','img']
@@ -165,7 +166,7 @@ class userprofile(APIView):
                                 data.profile = filename
 
                         data.save()
-                        return Response({'status':True,'message':'Update Successfully'})
+                        return Response({'status':True,'message':'Update Successfully',"data":{"fname":data.fname,"lname":data.lname,"profile":data.profile.url}})
 
                     else:
                         return Response({'status':"error",'message':'userid is incorrect'})
@@ -233,10 +234,16 @@ class GetParentCategories(APIView):
 
     def get(self,request):
 
-    
-       
+        
+        
         data = CourseRating.objects.all().values('rating',courseid=F('course_id__id'))
-        mydata = Category.objects.filter(CategoryType="Category").values('id','image',CategoryName=F('name'))
+        query = request.GET.get("search",False)
+        if not query:
+            mydata = Category.objects.filter(CategoryType="Category").values('id','image',CategoryName=F('name'))
+
+        else:
+            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).values('id','image',CategoryName=F('name'))
+
 
         ##calculate total person and their rating
         starobj = list()
@@ -650,76 +657,117 @@ class GetDashboardDataWithAuthorization(APIView):
 
     def get(self,request):
 
-        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+        role = request.GET.get('role','normaluser')
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
         if my_token:
 
-            # try:
+            try:
 
-            id = request.GET.get('id')
+                id = request.GET.get('id')
 
-            if id:
+                if id:
 
-                checkdata = Category.objects.filter(id=id).first()
-                if checkdata.CategoryType == "Category":
+                    checkdata = Category.objects.filter(id=id).first()
+                    if checkdata:
+                        if checkdata.CategoryType == "Category":
 
-                    data = Category.objects.filter(parent__id=id,CategoryType="SubCategory").values('id',CategoryName=F('name'))
+                            data = Category.objects.filter(parent__id=id,CategoryType="SubCategory").values('id',CategoryName=F('name'))
 
-                    myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'))
+                            myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'))
+
+
+                            if data:
+
+                                for i in range(len(myCategorydata)):
+
+                                    
+                                    mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images')
+                                    myCategorydata[i]['lecture'] = mydata
+
+                                for j in range(len(data)):
+                                    
+                                
+                                    mydata = ReviewModel.objects.filter(categories__id = data[j]['id']).values('id','title','images')
+                                    data[j]['lecture'] = mydata
+                            
+                                
+                                data = list(myCategorydata)+list(data)
+                            
+                            
+                                ##prepare dropdown
+                                dropdown = list()
+                                for j in range(1,len(data)):
+                                    obj = {"id":data[j]['id'],"CategoryName":data[j]['CategoryName']}
+                                    dropdown.append(obj)
+                                
+                                
+                                return Response({'status':True,'data':data,"dropdown":{
+
+                                        "parent":{"id":data[0]['id'],"CategoryName":data[0]['CategoryName']},
+                                        "childs":dropdown
+                                    }},status=200)
+
+                            else:
 
 
 
-                    if data:
+                                data = Category.objects.filter(id=id).values('id',CategoryName=F('name'))
 
-                        for i in range(len(myCategorydata)):
+                            
+                                if data:
 
-                            mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images')
-                            myCategorydata[i]['lecture'] = mydata
+                                    for i in range(len(data)):
 
-                        for j in range(len(data)):
+                                        mydata = ReviewModel.objects.filter(categories__id = data[i]['id']).values('id','title','images')
+                                        data[i]['lecture'] = mydata
 
-                            mydata = ReviewModel.objects.filter(categories__id = data[j]['id']).values('id','title','images')
-                            data[j]['lecture'] = mydata
+                                        data = list(myCategorydata)+list(data)
+                            
+                            
+                                    ##prepare dropdown
+                                    dropdown = list()
+                                    for j in range(1,len(data)):
+                                        obj = {"id":data[j]['id'],"CategoryName":data[j]['CategoryName']}
+                                        dropdown.append(obj)
+                                    
+                                    
+                                    return Response({'status':True,'data':data,"dropdown":{
+
+                                        "parent":{"id":data[0]['id'],"CategoryName":data[0]['CategoryName']},
+                                        "childs":dropdown
+                                    }},status=200)
+
+                                
+
                     
 
-                        return Response({'status':True,'data':list(myCategorydata)+list(data)},status=200)
+                        else:
+
+                            return Response({'status':True,'data':[]},status=200)
+
 
                     else:
 
-                        data = Category.objects.filter(id=id,CategoryType="SubCategory").values('id',CategoryName=F('name'))
+                        return Response({'status':False,'message':"Invalid Course Id"},status=200)
 
-                        if data:
-
-                            for i in range(len(data)):
-
-                                mydata = ReviewModel.objects.filter(categories__id = data[i]['id']).values('id','title','images')
-                                data[i]['lecture'] = mydata
-
-                            return Response({'status':True,'data':data},status=200)
+                
 
                 else:
+                    data = Category.objects.filter(CategoryType="SubCategory").values('id',CategoryName=F('name'))
 
-                    return Response({'status':True,'data':[]},status=200)
+                    for i in range(len(data)):
 
+                        mydata = ReviewModel.objects.filter(categories__id = data[i]['id']).values('id','title','images')
+                        data[i]['lecture'] = mydata
 
-
-              
-
-            else:
-                data = Category.objects.filter(CategoryType="SubCategory").values('id',CategoryName=F('name'))
-
-                for i in range(len(data)):
-
-                    mydata = ReviewModel.objects.filter(categories__id = data[i]['id']).values('id','title','images')
-                    data[i]['lecture'] = mydata
-
-                return Response({'status':True,'data':data},status=200)
+                    return Response({'status':True,'data':data},status=200)
 
             
 
 
-            # except Exception as e:
-        #         message = {'status':"error",'message':str(e)}
-        #         return Response(message,status=500)
+            except Exception as e:
+                message = {'status':"error",'message':str(e)}
+                return Response(message,status=500)
 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
@@ -1230,14 +1278,15 @@ class SearchCourse(APIView):
 
     def get(self,request):
 
-        role = request.GET['role']
+        role = request.GET.get('role',"superadmin")
         my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
         if my_token:
-                coursename = request.GET['coursename']
-                data = ReviewModel.objects.filter(Q(title__icontains = coursename) | Q(tags__icontains = coursename)).values('id','title','images')
-                data = [{"items":data}]
+        
+            coursename = request.GET['coursename']
+            data = ReviewModel.objects.filter(Q(title__icontains = coursename) | Q(tags__icontains = coursename)).values('id','title','images')
+            data = [{"items":data}]
+            return Response({'status':True,'data':data},status=200)
 
-                return Response({'status':True,'data':data},status=200)
 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
@@ -1513,3 +1562,45 @@ class recentlyViewContenthistory(APIView):
 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
+
+class logout(APIView):
+    def post(self,request):
+        try:
+            role = request.GET.get('role',"superadmin")
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
+            if my_token:
+                fetchuser = User.objects.get(uid = my_token['id'])
+                blacklistToken(user = fetchuser,token = request.META['HTTP_AUTHORIZATION'][7:]).save()
+                return Response({"status":True,"message":"logout successfully"})
+
+            
+            else:
+                return Response({'status':False,'message':'Unauthorized'},status=401)
+
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+
+
+class GetTopicData(APIView):
+
+    def get(self,request):
+
+        role = request.GET['role']
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
+        if my_token:
+
+            Postid = request.GET['Postid']
+            data = Category.objects.filter(id = Postid).values('id','name','image').first()
+        
+
+            if data:
+                mydata = ReviewModel.objects.filter(categories__id = data['id']).values('id','title','images')
+
+                return Response({'status':True,"data":mydata},status=200)
+
+            else:
+                return Response({'status':False,'message':'Invalid id'},status=401)
+
+           
