@@ -11,10 +11,10 @@ admin.site.register(MembershipPlan)
 
 class CategoryAdmin(ImportExportModelAdmin, DraggableMPTTAdmin, admin.ModelAdmin):
 	# change_list_template = "admin/import_export/category_change_form.html"
-	list_display = ['id','tree_actions','indented_title', 'name', 'unique_identifier' ,'image', 'ceated_date','update_date',]
+	list_display = ['id','tree_actions','indented_title', 'name', 'unique_identifier' ,'image', 'ceated_date','update_date','Type']
 	# ordering = ('unique_identifier',)
 	search_fields = ['name', 'unique_identifier',]
-	fields = (('name'), ('parent'),('unique_identifier'),('slug'),('CategoryType'),('image'))
+	fields = (('name'), ('parent'),('unique_identifier'),('slug'),('CategoryType'),('image'),('Type'))
 	mptt_level_indent = 40
 
 	def ceated_date(self, obj):
