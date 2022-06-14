@@ -151,12 +151,20 @@ class userprofile(APIView):
                 if not validator:
                     return Response({'status':'error','message':f'{requireFields} all keys are required'})
 
+               
+
                 else:
                     data = User.objects.filter(uid = my_token['id']).first()
                     if data:
                         data.fname = request.data['fname']
                         data.lname = request.data['lname']
                         filename = request.FILES.get('img',False)
+
+                        if filename == "True":
+                            ##Image validation
+                            filenameStaus = uc.imageValidator(filename,False,False)
+                            if not filenameStaus:
+                                return Response({'status':False,'message':'Image format is incorrect'},status=200)
                         if filename:
                             filenameStaus = uc.imageValidator(filename,False,False)
                             if not filenameStaus:
@@ -239,10 +247,10 @@ class GetParentCategories(APIView):
         data = CourseRating.objects.all().values('rating',courseid=F('course_id__id'))
         query = request.GET.get("search",False)
         if not query:
-            mydata = Category.objects.filter(CategoryType="Category").values('id','image',CategoryName=F('name'))
+            mydata = Category.objects.filter(CategoryType="Category").values('id','image','Type',CategoryName=F('name'))
 
         else:
-            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).values('id','image',CategoryName=F('name'))
+            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).values('id','image','Type',CategoryName=F('name'))
 
 
         ##calculate total person and their rating
@@ -278,65 +286,138 @@ class GetParentCategories(APIView):
                 k['totalratinng'] = 0
             else:
                 del k['rating']
-                
-            
 
-        Data = [{'status':True,'chapterName':"popular courses",'items':mydata}]
+        listpopularcourses = []
+        listcategoryA = []
+        listcategoryB = []
+        listcategoryC = []
+        listcategoryD = []
+
+        for i in range(len(mydata)):
+
+
+            if mydata[i]['Type'] == "popularcourses":
+
+                listpopularcourses.append(mydata[i])
+
+            if mydata[i]['Type'] == "categoryA":
+
+                listcategoryA.append(mydata[i])
+
+            if mydata[i]['Type'] == "categoryB":
+
+                listcategoryB.append(mydata[i])
+
+            if mydata[i]['Type'] == "categoryC":
+
+                listcategoryC.append(mydata[i])
+
+            if mydata[i]['Type'] == "categoryD":
+
+                listcategoryD.append(mydata[i])
+            
+     
+        obj1 = [{'chaptername':'popular courses','items':listpopularcourses},{'chaptername':'Category A','items':listcategoryA},{'chaptername':'Category B','items':listcategoryB},{'chaptername':'Category C','items':listcategoryC},{'chaptername':'Category D','items':listcategoryD}]
+    
+
+        Data = [{'status':True,'data':obj1}]
 
         return Response(Data,status=200)
 
+
     def post(self,request):
 
-        try:
+        # try:
 
-            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
-            if my_token:
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+        if my_token:
 
-                requireFields = ['name','slug','image',"parentCategoryid"]
-                validator = uc.keyValidation(True,True,request.data,requireFields[:-1])
-                if validator:
-                    return Response(validator)
+
+            requireFields = ['name','slug','image']
+            validator = uc.keyValidation(True,True,request.data,requireFields)
+            if validator:
+                return Response(validator)
+
+        
+            
+            else:
+
+                if ('parentCategoryid' not in request.data or 'Type' not in request.data):
+
+                    return Response({'status':False,'message':'All Filed are required'},status=200)
+
+                if ('parentCategoryid' not in request.data and 'Type' not in request.data):
+
+                    return Response({'status':False,'message':'All Filed are required'},status=200)
+
+                
+                    
+
+                name = request.data.get('name')
+                Categoryid = request.data.get('parentCategoryid')
+                slug = request.data.get('slug')
+                Type = request.data.get('Type')
+                image = request.FILES.get('image')
+                
+               
+                ##Image validation
+                filenameStaus = uc.imageValidator(image,False,False)
+                if not filenameStaus:
+                    return Response({'status':False,'message':'Image format is incorrect'},status=200)
+
+                categoryExist = Category.objects.filter(name=name)
+                if categoryExist:
+                    return Response({
+                        'status':False,
+                        'message':'Category Name Already Exist'
+                    })
+
+                slugExist = Category.objects.filter(slug=slug)
+                if slugExist:
+                    return Response({
+                        'status':False,
+                        'message':'Slug Name Already Exist'
+                    })
+
+                if Categoryid == "":
+
+                    if Type == "":
+                        return Response({
+                        'status':False,
+                        'message':'Course Type is required'
+                    })
+
+                    if Type not in ['popularcourses','categoryA','categoryB','categoryC','categoryD']:
+
+                        return Response({
+                        'status':False,
+                        'message':'Category Type in incorrect'
+                        })
+
+            
+
+
+                    data = Category(name=name,slug=slug,image=image,unique_identifier = uc.randomcodegenrator(),CategoryType = "Category",Type=Type)
+                    data.save()
+                    return Response({'status':True,'message':"Add Categroy Successfully"},status=201)
+
                 else:
-                    name = request.data.get('name')
-                    Categoryid = request.data.get('parentCategoryid')
-                    slug = request.data.get('slug')
-                    image = request.FILES.get('image')
+                    
 
-                    categoryExist = Category.objects.filter(name=name)
-                    if categoryExist:
-                        return Response({
-                            'status':False,
-                            'message':'Category Name Already Exist'
-                        })
-
-                    slugExist = Category.objects.filter(slug=slug)
-                    if slugExist:
-                        return Response({
-                            'status':False,
-                            'message':'Slug Name Already Exist'
-                        })
-
-                    if Categoryid == "":
-
-                        data = Category(name=name,slug=slug,image=image,unique_identifier = uc.randomcodegenrator(),CategoryType = "Category")
+                    fetchparent = Category.objects.filter(id = Categoryid).first()
+                    if fetchparent:
+                        data = Category(name=name,slug=slug,image=image,unique_identifier = uc.randomcodegenrator(),parent = fetchparent)
                         data.save()
-                        return Response({'status':True,'message':"Add Categroy Successfully"},status=201)
+                        return Response({'status':True,'message':"Add Sub Category Successfully"},status=201)
 
                     else:
-                        fetchparent = Category.objects.filter(id = Categoryid).first()
-                        if fetchparent:
-                            data = Category(name=name,slug=slug,image=image,unique_identifier = uc.randomcodegenrator(),parent = fetchparent)
-                            data.save()
-                            return Response({'status':True,'message':"Add Sub Category Successfully"},status=201)
+                        return Response({'status':False,'message':'Category id is incorrect'})
+        else:
+            return Response({'status':False,'message':'Unauthorized'},status=401)
 
-                        else:
-                            return Response({'status':False,'message':'Category id is incorrect'})
-            else:
-                return Response({'status':False,'message':'Unauthorized'},status=401)
-
-        except Exception as e:
-            message = {'status':"error",'message':str(e)}
-            return Response(message,status=500)
+        # except Exception as e:
+        #     message = {'status':"error",'message':str(e)}
+        #     return Response(message,status=500)
 
     def delete(self,request):
         try:
@@ -513,6 +594,12 @@ class AddPost(APIView):
                     Categroyid = request.data.get('Categroyid',False)
                     meta_description = request.data['meta_description']
                     OGP = request.data['OGP']
+                    
+                    if image == "True":
+                        ##Image validation
+                        filenameStaus = uc.imageValidator(image,False,False)
+                        if not filenameStaus:
+                            return Response({'status':False,'message':'Image format is incorrect'},status=200)
 
 
                     data = ReviewModel.objects.filter(id = Postid).first()

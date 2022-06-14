@@ -23,6 +23,16 @@ Priority = (
     ('reviewlist','reviewlist'),
     ('futureread','futureread'),
 )
+Coursetype = (
+
+    ('popularcourses','popularcourses'),
+    ('categoryA','categoryA'),
+    ('categoryB','categoryB'),
+    ('categoryC','categoryC'),
+    ('categoryD','categoryD'),
+
+
+)
 
 
 class User(models.Model):
@@ -77,6 +87,7 @@ class Category(MPTTModel):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     CategoryType = models.CharField(max_length=20,default="")
+    Type = models.CharField(max_length=30,choices=Coursetype,default="popularcourses")
 
     def __str__(self):
         return self.name
