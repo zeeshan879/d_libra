@@ -8,16 +8,35 @@ import webapi.usable as uc
 from django.db.models import Q
 import datetime
 from django.http import HttpResponse
+from django.shortcuts import redirect
 from django.db.models import F
 from rest_framework import status
 from .permission import authorization
 import api.emailpattern as em
 from datetime import timedelta
+from django.conf import settings
+from itertools import chain
+
 # Create your views here.
 
 
 def index(request):
     return HttpResponse('<h1>Project libra</h1>')
+
+
+def verification(request,email,authtoken):
+    try:
+        data = User.objects.get(email = email,Otp  = authtoken)
+        data.status = "True"
+        data.Otp = 0
+        data.save()
+        return redirect("https://libraa.ml/login")
+
+    except:
+        return redirect("https://libraa.ml/login")
+
+
+
 
 class signup(APIView):
     def post(self,request):
@@ -53,13 +72,105 @@ class signup(APIView):
 
 
                 else:
-                    data = User(email=email,password=handler.hash(password),username = username)
-                    data.save()
-                    return Response({'status':True,'message':'Account Created Successfully'})
+                    encryptPassword = handler.hash(password)
+                    randomToken = uc.randomcodegenrator()
+                    data = User(email=email,password=encryptPassword,username = username,Otp = randomToken)
+                    if settings.DEBUG:
+                        link = f"{request.META['HTTP_HOST']}/webapi/verification/{email}/{randomToken}"
+
+                    else:
+                        link = f"https://{settings.ALLOWED_HOSTS[3]}/webapi/verification/{email}/{randomToken}"
+                    
+
+                    print("link",link)
+                    emailstatus = em.verificationEmail("Verification",config("fromemail"),email,link)
+                    if emailstatus:
+                        data.save()
+                        return Response({'status':True,'message':'Account Created Successfully'})
+
+                    else:
+                        return Response({'status':False,'message':'Something went wrong'})
+
+
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
+
+
+
+
+class signupwithgoogle(APIView):
+    
+    def post(self,request):
+        try:
+            requireFields = ['email','ui','displayName']
+            ##required field validation
+            validator = uc.keyValidation(True,True,request.data,requireFields)
+            if validator:
+                return Response(validator)
+
+            else:
+                email = request.data['email']
+                password = request.data['ui']
+                username = email.split("@")[0]
+                firstname,lastname = request.data['displayName'].split(" ")
+                ##check if account is not created
+                data = User.objects.filter(Q(email = email) | Q(username = username)).first()
+                if data:
+                    
+                    ### Jwt creation
+                    access_token_payload = {
+                        'id': data.uid,
+                        'username': data.fname,
+                        'email':data.email,
+                        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
+                        'iat': datetime.datetime.utcnow(),
+
+                    }
+                    access_token = jwt.encode(access_token_payload,config('normaluserkey'), algorithm='HS256')
+
+                    userpayload = { 'id': data.uid,'username': data.username,'email':data.email,'fname':data.fname,'lname':data.lname,'profile':data.profile.url,'role':data.role}
+                    
+                    
+                    return Response({'status':True,'message':'login Successfully',"data":userpayload,"token":access_token})
+
+                    return Response({'status':False,'data':"Email or Username already exist"})
+                
+                
+                else:
+                    fetchuser = User(email=email,password=handler.hash(password),username = username,fname = firstname,lname = lastname,status = "True")
+                    emailStatus = em.credentialsend("Confidentiality",config('fromemail'),email,{'username':username,'password':password})
+                    if emailStatus:
+                        fetchuser.save()
+
+                        ### Jwt creation
+                        access_token_payload = {
+                            'id': fetchuser.uid,
+                            'username': fetchuser.fname,
+                            'email':fetchuser.email,
+                            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
+                            'iat': datetime.datetime.utcnow(),
+
+                        }
+                        access_token = jwt.encode(access_token_payload,config('normaluserkey'), algorithm='HS256')
+
+                        userpayload = { 'id': fetchuser.uid,'username': fetchuser.username,'email':fetchuser.email,'fname':fetchuser.fname,'lname':fetchuser.lname,'profile':fetchuser.profile.url,'role':fetchuser.role}
+                        
+                        
+                        return Response({'status':True,'message':'login Successfully',"data":userpayload,"token":access_token})
+
+
+                    else:
+                        return Response({"status":False,"message":"Something went wrong"})
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+        
+
+
+
 
 class userlogin(APIView):
     def post(self,request):
@@ -75,33 +186,43 @@ class userlogin(APIView):
                 email = request.data['email']
 
                 fetchuser = User.objects.filter(Q(username = email) | Q(email = email)).first()
-                if fetchuser and handler.verify(password,fetchuser.password):
-                    access_token_payload = {
-                        'id': fetchuser.uid,
-                        'username': fetchuser.fname,
-                        'email':fetchuser.email,
-                        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
-                        'iat': datetime.datetime.utcnow(),
+                if fetchuser:
+                    if fetchuser.status == "True":
+                        if fetchuser and handler.verify(password,fetchuser.password):
+                            access_token_payload = {
+                                'id': fetchuser.uid,
+                                'username': fetchuser.fname,
+                                'email':fetchuser.email,
+                                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
+                                'iat': datetime.datetime.utcnow(),
 
-                    }
-                    if fetchuser.role == "normaluser":
-                        access_token = jwt.encode(access_token_payload,config('normaluserkey'), algorithm='HS256')
+                            }
+                            if fetchuser.role == "normaluser":
+                                access_token = jwt.encode(access_token_payload,config('normaluserkey'), algorithm='HS256')
 
-                        userpayload = { 'id': fetchuser.uid,'username': fetchuser.username,'email':fetchuser.email,'fname':fetchuser.fname,'lname':fetchuser.lname,'profile':fetchuser.profile.url,'role':fetchuser.role}
+                                userpayload = { 'id': fetchuser.uid,'username': fetchuser.username,'email':fetchuser.email,'fname':fetchuser.fname,'lname':fetchuser.lname,'profile':fetchuser.profile.url,'role':fetchuser.role}
 
-                        return Response({'status':True,'message':'Login SuccessFully','token':access_token,'data':userpayload},status=200)
+                                return Response({'status':True,'message':'Login SuccessFully','token':access_token,'data':userpayload},status=200)
 
-                    if fetchuser.role == "editor":
-                        access_token = jwt.encode(access_token_payload,config('editorkey'), algorithm='HS256')
+                            if fetchuser.role == "editor":
+                                access_token = jwt.encode(access_token_payload,config('editorkey'), algorithm='HS256')
 
-                        userpayload = { 'id': fetchuser.uid,'username': fetchuser.username,'email':fetchuser.email,'fname':fetchuser.fname,'lname':fetchuser.lname,'profile':fetchuser.profile.url,'role':fetchuser.role}
+                                userpayload = { 'id': fetchuser.uid,'username': fetchuser.username,'email':fetchuser.email,'fname':fetchuser.fname,'lname':fetchuser.lname,'profile':fetchuser.profile.url,'role':fetchuser.role}
 
-                        return Response({'status':True,'message':'Login SuccessFully','token':access_token,'data':userpayload},status=200)
+                                return Response({'status':True,'message':'Login SuccessFully','token':access_token,'data':userpayload},status=200)
+
+
+                        else:
+                            return Response({'status':False,'message':'Invalid Credential'})
+
+
                     else:
-                        None
+                        return Response({'status':False,'message':'Your Account is not verify'})
+
 
                 else:
                     return Response({'status':False,'message':'Invalid Credential'})
+
 
 
         except Exception as e:
@@ -1288,63 +1409,55 @@ class RatingCourse(APIView):
 
     def put(self,request):
 
-        role = request.data.get('role')
-        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
-        if my_token:
+        try:
+            role = request.data.get('role')
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
+            if my_token:
 
-            requireFields = ['course_id']
-            validator = uc.keyValidation(True,True,request.data,requireFields)
+                requireFields = ['course_id','rating','comment','role']
+                validator = uc.keyValidation(True,True,request.data,requireFields)
 
-            if validator:
-                return Response(validator,status=200)
-
-            else:
-
-                course_id = request.data.get('course_id')
-                rating = request.data.get('rating')
-                comment = request.data.get('comment')
-
-                if rating == "":
-
-                    rating = 0
-
-
-                checkCourse = Category.objects.filter(id = course_id).first()
-                if not checkCourse:
-                    return Response({'status':False,'message':'Course id is incorrect'})
-
-                authorobj = User.objects.filter(uid = my_token['id']).first()
-
-                checkAlready = CourseRating.objects.filter(course_id = course_id).first()
-                if checkAlready:
-
-                    checkAlready.rating = rating
-                    checkAlready.save()
-
-
-                   
-
-
-                    return Response({'status':False,'message':'Rating Course Sucessfully',"data":{'content_id':course_id,'rating':rating}})
-
-
-                if comment:
-
-                    data = CourseRating(course_id = checkCourse,rating=rating,comment=comment,ratingStatus="True",commentstatus="True",author=authorobj)
-                    data.save()
-
-                    return Response({'status':False,'message':'Rating Course Sucessfully',"data":{'course_id':course_id,'rating':rating}})
+                if validator:
+                    return Response(validator,status=200)
 
                 else:
 
-                    data = CourseRating(course_id = checkCourse,rating=rating,comment=comment,ratingStatus="True",author=authorobj)
-                    data.save()
-                    return Response({'status':False,'message':'Rating Course Sucessfully',"data":{'course_id':course_id,'rating':rating}})
+                    course_id = request.data.get('course_id')
+                    rating = request.data.get('rating')
+                    comment = request.data.get('comment')
 
-        else:
-            return Response({'status':False,'message':'Unauthorized'},status=401)
+            
 
-from itertools import chain
+                    checkCourse = Category.objects.filter(id = course_id).first()
+                    if not checkCourse:
+                        return Response({'status':False,'message':'Course id is incorrect'})
+
+                    authorobj = User.objects.filter(uid = my_token['id']).first()
+
+                    checkAlready = CourseRating.objects.filter(course_id = course_id,author = my_token['id'] ).first()
+                    if not checkAlready:
+
+                        data = CourseRating(course_id = checkCourse,rating=rating,comment=comment,ratingStatus="True",author=authorobj)
+                        data.save()
+                        return Response({'status':True,'message':'Rating Course Sucessfully',"data":{'course_id':course_id,'rating':rating}})
+
+
+
+                    else:
+                        return Response({"status":False,"message":"already rated","data":{'course_id':course_id,'rating':checkAlready.rating}})
+
+
+
+            else:
+                return Response({'status':False,'message':'Unauthorized'},status=401)
+
+        
+
+        
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+
 
 class GetTopicContent(APIView):
 
@@ -1361,7 +1474,6 @@ class GetTopicContent(APIView):
 
                 mydata = ReviewModel.objects.filter(categories__id = course_id).values('id','title')
                 data = ReviewModel.objects.filter(categories__parent = course_id).values('id','title')
-                print(type(data))
                 combined_results = list(chain(mydata, data))
                 return Response({'status':True,'data':combined_results},status=200)
 

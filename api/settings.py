@@ -26,9 +26,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 # Live
 DEBUG = True
-
-
-ALLOWED_HOSTS = ['localhost','127.0.0.1','52.15.181.26']
+ALLOWED_HOSTS = ['localhost','127.0.0.1','52.15.181.26','api.libraa.ml']
 
 
 # Application definition

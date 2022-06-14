@@ -5,7 +5,9 @@ urlpatterns = [
 
 #web urls  home
 path('',index),
+path('verification/<str:email>/<str:authtoken>',verification),
 path('signup',signup.as_view()),
+path('signupwithgoogle',signupwithgoogle.as_view()),
 path('userlogin',userlogin.as_view()),
 path('userprofile',userprofile.as_view()),
 path('changepassword',changepassword.as_view()),

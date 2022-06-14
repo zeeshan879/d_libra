@@ -45,9 +45,10 @@ class User(models.Model):
     password=models.TextField(default="")
     role = models.CharField(choices = user_role,max_length=20,default="normaluser")
     profile= models.ImageField(upload_to='Users/',default="SuperAdmin/dummy.jpg")
-    Otp = models.IntegerField(default=0)
+    Otp = models.BigIntegerField(default=0)
     OtpStatus = models.CharField(max_length=10,default="False")
     passwordstatus = models.CharField(max_length=10,default="False")
+    status = models.CharField(max_length=10,default="False",choices= RatingStatus)
     OtpCount = models.IntegerField(default=0)
     def __str__(self):
         return self.username
