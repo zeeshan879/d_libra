@@ -1537,7 +1537,6 @@ class SetPriority(APIView):
                     prioritylist.append(bookmarkdata[0]['name'])
 
                 
-
                 mylistlist = []
 
                 for i in range(len(prioritylist)):
