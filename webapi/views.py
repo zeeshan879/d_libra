@@ -594,44 +594,44 @@ class AddPost(APIView):
         try:
 
             role = request.GET['role']
-            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
-            if my_token:
-                postid = request.GET.get('id',False)
-                categoryid = request.GET['categoryid']
-                data = ReviewModel.objects.filter(categories = categoryid).values('id','title','images','categories__name','OGP','meta_description','content','tags',Categroyid=F('categories__id'))
+            # my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
+            # if my_token:
+            postid = request.GET.get('id',False)
+            categoryid = request.GET['categoryid']
+            data = ReviewModel.objects.filter(categories = categoryid).values('id','title','images','categories__name','OGP','meta_description','content','tags',Categroyid=F('categories__id'))
 
-                if data:
-                    nextcategory = Category.objects.all().values_list('id',flat=True)
-                    nextindex = list(nextcategory).index(int(categoryid))
-                    if int(categoryid) == list(nextcategory)[-1]:
-                        nextindex = "null"
-
-                    else:
-                        nextindex = nextcategory[nextindex + 1]
-
-
-                    ##if post id exist
-                    post=""
-                    if postid:
-                        for j in data:
-                            if j['id'] == int(postid):
-                                print("condition is true")
-                                post = j
-                                break
-
-                            else:
-                                post = "null"
-
-                
-                    return Response({'status':True,'post':post,'all':data,'nextcategory':nextindex},status=200)
-
+            if data:
+                nextcategory = Category.objects.all().values_list('id',flat=True)
+                nextindex = list(nextcategory).index(int(categoryid))
+                if int(categoryid) == list(nextcategory)[-1]:
+                    nextindex = "null"
 
                 else:
-                    return Response({'status':True,'post':"null",'all':[]},status=200)
+                    nextindex = nextcategory[nextindex + 1]
+
+
+                ##if post id exist
+                post=""
+                if postid:
+                    for j in data:
+                        if j['id'] == int(postid):
+                            print("condition is true")
+                            post = j
+                            break
+
+                        else:
+                            post = "null"
+
+            
+                return Response({'status':True,'post':post,'all':data,'nextcategory':nextindex},status=200)
 
 
             else:
-                return Response({'status':False,'message':'Unauthorized'},status=401)
+                return Response({'status':True,'post':"null",'all':[]},status=200)
+
+
+            # else:
+            #     return Response({'status':False,'message':'Unauthorized'},status=401)
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
@@ -864,43 +864,71 @@ class GetDashboardDataWithAuthorization(APIView):
 
     def get(self,request):
 
-        role = request.GET.get('role','normaluser')
-        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
-        if my_token:
+        # role = request.GET.get('role','normaluser')
+        # my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
+        # if my_token:
 
-            try:
+        try:
 
-                id = request.GET.get('id')
+            id = request.GET.get('id')
 
-                if id:
+            if id:
 
-                    checkdata = Category.objects.filter(id=id).first()
-                    if checkdata:
-                        if checkdata.CategoryType == "Category":
+                checkdata = Category.objects.filter(id=id).first()
+                if checkdata:
+                    if checkdata.CategoryType == "Category":
 
-                            data = Category.objects.filter(parent__id=id,CategoryType="SubCategory").values('id',CategoryName=F('name'))
+                        data = Category.objects.filter(parent__id=id,CategoryType="SubCategory").values('id',CategoryName=F('name'))
+
+                        myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'))
+
+
+                        if data:
+
+                            for i in range(len(myCategorydata)):
+
+                                
+                                mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images')
+                                myCategorydata[i]['lecture'] = mydata
+
+                            for j in range(len(data)):
+                                
+                            
+                                mydata = ReviewModel.objects.filter(categories__id = data[j]['id']).values('id','title','images')
+                                data[j]['lecture'] = mydata
+                        
+                            
+                            data = list(myCategorydata)+list(data)
+                        
+                        
+                            ##prepare dropdown
+                            dropdown = list()
+                            for j in range(1,len(data)):
+                                obj = {"id":data[j]['id'],"CategoryName":data[j]['CategoryName']}
+                                dropdown.append(obj)
+                            
+                            
+                            return Response({'status':True,'data':data,"dropdown":{
+
+                                    "parent":{"id":data[0]['id'],"CategoryName":data[0]['CategoryName']},
+                                    "childs":dropdown
+                                }},status=200)
+
+                        else:
 
                             myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'))
-
-
-                            if data:
+                            
+                            if myCategorydata:
 
                                 for i in range(len(myCategorydata)):
 
-                                    
+                                
                                     mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images')
                                     myCategorydata[i]['lecture'] = mydata
 
-                                for j in range(len(data)):
-                                    
-                                
-                                    mydata = ReviewModel.objects.filter(categories__id = data[j]['id']).values('id','title','images')
-                                    data[j]['lecture'] = mydata
-                            
-                                
-                                data = list(myCategorydata)+list(data)
-                            
-                            
+                                    data = list(myCategorydata)
+                        
+                        
                                 ##prepare dropdown
                                 dropdown = list()
                                 for j in range(1,len(data)):
@@ -910,72 +938,44 @@ class GetDashboardDataWithAuthorization(APIView):
                                 
                                 return Response({'status':True,'data':data,"dropdown":{
 
-                                        "parent":{"id":data[0]['id'],"CategoryName":data[0]['CategoryName']},
-                                        "childs":dropdown
-                                    }},status=200)
+                                    "parent":{"id":data[0]['id'],"CategoryName":data[0]['CategoryName']},
+                                    "childs":dropdown
+                                }},status=200)
 
-                            else:
-
-                                myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'))
-                                
-                                if myCategorydata:
-
-                                    for i in range(len(myCategorydata)):
-
-                                    
-                                        mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images')
-                                        myCategorydata[i]['lecture'] = mydata
-
-                                        data = list(myCategorydata)
                             
-                            
-                                    ##prepare dropdown
-                                    dropdown = list()
-                                    for j in range(1,len(data)):
-                                        obj = {"id":data[j]['id'],"CategoryName":data[j]['CategoryName']}
-                                        dropdown.append(obj)
-                                    
-                                    
-                                    return Response({'status':True,'data':data,"dropdown":{
-
-                                        "parent":{"id":data[0]['id'],"CategoryName":data[0]['CategoryName']},
-                                        "childs":dropdown
-                                    }},status=200)
-
-                                
-
-                    
-
-                        else:
-
-                            return Response({'status':True,'data':[]},status=200)
-
-
-                    else:
-
-                        return Response({'status':False,'message':"Invalid Course Id"},status=200)
 
                 
 
+                    else:
+
+                        return Response({'status':True,'data':[]},status=200)
+
+
                 else:
-                    data = Category.objects.filter(CategoryType="SubCategory").values('id',CategoryName=F('name'))
 
-                    for i in range(len(data)):
-
-                        mydata = ReviewModel.objects.filter(categories__id = data[i]['id']).values('id','title','images')
-                        data[i]['lecture'] = mydata
-
-                    return Response({'status':True,'data':data},status=200)
+                    return Response({'status':False,'message':"Invalid Course Id"},status=200)
 
             
 
+            else:
+                data = Category.objects.filter(CategoryType="SubCategory").values('id',CategoryName=F('name'))
 
-            except Exception as e:
-                message = {'status':"error",'message':str(e)}
-                return Response(message,status=500)
+                for i in range(len(data)):
 
-        else:
-            return Response({'status':False,'message':'Unauthorized'},status=401)
+                    mydata = ReviewModel.objects.filter(categories__id = data[i]['id']).values('id','title','images')
+                    data[i]['lecture'] = mydata
+
+                return Response({'status':True,'data':data},status=200)
+
+        
+
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+
+        # else:
+        #     return Response({'status':False,'message':'Unauthorized'},status=401)
 
 class recentlyViewCourseStatus(APIView):
 
@@ -1506,15 +1506,49 @@ class SetPriority(APIView):
         my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
         if my_token:
 
-          gethighpriority = CoursePriority.objects.filter(author = my_token['id'],PriorityType="highpriority").values(Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))
+            prioritylist = ['highpriority','reviewlist','futureread']
 
-          getreviewlist = CoursePriority.objects.filter(author = my_token['id'],PriorityType="reviewlist").values(Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))
+            bookmarkdata = bookmarkName.objects.filter(user__uid = my_token['id']).values('name')
+            if not bookmarkdata:
 
-          getfutureread = CoursePriority.objects.filter(author = my_token['id'],PriorityType="futureread").values(Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))
 
-          data = [{'PriorityType':"High Priority Review List",'items':gethighpriority},{'PriorityType':"Review List",'items':getreviewlist},{'PriorityType':"For Future read",'items':getfutureread}]
+                mylistlist = []
 
-          return Response({'status':True,'data':data},status=200)
+                for i in range(len(prioritylist)):
+
+                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values(Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))
+
+                    data = [{'PriorityType':prioritylist[i],'items':getdata}]
+                    mylistlist.append(data)
+                    
+
+                return Response({'status':True,'data':mylistlist},status=200)
+
+            else:
+                
+                if len(bookmarkdata) > 1:
+
+                    for j in range(len(bookmarkdata)):
+
+                        prioritylist.append(bookmarkdata[j]['name'])
+
+                else:
+
+                    prioritylist.append(bookmarkdata[0]['name'])
+
+                
+
+                mylistlist = []
+
+                for i in range(len(prioritylist)):
+
+                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values(Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))
+
+                    data = [{'PriorityType':prioritylist[i],'items':getdata}]
+                    mylistlist.append(data)
+                    
+
+                return Response({'status':True,'data':mylistlist},status=200)
 
         else:
             return Response({'status':False,'message':'Unauthorized'},status=401)
@@ -1818,4 +1852,66 @@ class GetTopicData(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
 
-           
+
+
+
+
+class bookadd(APIView):
+    permission_classes = [authorization]
+
+    def get(self,request):
+        try:
+            fetchalready = bookmarkName.objects.filter(user = request.GET['token']['id']).values("id","name","colorcode")
+            return Response({"status":True,"data":fetchalready})
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+    
+    def post(self,request):
+        try:
+            obj = request.data
+            if len(obj) > 0:
+                
+                ##remove duplicates
+                statusDuplicate = uc.removeDuplicates(obj)
+                if not statusDuplicate:
+                    return Response({"status":False,"message":"Please enter a valid data"})
+                
+                bulklist = list()
+                fetchuser = User.objects.filter(uid = request.GET['token']['id']).first()
+
+                ##check if already exist
+                fetchalready = bookmarkName.objects.filter(user = request.GET['token']['id'])
+                if fetchalready:
+                    for i in fetchalready:
+                        for index,k in enumerate(statusDuplicate):
+                            if k['bookmarkname'] == i.name:
+                                # print(i.name,index,k['bookmarkname'])
+                                statusDuplicate.pop(index)
+
+                # print("final",statusDuplicate)
+                if len(statusDuplicate) > 0:
+                    for j in statusDuplicate:
+                        bulklist.append(
+                            bookmarkName(name = j['bookmarkname'],colorcode = j['colorcode'],user = fetchuser)
+                        )
+
+                    bookmarkName.objects.bulk_create(bulklist)
+                    return Response({"status":True,"message":"Add successfully"})
+
+                else:
+                    return Response({"status":True,"message":"All bookmarks already exist"})
+
+
+            
+            else:
+                return Response({"status":False,"message":"Please enter a valid data"})
+
+
+
+
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)

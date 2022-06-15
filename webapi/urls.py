@@ -31,6 +31,7 @@ path('VerifyCode',VerifyCode.as_view()),
 path('UpdatePassword',UpdatePassword.as_view()),
 path('recentlyViewContenthistory',recentlyViewContenthistory.as_view()),
 path('GetTopicData',GetTopicData.as_view()),
+path('bookadd',bookadd.as_view()),
 path('logout',logout.as_view()),
 
 

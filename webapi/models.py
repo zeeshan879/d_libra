@@ -151,11 +151,19 @@ class ContentRating(models.Model):
     commentstatus = models.CharField(max_length=20,choices=RatingStatus,default="False")
     author = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, null=True)
 
+
+
+class bookmarkName(models.Model):
+    name =  models.CharField(max_length=255,default="")
+    colorcode = models.CharField(max_length=255,default="")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, null=True)
+
+
 class CoursePriority(models.Model):
 
     author = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, null=True)
     content_id = models.ForeignKey(ReviewModel, on_delete=models.CASCADE,blank=True, null=True)
-    PriorityType = models.CharField(max_length=20,choices=Priority,default="highpriority")
+    PriorityType = models.CharField(max_length=255,default="")
 
 
     

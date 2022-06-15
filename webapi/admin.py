@@ -78,5 +78,8 @@ admin.site.register(CourseRating)
 admin.site.register(ContentRating)
 admin.site.register(CoursePriority)
 admin.site.register(blacklistToken)
+admin.site.register(bookmarkName)
+
+
 
 
