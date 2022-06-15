@@ -157,3 +157,11 @@ def emailrandomcodegenrator():
     randomcode = random.randint(1000,10000)
     return randomcode
 
+
+
+def removeDuplicates(obj):
+    try:
+        return [dict(t) for t in {tuple(d.items()) for d in obj}]
+    
+    except:
+        return False

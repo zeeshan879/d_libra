@@ -11,15 +11,18 @@ class authorization(permissions.BasePermission):
         try:
 
             role = request.GET['role']
+            tokencatch = request.META['HTTP_AUTHORIZATION'][7:]
+            request.GET._mutable = True
             if role == "editor":
-                tokencatch = request.META['HTTP_AUTHORIZATION'][7:]
                 my_token = jwt.decode(tokencatch,config('editorkey'), algorithms=["HS256"])
+                request.GET['token'] = my_token
                 return True
 
 
             elif role == "normaluser":
                 my_token = jwt.decode(tokencatch,config('normaluserkey'), algorithms=["HS256"])
-                return my_token
+                request.GET['token'] = my_token
+                return True
 
             else:
                 raise NeedLogin()
@@ -38,6 +41,6 @@ class authorization(permissions.BasePermission):
     
 
 class NeedLogin(APIException):
-    status_code = status.HTTP_403_FORBIDDEN
+    status_code =401
     default_detail = {'status': False, 'message': 'Unauthorized'}
     default_code = 'not_authenticated'
