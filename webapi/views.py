@@ -622,12 +622,24 @@ class AddPost(APIView):
                         else:
                             post = "null"
 
-            
-                return Response({'status':True,'post':post,'all':data,'nextcategory':nextindex},status=200)
+                ##check bookmarktype
+                try:
+                    my_token = uc.tokenauth(request.META.get('HTTP_AUTHORIZATION',False)[7:],role)
+                    if my_token: 
+                        bookmarkType = CoursePriority.objects.filter(content_id = postid,author = my_token['id']).values('PriorityType').first()
+                    
+                    else:
+                        bookmarkType = "null"
+
+                except:
+                    bookmarkType = "null"
+
+
+                return Response({'status':True,'post':post,'all':data,'nextcategory':nextindex,"bookmark":bookmarkType},status=200)
 
 
             else:
-                return Response({'status':True,'post':"null",'all':[]},status=200)
+                return Response({'status':True,'post':"null",'all':[],"bookmark":"null"},status=200)
 
 
             # else:
@@ -1909,6 +1921,58 @@ class bookadd(APIView):
 
 
 
+
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+
+
+class addcontent(APIView):
+    permission_classes = [authorization]
+
+    def post(self,request):
+        try:
+            requireFields = ['contentid']
+            validator = uc.keyValidation(True,True,request.data,requireFields)
+
+            if validator:
+                return Response(validator)
+
+            else:
+                prioritylist = ['highpriority','reviewlist','futureread']
+                
+                ##check if user firsttime add
+                
+                fetchcontent = ReviewModel.objects.filter(id = request.data['contentid']).first()
+                if not fetchcontent:
+                    return Response({"status":False,"message":"incorrect contentid"})
+                    
+
+                else:
+                    fetchuser =  User.objects.filter(uid = request.GET['token']['id']).first()
+                    ##check if already add to bookmark
+                    checkalreadyAd = CoursePriority.objects.filter(author = request.GET['token']['id'],content_id = request.data['contentid'] ).first()
+                    if not checkalreadyAd:
+                        addFirst = CoursePriority(author = fetchuser,content_id = fetchcontent,PriorityType = prioritylist[0] )
+                        addFirst.save()
+                        return Response({"status":True,"message":"Add bookmark"})
+
+                    else:
+                        ##fetch all bookmarkname
+                        bookmarkname = bookmarkName.objects.filter(user = request.GET['token']['id']).values_list('name', flat=True).distinct()
+                        
+                        
+                        if bookmarkname:
+                            prioritylist = prioritylist + list(bookmarkname)
+
+                        if checkalreadyAd.PriorityType in prioritylist:
+                            if len(prioritylist) != prioritylist.index(checkalreadyAd.PriorityType) + 1:
+                                checkalreadyAd.PriorityType = prioritylist[prioritylist.index(checkalreadyAd.PriorityType) + 1]
+                                checkalreadyAd.save()
+
+                        
+                        return Response({"status":False,"message":"Update bookmark"})   
 
 
         except Exception as e:
