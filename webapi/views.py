@@ -850,7 +850,7 @@ class GetParentChildCategories(APIView):
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
 
-                data = Category.objects.filter(CategoryType = "Category").values('id','CategoryType',CategoryName=F('name'))
+                data = Category.objects.filter(CategoryType = "Category").values('id','image','created_at','created_at','updated_at','CategoryType',CategoryName=F('name'))
                 if data:
                     for i in range(len(data)):
 
