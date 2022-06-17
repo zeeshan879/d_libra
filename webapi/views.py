@@ -577,6 +577,26 @@ class GetParentCategories(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
 
+
+class allcategories(APIView):
+    def get(self,request):
+        try:
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+            if my_token:
+                data = Category.objects.filter(CategoryType = "Category").values('id','unique_identifier',category=F('name'))
+                return Response({'status':True,'data':data},status=200)
+
+            else:
+                return Response({'status':False,'message':'Unauthorized'})
+
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+
+
+
+            
 class GetChildCategories(APIView):
 
     def get(self,request):
@@ -586,15 +606,20 @@ class GetChildCategories(APIView):
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
                 id = request.GET['id']
-                data = Category.objects.filter(parent__id=id).values('id',CategoryName=F('name'))
+                data = Category.objects.filter(parent__id=id).values('id','unique_identifier',course=F('name'))
                 return Response({'status':True,'data':data},status=200)
 
             else:
-                return Response({'status':False,'message':'Unauthorized'},status=401)
+                return Response({'status':False,'message':'Unauthorized'})
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
+
+
+
+
+
 
 class AddPost(APIView):
 
