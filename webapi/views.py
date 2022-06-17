@@ -448,97 +448,106 @@ class GetParentCategories(APIView):
 
     def post(self,request):
 
-        # try:
+        try:
 
-        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
-        if my_token:
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+            if my_token:
 
 
-            requireFields = ['name','slug','image']
-            validator = uc.keyValidation(True,True,request.data,requireFields)
-            if validator:
-                return Response(validator)
+                requireFields = ['name','slug','image','uniqueidentity']
+                validator = uc.keyValidation(True,True,request.data,requireFields)
+                if validator:
+                    return Response(validator)
 
-        
             
-            else:
-
-                if ('parentCategoryid' not in request.data or 'Type' not in request.data):
-
-                    return Response({'status':False,'message':'All Filed are required'},status=200)
-
-                if ('parentCategoryid' not in request.data and 'Type' not in request.data):
-
-                    return Response({'status':False,'message':'All Filed are required'},status=200)
-
                 
+                else:
+
+                    if ('parentCategoryid' not in request.data or 'Type' not in request.data):
+
+                        return Response({'status':False,'message':'All Filed are required'},status=200)
+
+                    if ('parentCategoryid' not in request.data and 'Type' not in request.data):
+
+                        return Response({'status':False,'message':'All Filed are required'},status=200)
+
                     
+                        
 
-                name = request.data.get('name')
-                Categoryid = request.data.get('parentCategoryid')
-                slug = request.data.get('slug')
-                Type = request.data.get('Type')
-                image = request.FILES.get('image')
+                    name = request.data.get('name').lower()
+                    Categoryid = request.data.get('parentCategoryid')
+                    slug = request.data.get('slug')
+                    Type = request.data.get('Type')
+                    image = request.FILES.get('image')
+                    uniqueid = request.data.get('uniqueidentity')
+                    
                 
-               
-                ##Image validation
-                filenameStaus = uc.imageValidator(image,False,False)
-                if not filenameStaus:
-                    return Response({'status':False,'message':'Image format is incorrect'},status=200)
+                    ##Image validation
+                    filenameStaus = uc.imageValidator(image,False,False)
+                    if not filenameStaus:
+                        return Response({'status':False,'message':'Image format is incorrect'},status=200)
 
-                categoryExist = Category.objects.filter(name=name)
-                if categoryExist:
-                    return Response({
-                        'status':False,
-                        'message':'Category Name Already Exist'
-                    })
-
-                slugExist = Category.objects.filter(slug=slug)
-                if slugExist:
-                    return Response({
-                        'status':False,
-                        'message':'Slug Name Already Exist'
-                    })
-
-                if Categoryid == "":
-
-                    if Type == "":
+                    categoryExist = Category.objects.filter(name=name)
+                    if categoryExist:
                         return Response({
-                        'status':False,
-                        'message':'Course Type is required'
-                    })
-
-                    if Type not in ['popularcourses','categoryA','categoryB','categoryC','categoryD']:
-
-                        return Response({
-                        'status':False,
-                        'message':'Category Type in incorrect'
+                            'status':False,
+                            'message':'Category Name Already Exist'
                         })
 
-            
+                    slugExist = Category.objects.filter(slug=slug)
+                    if slugExist:
+                        return Response({
+                            'status':False,
+                            'message':'Slug Name Already Exist'
+                        })
+
+                    identifier = Category.objects.filter(unique_identifier = uniqueid)
+                    if identifier:
+                        return Response({
+                            'status':False,
+                            'message':'Please choose a unique id'
+                        })
 
 
-                    data = Category(name=name,slug=slug,image=image,unique_identifier = uc.randomcodegenrator(),CategoryType = "Category",Type=Type)
-                    data.save()
-                    return Response({'status':True,'message':"Add Categroy Successfully"},status=201)
+                    if   Categoryid == "":
 
-                else:
-                    
+                        if Type == "":
+                            return Response({
+                            'status':False,
+                            'message':'Course Type is required'
+                        })
 
-                    fetchparent = Category.objects.filter(id = Categoryid).first()
-                    if fetchparent:
-                        data = Category(name=name,slug=slug,image=image,unique_identifier = uc.randomcodegenrator(),parent = fetchparent)
+                        if Type not in ['popularcourses','categoryA','categoryB','categoryC','categoryD']:
+
+                            return Response({
+                            'status':False,
+                            'message':'Category Type in incorrect'
+                            })
+
+                
+
+
+                        data = Category(name=name,slug=slug,image=image,unique_identifier = uniqueid,CategoryType = "Category",Type=Type)
                         data.save()
-                        return Response({'status':True,'message':"Add Sub Category Successfully"},status=201)
+                        return Response({'status':True,'message':"Add Categroy Successfully"},status=201)
 
                     else:
-                        return Response({'status':False,'message':'Category id is incorrect'})
-        else:
-            return Response({'status':False,'message':'Unauthorized'},status=401)
+                        
 
-        # except Exception as e:
-        #     message = {'status':"error",'message':str(e)}
-        #     return Response(message,status=500)
+                        fetchparent = Category.objects.filter(id = Categoryid).first()
+                        if fetchparent:
+                            data = Category(name=name,slug=slug,image=image,unique_identifier = uniqueid,parent = fetchparent)
+                            data.save()
+                            return Response({'status':True,'message':"Add Sub Category Successfully"},status=201)
+
+                        else:
+                            return Response({'status':False,'message':'Category id is incorrect'})
+            else:
+                return Response({'status':False,'message':'Unauthorized'},status=401)
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
 
     def delete(self,request):
         try:
