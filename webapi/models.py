@@ -6,6 +6,7 @@ from django.core.validators import FileExtensionValidator
 from taggit.managers import TaggableManager
 from taggit.models import TaggedItem, TaggedItemBase
 from rest_framework import serializers
+import uuid
 # Create your models here.
 
 user_role =(
@@ -77,6 +78,23 @@ class MembershipPlan(models.Model):
         verbose_name_plural = 'MemberShip Plan for User'
 
 
+
+class parentCategory(models.Model):
+    parentid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True,db_index=True,help_text='slug is an Unique value for singel categories page URL, Same as category Name',blank=True)
+    image = models.FileField(upload_to="category_pic", blank=True, null=True)
+    unique_identifier = models.BigIntegerField(unique=True,null=True, blank=True,
+    help_text="You don't have to do it manually, & After you save it you can also edit")
+
+
+    class Meta:
+        verbose_name = 'Category'
+
+    def __str__(self):
+        return self.name
+
+
 class Category(MPTTModel):
 
     name = models.CharField(max_length=200)
@@ -90,6 +108,11 @@ class Category(MPTTModel):
     CategoryType = models.CharField(max_length=20,default="")
     Type = models.CharField(max_length=30,choices=Coursetype,default="popularcourses")
 
+    
+    class Meta:
+        verbose_name = 'Course_or_Chapter'
+    
+    
     def __str__(self):
         return self.name
 

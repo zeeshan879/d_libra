@@ -359,6 +359,84 @@ class changepassword(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
 
+
+class parentCategories(APIView):
+
+    def get(self,request):
+        try:
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+            if my_token:
+                data = parentCategory.objects.values("parentid","name","unique_identifier")
+                return Response({"status":True,"data":data})
+
+            else:
+                return Response({'status':False,'message':'Unauthorized'})
+
+        
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+
+
+
+    def post(self,request):
+        try:
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+            if my_token:
+                requireFields = ['name','slug','image','uniqueidentity']
+                validator = uc.keyValidation(True,True,request.data,requireFields)
+                if validator:
+                    return Response(validator)
+
+                else:
+                    name = request.data.get('name').lower()
+                    slug = request.data.get('slug')
+                    image = request.FILES.get('image')
+                    uniqueid = request.data.get('uniqueidentity')
+                    ##Image validation
+                    filenameStaus = uc.imageValidator(image,False,False)
+                    if not filenameStaus:
+                        return Response({'status':False,'message':'Image format is incorrect'})
+                    
+                    ##check a basic already critarea
+                    categoryExist = parentCategory.objects.filter(name=name).first()
+                    if categoryExist:
+                        return Response({
+                            'status':False,
+                            'message':'Category Name Already Exist'
+                        })
+
+                    slugExist = parentCategory.objects.filter(slug=slug).first()
+                    if slugExist:
+                        return Response({
+                            'status':False,
+                            'message':'Slug Name Already Exist'
+                        })
+
+
+                    identifier = parentCategory.objects.filter(unique_identifier = uniqueid)
+                    if identifier:
+                        return Response({
+                            'status':False,
+                            'message':'Please choose a unique id'
+                        })
+                    
+                    
+                    data = parentCategory(name=name,slug=slug,image=image,unique_identifier = uniqueid)
+                    data.save()
+                    return Response({"status":True,"data":"Add successfully"})
+
+            else:
+                return Response({'status':False,'message':'Unauthorized'})
+
+
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+
+
+
 class GetParentCategories(APIView):
 
     def get(self,request):
@@ -452,14 +530,10 @@ class GetParentCategories(APIView):
 
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
-
-
                 requireFields = ['name','slug','image','uniqueidentity']
                 validator = uc.keyValidation(True,True,request.data,requireFields)
                 if validator:
                     return Response(validator)
-
-            
                 
                 else:
 
@@ -509,7 +583,7 @@ class GetParentCategories(APIView):
                         })
 
 
-                    if   Categoryid == "":
+                    if  Categoryid == "":
 
                         if Type == "":
                             return Response({
@@ -543,7 +617,7 @@ class GetParentCategories(APIView):
                         else:
                             return Response({'status':False,'message':'Category id is incorrect'})
             else:
-                return Response({'status':False,'message':'Unauthorized'},status=401)
+                return Response({'status':False,'message':'Unauthorized'})
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
