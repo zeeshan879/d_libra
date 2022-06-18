@@ -86,8 +86,8 @@ class parentCategory(models.Model):
     image = models.FileField(upload_to="category_pic", blank=True, null=True)
     unique_identifier = models.BigIntegerField(unique=True,null=True, blank=True,
     help_text="You don't have to do it manually, & After you save it you can also edit")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True,blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True,blank=True, null=True)
 
 
     class Meta:
@@ -100,7 +100,7 @@ class parentCategory(models.Model):
 class Category(MPTTModel):
 
     name = models.CharField(max_length=200)
-    parent_category = models.ForeignKey(parentCategory, on_delete =models.CASCADE)
+    parent_category = models.ForeignKey(parentCategory, on_delete =models.CASCADE,blank=True, null=True)
     image = models.FileField(upload_to="category_pic", blank=True, null=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name= 'children', db_index=True, on_delete=models.CASCADE)
     unique_identifier = models.BigIntegerField(unique=True,null=True, blank=True,
@@ -142,6 +142,18 @@ class ReviewModel(models.Model):
     tags =   models.TextField(default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+
+    def __str__(self):
+        return self.title
+
+
+class feedback(models.Model):
+    topic =  models.ForeignKey(ReviewModel, on_delete=models.CASCADE,blank=True, null=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, null=True)
+    opinion = models.TextField(default="")
+
 
 class RecentlyviewCourse(models.Model):
 
@@ -193,3 +205,4 @@ class CoursePriority(models.Model):
 
 
     
+

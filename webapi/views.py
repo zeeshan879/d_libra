@@ -537,23 +537,12 @@ class GetParentCategories(APIView):
                 
                 else:
 
-                    if ('parentCategoryid' not in request.data or 'Type' not in request.data):
-
-                        return Response({'status':False,'message':'All Filed are required'},status=200)
-
-                    if ('parentCategoryid' not in request.data and 'Type' not in request.data):
-
-                        return Response({'status':False,'message':'All Filed are required'},status=200)
-
-                    
-                        
-
                     name = request.data.get('name').lower()
-                    Categoryid = request.data.get('parentCategoryid')
+                    courseid = request.data.get('courseid',"")
                     slug = request.data.get('slug')
-                    Type = request.data.get('Type')
                     image = request.FILES.get('image')
                     uniqueid = request.data.get('uniqueidentity')
+                    categoryid = request.data.get('categoryid')
                     
                 
                     ##Image validation
@@ -561,14 +550,9 @@ class GetParentCategories(APIView):
                     if not filenameStaus:
                         return Response({'status':False,'message':'Image format is incorrect'},status=200)
 
-                    categoryExist = Category.objects.filter(name=name)
-                    if categoryExist:
-                        return Response({
-                            'status':False,
-                            'message':'Category Name Already Exist'
-                        })
 
-                    slugExist = Category.objects.filter(slug=slug)
+
+                    slugExist = Category.objects.filter(slug=slug).first()
                     if slugExist:
                         return Response({
                             'status':False,
@@ -583,39 +567,43 @@ class GetParentCategories(APIView):
                         })
 
 
-                    if  Categoryid == "":
-
-                        if Type == "":
+                    if courseid == "":
+                        categoryExist = Category.objects.filter(name=name).first()
+                        if categoryExist:
                             return Response({
-                            'status':False,
-                            'message':'Course Type is required'
-                        })
-
-                        if Type not in ['popularcourses','categoryA','categoryB','categoryC','categoryD']:
-
-                            return Response({
-                            'status':False,
-                            'message':'Category Type in incorrect'
+                                'status':False,
+                                'message':'Coursename already exist'
                             })
+                        
+                        else:
+                            fetchParent = parentCategory.objects.filter(parentid = categoryid).first()
+                            if fetchParent:
+                                data = Category(name=name,slug=slug,image=image,unique_identifier = uniqueid,CategoryType = "Category",parent_category = fetchParent)
+                                data.save()
+                                return Response({'status':True,'message':"Add Course Successfully"},status=201)
 
-                
 
+                            else:
+                                return Response({'status':False,'message':'categoryid is incorrect'})
 
-                        data = Category(name=name,slug=slug,image=image,unique_identifier = uniqueid,CategoryType = "Category",Type=Type)
-                        data.save()
-                        return Response({'status':True,'message':"Add Categroy Successfully"},status=201)
 
                     else:
-                        
-
-                        fetchparent = Category.objects.filter(id = Categoryid).first()
+                        fetchparent = Category.objects.filter(id = courseid).first()
                         if fetchparent:
-                            data = Category(name=name,slug=slug,image=image,unique_identifier = uniqueid,parent = fetchparent)
-                            data.save()
-                            return Response({'status':True,'message':"Add Sub Category Successfully"},status=201)
+                            categoryExist = Category.objects.filter(name=name,parent = fetchparent ).first()
+                            if categoryExist:
+                                return Response({
+                                    'status':False,
+                                    'message':'Chapter already exist in these course'
+                                })
+                            
+                            else:
+                                data = Category(name=name,slug=slug,image=image,unique_identifier = uniqueid,parent = fetchparent)
+                                data.save()
+                                return Response({'status':True,'message':"Add Chapters Successfully"},status=201)
 
                         else:
-                            return Response({'status':False,'message':'Category id is incorrect'})
+                            return Response({'status':False,'message':'Course id is incorrect'})
             else:
                 return Response({'status':False,'message':'Unauthorized'})
 
@@ -723,7 +711,6 @@ class AddPost(APIView):
                 if postid:
                     for j in data:
                         if j['id'] == int(postid):
-                            print("condition is true")
                             post = j
                             break
 
@@ -764,7 +751,7 @@ class AddPost(APIView):
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
 
-                requireFields = ['title','Categroyid','tags','image','content','meta_description','OGP']
+                requireFields = ['title','Categroyid','tags','image','content','meta_description','OGP','uniqueidentifier']
                 validator = uc.keyValidation(True,True,request.data,requireFields)
 
                 if validator:
@@ -778,6 +765,7 @@ class AddPost(APIView):
                     content = request.data['content']
                     meta_description = request.data['meta_description']
                     OGP = request.data['OGP']
+                    uniqueidentifier = request.data['uniqueidentifier']
 
                     ##Image validation
                     filenameStaus = uc.imageValidator(image,False,False)
@@ -785,25 +773,20 @@ class AddPost(APIView):
                         return Response({'status':False,'message':'Image format is incorrect'},status=200)
 
 
-                    checkAlreadyExist = ReviewModel.objects.filter(title=title).first()
+                    checkAlreadyExist = ReviewModel.objects.filter(unique_identifier = uniqueidentifier).first()
                     if checkAlreadyExist:
-                        return Response({'status':False,'message':"title Already Exist"},status=200)
+                        return Response({'status':False,'message':"Please provide a uniqueid"},status=200)
+                    
+                    catgory = Category.objects.filter(id = Categroyid).first()
+                    if catgory:
+                        data = ReviewModel(title=title,tags=tags,images=image,categories = catgory,author = User.objects.filter(uid = my_token['id']).first(),content=content,meta_description=meta_description,OGP=OGP,unique_identifier = uniqueidentifier)
+                        data.save()
+
+
+                        return Response({'status':True,'message':"Add Post Successfully"},status=201)
+
                     else:
-                        catgory = Category.objects.filter(id = Categroyid).first()
-                        if catgory:
-                            data = ReviewModel(title=title,tags=tags,images=image,categories = catgory,author = User.objects.filter(uid = my_token['id']).first(),content=content,meta_description=meta_description,OGP=OGP,unique_identifier = uc.randomcodegenrator())
-                            data.save()
-
-
-                            return Response({'status':True,'message':"Add Post Successfully"},status=201)
-
-                        else:
-                            return Response({'status':False,'message':"Wrong Course id"},status=200)
-
-
-
-
-
+                        return Response({'status':False,'message':"Wrong Chapterid"},status=200)
             else:
                 return Response({'status':False,'message':'Unauthorized'},status=401)
 
@@ -818,8 +801,7 @@ class AddPost(APIView):
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
 
-                requireFields = ['Postid','title','Categroyid','tags','content','meta_description','OGP','image']
-
+                requireFields = ['Postid','title','tags','content','meta_description','OGP','image']
                 validator = uc.keyValidation(True,True,request.data,requireFields[:-1])
 
                 if validator:
@@ -832,52 +814,28 @@ class AddPost(APIView):
                     tags = request.data['tags']
                     image = request.FILES.get('image',False)
                     content = request.data['content']
-                    Categroyid = request.data.get('Categroyid',False)
                     meta_description = request.data['meta_description']
                     OGP = request.data['OGP']
                     
-                    if image == "True":
-                        ##Image validation
-                        filenameStaus = uc.imageValidator(image,False,False)
-                        if not filenameStaus:
-                            return Response({'status':False,'message':'Image format is incorrect'},status=200)
-
-
                     data = ReviewModel.objects.filter(id = Postid).first()
 
                     if data:
-                        checktitleexist = ReviewModel.objects.filter(title = title).first()
-                        if not checktitleexist:
-                            data.title = title
-
-
-
+                        data.title = title
                         data.tags = tags
                         data.content = content
                         data.meta_description = meta_description
                         data.OGP = OGP
 
-
-                        if Categroyid != False:
-
-                            checkCategoryexist = Category.objects.filter(id = Categroyid).first()
-                            if checkCategoryexist:
-                                data.categories =checkCategoryexist
-
-                            else:
-                                return Response({'status':False,'message':'Category not found'},status=404)
-
-
-                        if image != False:
-                            ##Image validation
+                       
+                        if image:
+                             ##Image validation
                             filenameStaus = uc.imageValidator(image,False,False)
                             if not filenameStaus:
                                 return Response({'status':False,'message':'Image format is incorrect'},status=200)
                             else:
                                 data.images = image
 
-
-
+                        
                         data.save()
                         return Response({'status':True,'message':"Update Post Successfully"},status=200)
 
@@ -2081,6 +2039,60 @@ class addcontent(APIView):
 
                         
                         return Response({"status":False,"message":"Update bookmark"})   
+
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+
+
+
+class feedbackrecord(APIView):
+    permission_classes = [authorization]
+
+    def get(self,request):
+        try:
+            course_id = request.GET.get("courseid",False)
+            if course_id:
+                fetchTopics = ReviewModel.objects.filter(categories__parent = course_id).values("id","title","unique_identifier")
+                return Response({"status":True,"data":fetchTopics})
+
+            else:
+                return Response({"status": False,"message":"courseid is required"})
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+
+
+    def post(self,request):
+        try:
+            topicid = request.data.get('topicid',False)
+            opinion = request.data.get('opinion',False)
+            if topicid and opinion:
+                ##fetch author
+                tokenid = request.GET['token']
+                authorFetch = User.objects.get(uid = tokenid['id'])
+                
+                ###check user already record response
+
+                fetchFeedback = feedback.objects.filter(author = authorFetch,topic = topicid)
+                if not fetchFeedback:
+                    fetchTopic = ReviewModel.objects.filter(id = topicid).first()
+                    if fetchTopic:
+                        feedback(author = authorFetch,topic = fetchTopic,opinion = opinion).save()
+                        return Response({"status":True,"message":"Response recorded"})
+
+                    else:
+                        return Response({"status":False,"message":"topicid is incorrect"})
+
+
+                else:
+                    return Response({"status":False,"message":"response already recorded"})
+
+            else:
+                return Response({"status": False,"message":"topicid,opinion is required"})
+
 
 
         except Exception as e:

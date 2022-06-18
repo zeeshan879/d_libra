@@ -17,6 +17,7 @@ path('allcategories',allcategories.as_view()),
 
 
 path('parentCategories',parentCategories.as_view()),
+path('feedbackrecord',feedbackrecord.as_view()),
 
 
 
