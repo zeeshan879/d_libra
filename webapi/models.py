@@ -86,6 +86,8 @@ class parentCategory(models.Model):
     image = models.FileField(upload_to="category_pic", blank=True, null=True)
     unique_identifier = models.BigIntegerField(unique=True,null=True, blank=True,
     help_text="You don't have to do it manually, & After you save it you can also edit")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
     class Meta:
@@ -98,6 +100,7 @@ class parentCategory(models.Model):
 class Category(MPTTModel):
 
     name = models.CharField(max_length=200)
+    parent_category = models.ForeignKey(parentCategory, on_delete =models.CASCADE)
     image = models.FileField(upload_to="category_pic", blank=True, null=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name= 'children', db_index=True, on_delete=models.CASCADE)
     unique_identifier = models.BigIntegerField(unique=True,null=True, blank=True,
