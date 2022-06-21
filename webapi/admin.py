@@ -14,7 +14,8 @@ class CategoryAdmin(ImportExportModelAdmin, DraggableMPTTAdmin, admin.ModelAdmin
 	list_display = ['id','tree_actions','indented_title', 'name', 'unique_identifier' ,'image', 'ceated_date','update_date','Type']
 	# ordering = ('unique_identifier',)
 	search_fields = ['name', 'unique_identifier',]
-	fields = (('name'), ('parent'),('unique_identifier'),('slug'),('CategoryType'),('image'),('Type'))
+	# fields = (('name'), ('parent'),('unique_identifier'),('slug'),('CategoryType'),('image'),('Type'),('parent_category'))
+	fields = (('name'), ('parent'),('unique_identifier'),('slug'),('image'),('parent_category'))
 	mptt_level_indent = 40
 
 	def ceated_date(self, obj):
@@ -79,7 +80,7 @@ admin.site.register(ContentRating)
 admin.site.register(CoursePriority)
 admin.site.register(blacklistToken)
 admin.site.register(bookmarkName)
-
-
+admin.site.register(parentCategory)
+admin.site.register(feedback)
 
 

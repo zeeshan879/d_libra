@@ -13,6 +13,15 @@ path('userprofile',userprofile.as_view()),
 path('changepassword',changepassword.as_view()),
 path('GetParentCategories',GetParentCategories.as_view()),
 path('GetChildCategories',GetChildCategories.as_view()),
+path('allcategories',allcategories.as_view()),
+
+
+path('parentCategories',parentCategories.as_view()),
+path('feedbackrecord',feedbackrecord.as_view()),
+
+
+
+
 path('AddPost',AddPost.as_view()),
 path('GetDashboardData',GetDashboardData.as_view()),
 path('GetParentChildCategories',GetParentChildCategories.as_view()),
@@ -32,6 +41,7 @@ path('UpdatePassword',UpdatePassword.as_view()),
 path('recentlyViewContenthistory',recentlyViewContenthistory.as_view()),
 path('GetTopicData',GetTopicData.as_view()),
 path('bookadd',bookadd.as_view()),
+path('addcontent',addcontent.as_view()),
 path('logout',logout.as_view()),
 
 

@@ -6,6 +6,7 @@ from django.core.validators import FileExtensionValidator
 from taggit.managers import TaggableManager
 from taggit.models import TaggedItem, TaggedItemBase
 from rest_framework import serializers
+import uuid
 # Create your models here.
 
 user_role =(
@@ -77,9 +78,29 @@ class MembershipPlan(models.Model):
         verbose_name_plural = 'MemberShip Plan for User'
 
 
+
+class parentCategory(models.Model):
+    parentid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True,db_index=True,help_text='slug is an Unique value for singel categories page URL, Same as category Name',blank=True)
+    image = models.FileField(upload_to="category_pic", blank=True, null=True)
+    unique_identifier = models.BigIntegerField(unique=True,null=True, blank=True,
+    help_text="You don't have to do it manually, & After you save it you can also edit")
+    created_at = models.DateTimeField(auto_now_add=True,blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True,blank=True, null=True)
+
+
+    class Meta:
+        verbose_name = 'Category'
+
+    def __str__(self):
+        return self.name
+
+
 class Category(MPTTModel):
 
     name = models.CharField(max_length=200)
+    parent_category = models.ForeignKey(parentCategory, on_delete =models.CASCADE,blank=True, null=True)
     image = models.FileField(upload_to="category_pic", blank=True, null=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name= 'children', db_index=True, on_delete=models.CASCADE)
     unique_identifier = models.BigIntegerField(unique=True,null=True, blank=True,
@@ -90,6 +111,11 @@ class Category(MPTTModel):
     CategoryType = models.CharField(max_length=20,default="")
     Type = models.CharField(max_length=30,choices=Coursetype,default="popularcourses")
 
+    
+    class Meta:
+        verbose_name = 'Course_or_Chapter'
+    
+    
     def __str__(self):
         return self.name
 
@@ -116,6 +142,18 @@ class ReviewModel(models.Model):
     tags =   models.TextField(default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+
+    def __str__(self):
+        return self.title
+
+
+class feedback(models.Model):
+    topic =  models.ForeignKey(ReviewModel, on_delete=models.CASCADE,blank=True, null=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, null=True)
+    opinion = models.TextField(default="")
+
 
 class RecentlyviewCourse(models.Model):
 
@@ -167,3 +205,4 @@ class CoursePriority(models.Model):
 
 
     
+
