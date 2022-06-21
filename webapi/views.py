@@ -23,7 +23,6 @@ from itertools import chain
 def index(request):
     return HttpResponse('<h1>Project libra</h1>')
 
-
 def verification(request,email,authtoken):
     try:
         data = User.objects.get(email = email,Otp  = authtoken)
@@ -34,9 +33,6 @@ def verification(request,email,authtoken):
 
     except:
         return redirect("https://libraa.ml/login")
-
-
-
 
 class signup(APIView):
     def post(self,request):
@@ -96,9 +92,6 @@ class signup(APIView):
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
-
-
-
 
 class signupwithgoogle(APIView):
     
@@ -168,10 +161,6 @@ class signupwithgoogle(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
         
-
-
-
-
 class userlogin(APIView):
     def post(self,request):
         try:
@@ -257,8 +246,6 @@ class userprofile(APIView):
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
-
-
 
     def put(self,request):
         try:
@@ -1458,7 +1445,6 @@ class RatingCourse(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
 
-
 class GetTopicContent(APIView):
 
     def get(self,request):
@@ -1850,10 +1836,6 @@ class GetTopicData(APIView):
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
-
-
-
-
 
 class bookadd(APIView):
     permission_classes = [authorization]
