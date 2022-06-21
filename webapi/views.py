@@ -433,10 +433,10 @@ class GetParentCategories(APIView):
         data = CourseRating.objects.all().values('rating',courseid=F('course_id__id'))
         query = request.GET.get("search",False)
         if not query:
-            mydata = Category.objects.filter(CategoryType="Category").values('id','image','Type',CategoryName=F('name'))
+            mydata = Category.objects.filter(CategoryType="Category").values('id','image','Type',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'))
 
         else:
-            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).values('id','image','Type',CategoryName=F('name'))
+            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).values('id','image','Type',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'))
 
 
         ##calculate total person and their rating
@@ -473,40 +473,60 @@ class GetParentCategories(APIView):
             else:
                 del k['rating']
 
-        listpopularcourses = []
-        listcategoryA = []
-        listcategoryB = []
-        listcategoryC = []
-        listcategoryD = []
+        # listpopularcourses = []
+        # listcategoryA = []
+        # listcategoryB = []
+        # listcategoryC = []
+        # listcategoryD = []
 
-        for i in range(len(mydata)):
+        # for i in range(len(mydata)):
 
 
-            if mydata[i]['Type'] == "popularcourses":
+        #     if mydata[i]['Type'] == "popularcourses":
 
-                listpopularcourses.append(mydata[i])
+        #         listpopularcourses.append(mydata[i])
 
-            if mydata[i]['Type'] == "categoryA":
+        #     if mydata[i]['Type'] == "categoryA":
 
-                listcategoryA.append(mydata[i])
+        #         listcategoryA.append(mydata[i])
 
-            if mydata[i]['Type'] == "categoryB":
+        #     if mydata[i]['Type'] == "categoryB":
 
-                listcategoryB.append(mydata[i])
+        #         listcategoryB.append(mydata[i])
 
-            if mydata[i]['Type'] == "categoryC":
+        #     if mydata[i]['Type'] == "categoryC":
 
-                listcategoryC.append(mydata[i])
+        #         listcategoryC.append(mydata[i])
 
-            if mydata[i]['Type'] == "categoryD":
+        #     if mydata[i]['Type'] == "categoryD":
 
-                listcategoryD.append(mydata[i])
+        #         listcategoryD.append(mydata[i])
             
      
-        obj1 = [{'chaptername':'popular courses','items':listpopularcourses},{'chaptername':'Category A','items':listcategoryA},{'chaptername':'Category B','items':listcategoryB},{'chaptername':'Category C','items':listcategoryC},{'chaptername':'Category D','items':listcategoryD}]
-    
+        # obj1 = [{'chaptername':'popularcourses','items':listpopularcourses},{'chaptername':'Category A','items':listcategoryA},{'chaptername':'Category B','items':listcategoryB},{'chaptername':'Category C','items':listcategoryC},{'chaptername':'Category D','items':listcategoryD}]
 
-        Data = [{'status':True,'data':obj1}]
+        Categorylist = []
+        listcategory = []
+        mylistlist = []
+
+        mycategorylits = parentCategory.objects.values_list('name',flat=True)
+        unique_list = []
+        for i in range(len(mycategorylits)):
+
+            for j in range(len(mydata)):
+                if mycategorylits[i] == mydata[j]['ParentCategoryType']:
+
+                
+                    listcategory.append(mydata[j])
+              
+                    data = [{'chaptername':mycategorylits[i],'items':listcategory}]
+
+            mylistlist.append(data)
+        
+
+        
+
+        Data = [{'status':True,'data':mylistlist}]
 
         return Response(Data,status=200)
 
@@ -643,8 +663,6 @@ class allcategories(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
 
-
-
             
 class GetChildCategories(APIView):
 
@@ -664,11 +682,6 @@ class GetChildCategories(APIView):
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
-
-
-
-
-
 
 class AddPost(APIView):
 
