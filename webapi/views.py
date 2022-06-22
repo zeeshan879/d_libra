@@ -2063,3 +2063,33 @@ class feedbackrecord(APIView):
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
+
+
+class GetPriorityCourse(APIView):
+
+    permission_classes = [authorization]
+
+    def get(self,request):
+
+        try:
+
+
+            data = CoursePriority.objects.filter(author__uid = request.GET['token']['id']).values_list('content_id__id',flat=True)
+
+        
+            mydata = ReviewModel.objects.filter(id__in = data).values(Courseid=F('categories__id'),Coursename=F('categories__name'))
+
+            for i in range(len(mydata)):
+
+                data = CoursePriority.objects.filter(content_id__categories__id = mydata[i]['Courseid']).values(contentid=F('content_id__id'),contentname=F('content_id__title'),contentimage=F('content_id__images'))
+
+                mydata[i]['Chapter'] = data
+                del mydata[i]['Courseid']
+            
+
+            return Response({"status":True,"data":mydata})
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+
