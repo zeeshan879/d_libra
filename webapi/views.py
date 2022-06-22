@@ -519,7 +519,7 @@ class GetParentCategories(APIView):
                 
                     listcategory.append(mydata[j])
               
-                    data = [{'chaptername':mycategorylits[i],'items':listcategory}]
+                    data = {'chaptername':mycategorylits[i],'items':listcategory}
 
             mylistlist.append(data)
         
