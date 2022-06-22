@@ -436,7 +436,7 @@ class GetParentCategories(APIView):
             mydata = Category.objects.filter(CategoryType="Category").values('id','image','Type',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'))
 
         else:
-            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).values('id','image','Type',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'))
+            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).values('id','image',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'))
 
 
         ##calculate total person and their rating
@@ -473,59 +473,29 @@ class GetParentCategories(APIView):
             else:
                 del k['rating']
 
-        # listpopularcourses = []
-        # listcategoryA = []
-        # listcategoryB = []
-        # listcategoryC = []
-        # listcategoryD = []
-
-        # for i in range(len(mydata)):
-
-
-        #     if mydata[i]['Type'] == "popularcourses":
-
-        #         listpopularcourses.append(mydata[i])
-
-        #     if mydata[i]['Type'] == "categoryA":
-
-        #         listcategoryA.append(mydata[i])
-
-        #     if mydata[i]['Type'] == "categoryB":
-
-        #         listcategoryB.append(mydata[i])
-
-        #     if mydata[i]['Type'] == "categoryC":
-
-        #         listcategoryC.append(mydata[i])
-
-        #     if mydata[i]['Type'] == "categoryD":
-
-        #         listcategoryD.append(mydata[i])
-            
      
-        # obj1 = [{'chaptername':'popularcourses','items':listpopularcourses},{'chaptername':'Category A','items':listcategoryA},{'chaptername':'Category B','items':listcategoryB},{'chaptername':'Category C','items':listcategoryC},{'chaptername':'Category D','items':listcategoryD}]
 
         Categorylist = []
-        listcategory = []
         mylistlist = []
+
+        
 
         mycategorylits = parentCategory.objects.values_list('name',flat=True)
         unique_list = []
         for i in range(len(mycategorylits)):
-
+            listcategory = list()
             for j in range(len(mydata)):
+
+               
                 if mycategorylits[i] == mydata[j]['ParentCategoryType']:
-
-                
+                    
                     listcategory.append(mydata[j])
-              
-                    data = {'chaptername':mycategorylits[i],'items':listcategory}
+            
+                    
 
+            data = {'chaptername':mycategorylits[i],'items':listcategory}
             mylistlist.append(data)
         
-
-        
-
         Data = [{'status':True,'data':mylistlist}]
 
         return Response(Data,status=200)
