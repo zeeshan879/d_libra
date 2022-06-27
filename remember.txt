@@ -1,25 +1,14 @@
-class SetPriority(APIView):
+##check bookmarktype
+try:
+    my_token = uc.tokenauth(request.META.get('HTTP_AUTHORIZATION',False)[7:],role)
+    if my_token: 
+        bookmarkType = CoursePriority.objects.filter(content_id = postid,author = my_token['id']).values('PriorityType').first()
+    
+    else:
+        bookmarkType = "null"
 
-    def get(self,request):
-
-        role = request.GET['role']
-        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
-        if my_token:
-
-            prioritylist = ['highpriority','reviewlist','futureread']
-
-            bookmarkdata = bookmarkName.objects.filter(user__uid = my_token['id']).values('name')
-            if not bookmarkdata:
+except:
+    bookmarkType = "null"
 
 
-                mylistlist = []
-
-                for i in range(len(prioritylist)):
-
-                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values(Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))
-
-                    data = [{'PriorityType':prioritylist[i],'items':getdata}]
-                    mylistlist.append(data)
-                    
-
-                return Response({'status':True,'data':mylistlist},status=200)
+return Response({'status':True,'post':post,'all':data,'nextcategory':nextindex,"bookmark":bookmarkType},status=200)

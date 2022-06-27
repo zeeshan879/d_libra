@@ -912,7 +912,7 @@ class GetDashboardDataWithAuthorization(APIView):
 
     def get(self,request):
 
-        # role = request.GET.get('role','normaluser')
+        role = request.GET['role']
         # my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
         # if my_token:
 
@@ -932,6 +932,7 @@ class GetDashboardDataWithAuthorization(APIView):
 
 
                         if data:
+                            
 
                             for i in range(len(myCategorydata)):
 
@@ -944,9 +945,40 @@ class GetDashboardDataWithAuthorization(APIView):
                             
                                 mydata = ReviewModel.objects.filter(categories__id = data[j]['id']).values('id','title','images')
                                 data[j]['lecture'] = mydata
-                        
+
                             
                             data = list(myCategorydata)+list(data)
+
+                            try:
+                                my_token = uc.tokenauth(request.META.get('HTTP_AUTHORIZATION',False)[7:],role)
+                                if my_token: 
+
+                                    mydata = CoursePriority.objects.filter(author__uid = my_token['id']).values('PriorityType',Contentid=F('content_id__id'))
+
+                                
+                                    for i in range(len(data)):
+                                        
+                                        for j in range(len(data[i]['lecture'])):
+                                        
+                                            for k in range(len(mydata)):
+
+                                                if data[i]['lecture'][j]['id'] == mydata[k]['Contentid']:
+
+                                                    data[i]['lecture'][j]['PriorityType'] = mydata[k]['PriorityType']
+                                                    
+                                                    print()
+
+                                                else:
+                                                    data[i]['lecture'][j]['PriorityType'] = "null"
+
+                            except:
+
+                                for i in range(len(data)):
+                                    
+                                    for j in range(len(data[i]['lecture'])):
+                                    
+                                        data[i]['lecture'][j]['PriorityType'] = "null"
+                                                
                         
                         
                             ##prepare dropdown
@@ -963,6 +995,7 @@ class GetDashboardDataWithAuthorization(APIView):
                                 }},status=200)
 
                         else:
+                            
 
                             myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'))
                             
@@ -975,6 +1008,36 @@ class GetDashboardDataWithAuthorization(APIView):
                                     myCategorydata[i]['lecture'] = mydata
 
                                     data = list(myCategorydata)
+
+                                    try:
+                                        my_token = uc.tokenauth(request.META.get('HTTP_AUTHORIZATION',False)[7:],role)
+                                        if my_token: 
+
+                                            mydata = CoursePriority.objects.filter(author__uid = my_token['id']).values('PriorityType',Contentid=F('content_id__id'))
+
+                                        
+                                            for i in range(len(data)):
+                                                
+                                                for j in range(len(data[i]['lecture'])):
+                                                
+                                                    for k in range(len(mydata)):
+
+                                                        if data[i]['lecture'][j]['id'] == mydata[k]['Contentid']:
+
+                                                            data[i]['lecture'][j]['PriorityType'] = mydata[k]['PriorityType']
+                                                            
+                                                            print()
+
+                                                        else:
+                                                            data[i]['lecture'][j]['PriorityType'] = "null"
+
+                                    except:
+
+                                        for i in range(len(data)):
+                                            
+                                            for j in range(len(data[i]['lecture'])):
+                                            
+                                                data[i]['lecture'][j]['PriorityType'] = "null"
                         
                         
                                 ##prepare dropdown
@@ -989,10 +1052,6 @@ class GetDashboardDataWithAuthorization(APIView):
                                     "parent":{"id":data[0]['id'],"CategoryName":data[0]['CategoryName']},
                                     "childs":dropdown
                                 }},status=200)
-
-                            
-
-                
 
                     else:
 
