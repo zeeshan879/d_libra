@@ -411,7 +411,7 @@ class parentCategories(APIView):
                     
                     data = parentCategory(name=name,slug=slug,image=image,unique_identifier = uniqueid)
                     data.save()
-                    return Response({"status":True,"data":"Add successfully"})
+                    return Response({"status":True,"message":"Add successfully"})
 
             else:
                 return Response({'status':False,'message':'Unauthorized'})
@@ -886,7 +886,7 @@ class GetParentChildCategories(APIView):
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
 
-                data = Category.objects.filter(CategoryType = "Category").values('id','image','created_at','created_at','updated_at','CategoryType',CategoryName=F('name'))
+                data = Category.objects.filter(CategoryType = "Category").values('id','image','created_at','updated_at','CategoryType','unique_identifier',CategoryName=F('name'))
                 if data:
                     for i in range(len(data)):
 
