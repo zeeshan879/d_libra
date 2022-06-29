@@ -168,6 +168,8 @@ class RecentlyviewContent(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, null=True)
     content_id = models.ForeignKey(ReviewModel, on_delete=models.CASCADE,blank=True, null=True)
     BookmarkStatus = models.BooleanField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 class CourseRating(models.Model):
 
     course_id = models.ForeignKey(Category, on_delete=models.CASCADE,blank=True, null=True)
