@@ -410,7 +410,7 @@ class parentCategories(APIView):
                     
                     data = parentCategory(name=name,slug=slug,image=image,unique_identifier = uniqueid)
                     data.save()
-                    return Response({"status":True,"data":"Add successfully"})
+                    return Response({"status":True,"message":"Add successfully"})
 
             else:
                 return Response({'status':False,'message':'Unauthorized'})
@@ -881,7 +881,7 @@ class GetParentChildCategories(APIView):
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
 
-                data = Category.objects.filter(CategoryType = "Category").values('id','image','created_at','created_at','updated_at','CategoryType',CategoryName=F('name'))
+                data = Category.objects.filter(CategoryType = "Category").values('id','image','created_at','updated_at','CategoryType','unique_identifier',CategoryName=F('name'))
                 if data:
                     for i in range(len(data)):
 
@@ -915,7 +915,9 @@ class GetDashboardDataWithAuthorization(APIView):
 
         id = request.GET.get('id')
 
+        
         if id:
+
 
             checkdata = Category.objects.filter(id=id).first()
             if checkdata:
@@ -927,6 +929,7 @@ class GetDashboardDataWithAuthorization(APIView):
 
 
                     if data:
+
 
                         
                         for i in range(len(myCategorydata)):
@@ -990,6 +993,8 @@ class GetDashboardDataWithAuthorization(APIView):
                             }},status=200)
 
                     else:
+
+                        
                         
 
                         myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'))
@@ -1614,7 +1619,6 @@ class SetPriority(APIView):
 
 
                 mylistlist = []
-
                 for i in range(len(prioritylist)):
 
                     getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values(Chapterid=F('content_id__categories__id'),Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))
@@ -1642,7 +1646,7 @@ class SetPriority(APIView):
 
                 for i in range(len(prioritylist)):
 
-                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values(Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))
+                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values(Chapterid=F('content_id__categories__id'),Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))
 
                     data = [{'PriorityType':prioritylist[i],'items':getdata}]
                     mylistlist.append(data)
@@ -1885,7 +1889,7 @@ class recentlyViewContenthistory(APIView):
             monthly = datetime.datetime.now().date() - timedelta(days=30)
      
 
-            todaydata = RecentlyviewContent.objects.filter(created_at__range=(today_min, today_max),author__uid = my_token['id']).values(Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
+            todaydata = RecentlyviewContent.objects.filter(created_at__range=(today_min, today_max),author__uid = my_token['id']).values(chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
 
 
             for i in range(len(todaydata)):
