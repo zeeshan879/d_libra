@@ -1,14 +1,44 @@
-##check bookmarktype
 try:
     my_token = uc.tokenauth(request.META.get('HTTP_AUTHORIZATION',False)[7:],role)
     if my_token: 
-        bookmarkType = CoursePriority.objects.filter(content_id = postid,author = my_token['id']).values('PriorityType').first()
+
+        mydata = CoursePriority.objects.filter(author__uid = my_token['id']).values('PriorityType',Contentid=F('content_id__id'))
+
     
-    else:
-        bookmarkType = "null"
+        for i in range(len(data)):
+            
+            for j in range(len(data[i]['lecture'])):
+            
+                for k in range(len(mydata)):
+
+                    if data[i]['lecture'][j]['id'] == mydata[k]['Contentid']:
+
+                        data[i]['lecture'][j]['PriorityType'] = mydata[k]['PriorityType']
+                        
+                        print()
+
+                    else:
+                        data[i]['lecture'][j]['PriorityType'] = "null"
 
 except:
-    bookmarkType = "null"
+
+    for i in range(len(data)):
+        
+        for j in range(len(data[i]['lecture'])):
+        
+            data[i]['lecture'][j]['PriorityType'] = "null"
+                    
 
 
-return Response({'status':True,'post':post,'all':data,'nextcategory':nextindex,"bookmark":bookmarkType},status=200)
+##prepare dropdown
+dropdown = list()
+for j in range(1,len(data)):
+    obj = {"id":data[j]['id'],"CategoryName":data[j]['CategoryName']}
+    dropdown.append(obj)
+
+
+return Response({'status':True,'data':data,"dropdown":{
+
+        "parent":{"id":data[0]['id'],"CategoryName":data[0]['CategoryName']},
+        "childs":dropdown
+    }},status=200)

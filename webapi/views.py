@@ -346,7 +346,6 @@ class changepassword(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
 
-
 class parentCategories(APIView):
 
     def get(self,request):
@@ -421,8 +420,6 @@ class parentCategories(APIView):
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
-
-
 
 class GetParentCategories(APIView):
 
@@ -616,7 +613,6 @@ class GetParentCategories(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
 
-
 class allcategories(APIView):
     def get(self,request):
         try:
@@ -632,8 +628,7 @@ class allcategories(APIView):
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
-
-            
+         
 class GetChildCategories(APIView):
 
     def get(self,request):
@@ -650,7 +645,7 @@ class GetChildCategories(APIView):
                 return Response({'status':False,'message':'Unauthorized'})
 
         except Exception as e:
-            message = {'status':"error",'message':str(e)}
+            message = {'status':"errGetParentCategoriesor",'message':str(e)}
             return Response(message,status=500)
 
 class AddPost(APIView):
@@ -916,71 +911,130 @@ class GetDashboardDataWithAuthorization(APIView):
         # my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
         # if my_token:
 
-        try:
+        # try:
 
-            id = request.GET.get('id')
+        id = request.GET.get('id')
 
-            if id:
+        if id:
 
-                checkdata = Category.objects.filter(id=id).first()
-                if checkdata:
-                    if checkdata.CategoryType == "Category":
+            checkdata = Category.objects.filter(id=id).first()
+            if checkdata:
+                if checkdata.CategoryType == "Category":
 
-                        data = Category.objects.filter(parent__id=id,CategoryType="SubCategory").values('id',CategoryName=F('name'))
+                    data = Category.objects.filter(parent__id=id,CategoryType="SubCategory").values('id',CategoryName=F('name'))
 
-                        myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'))
+                    myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'))
 
 
-                        if data:
-                            
+                    if data:
 
-                            for i in range(len(myCategorydata)):
-
-                                
-                                mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images')
-                                myCategorydata[i]['lecture'] = mydata
-
-                            for j in range(len(data)):
-                                
-                            
-                                mydata = ReviewModel.objects.filter(categories__id = data[j]['id']).values('id','title','images')
-                                data[j]['lecture'] = mydata
+                        
+                        for i in range(len(myCategorydata)):
 
                             
-                            data = list(myCategorydata)+list(data)
+                            mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images')
+                            myCategorydata[i]['lecture'] = mydata
 
-                            try:
-                                my_token = uc.tokenauth(request.META.get('HTTP_AUTHORIZATION',False)[7:],role)
-                                if my_token: 
+                        for j in range(len(data)):
+                            
+                        
+                            mydata = ReviewModel.objects.filter(categories__id = data[j]['id']).values('id','title','images')
+                            data[j]['lecture'] = mydata
 
-                                    mydata = CoursePriority.objects.filter(author__uid = my_token['id']).values('PriorityType',Contentid=F('content_id__id'))
+                        
+                        data = list(myCategorydata)+list(data)
 
-                                
-                                    for i in range(len(data)):
-                                        
-                                        for j in range(len(data[i]['lecture'])):
-                                        
-                                            for k in range(len(mydata)):
+                        try:
+                            my_token = uc.tokenauth(request.META.get('HTTP_AUTHORIZATION',False)[7:],role)
+                            if my_token: 
 
-                                                if data[i]['lecture'][j]['id'] == mydata[k]['Contentid']:
+                                mydata = CoursePriority.objects.filter(author__uid = my_token['id']).values('PriorityType',Contentid=F('content_id__id'))
 
-                                                    data[i]['lecture'][j]['PriorityType'] = mydata[k]['PriorityType']
-                                                    
-                                                    print()
-
-                                                else:
-                                                    data[i]['lecture'][j]['PriorityType'] = "null"
-
-                            except:
-
+                            
                                 for i in range(len(data)):
                                     
                                     for j in range(len(data[i]['lecture'])):
                                     
-                                        data[i]['lecture'][j]['PriorityType'] = "null"
+                                        for k in range(len(mydata)):
+
+                                            if data[i]['lecture'][j]['id'] == mydata[k]['Contentid']:
+
+                                                data[i]['lecture'][j]['PriorityType'] = mydata[k]['PriorityType']
                                                 
+                                                print()
+
+                                            else:
+                                                data[i]['lecture'][j]['PriorityType'] = "null"
+
+                        except:
+
+                            for i in range(len(data)):
+                                
+                                for j in range(len(data[i]['lecture'])):
+                                
+                                    data[i]['lecture'][j]['PriorityType'] = "null"
+                                            
+                    
+                    
+                        ##prepare dropdown
+                        dropdown = list()
+                        for j in range(1,len(data)):
+                            obj = {"id":data[j]['id'],"CategoryName":data[j]['CategoryName']}
+                            dropdown.append(obj)
                         
                         
+                        return Response({'status':True,'data':data,"dropdown":{
+
+                                "parent":{"id":data[0]['id'],"CategoryName":data[0]['CategoryName']},
+                                "childs":dropdown
+                            }},status=200)
+
+                    else:
+                        
+
+                        myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'))
+                        
+                        if myCategorydata:
+
+                            for i in range(len(myCategorydata)):
+
+                            
+                                mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images')
+                                myCategorydata[i]['lecture'] = mydata
+
+                                data = list(myCategorydata)
+
+                                try:
+                                    my_token = uc.tokenauth(request.META.get('HTTP_AUTHORIZATION',False)[7:],role)
+                                    if my_token: 
+
+                                        mydata = CoursePriority.objects.filter(author__uid = my_token['id']).values('PriorityType',Contentid=F('content_id__id'))
+
+                                    
+                                        for i in range(len(data)):
+                                            
+                                            for j in range(len(data[i]['lecture'])):
+                                            
+                                                for k in range(len(mydata)):
+
+                                                    if data[i]['lecture'][j]['id'] == mydata[k]['Contentid']:
+
+                                                        data[i]['lecture'][j]['PriorityType'] = mydata[k]['PriorityType']
+                                                        
+                                                        print()
+
+                                                    else:
+                                                        data[i]['lecture'][j]['PriorityType'] = "null"
+
+                                except:
+
+                                    for i in range(len(data)):
+                                        
+                                        for j in range(len(data[i]['lecture'])):
+                                        
+                                            data[i]['lecture'][j]['PriorityType'] = "null"
+                    
+                    
                             ##prepare dropdown
                             dropdown = list()
                             for j in range(1,len(data)):
@@ -990,96 +1044,37 @@ class GetDashboardDataWithAuthorization(APIView):
                             
                             return Response({'status':True,'data':data,"dropdown":{
 
-                                    "parent":{"id":data[0]['id'],"CategoryName":data[0]['CategoryName']},
-                                    "childs":dropdown
-                                }},status=200)
-
-                        else:
-                            
-
-                            myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'))
-                            
-                            if myCategorydata:
-
-                                for i in range(len(myCategorydata)):
-
-                                
-                                    mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images')
-                                    myCategorydata[i]['lecture'] = mydata
-
-                                    data = list(myCategorydata)
-
-                                    try:
-                                        my_token = uc.tokenauth(request.META.get('HTTP_AUTHORIZATION',False)[7:],role)
-                                        if my_token: 
-
-                                            mydata = CoursePriority.objects.filter(author__uid = my_token['id']).values('PriorityType',Contentid=F('content_id__id'))
-
-                                        
-                                            for i in range(len(data)):
-                                                
-                                                for j in range(len(data[i]['lecture'])):
-                                                
-                                                    for k in range(len(mydata)):
-
-                                                        if data[i]['lecture'][j]['id'] == mydata[k]['Contentid']:
-
-                                                            data[i]['lecture'][j]['PriorityType'] = mydata[k]['PriorityType']
-                                                            
-                                                            print()
-
-                                                        else:
-                                                            data[i]['lecture'][j]['PriorityType'] = "null"
-
-                                    except:
-
-                                        for i in range(len(data)):
-                                            
-                                            for j in range(len(data[i]['lecture'])):
-                                            
-                                                data[i]['lecture'][j]['PriorityType'] = "null"
-                        
-                        
-                                ##prepare dropdown
-                                dropdown = list()
-                                for j in range(1,len(data)):
-                                    obj = {"id":data[j]['id'],"CategoryName":data[j]['CategoryName']}
-                                    dropdown.append(obj)
-                                
-                                
-                                return Response({'status':True,'data':data,"dropdown":{
-
-                                    "parent":{"id":data[0]['id'],"CategoryName":data[0]['CategoryName']},
-                                    "childs":dropdown
-                                }},status=200)
-
-                    else:
-
-                        return Response({'status':True,'data':[]},status=200)
-
+                                "parent":{"id":data[0]['id'],"CategoryName":data[0]['CategoryName']},
+                                "childs":dropdown
+                            }},status=200)
 
                 else:
 
-                    return Response({'status':False,'message':"Invalid Course Id"},status=200)
+                    return Response({'status':True,'data':[]},status=200)
 
-            
 
             else:
-                data = Category.objects.filter(CategoryType="SubCategory").values('id',CategoryName=F('name'))
 
-                for i in range(len(data)):
+                return Response({'status':False,'message':"Invalid Course Id"},status=200)
 
-                    mydata = ReviewModel.objects.filter(categories__id = data[i]['id']).values('id','title','images')
-                    data[i]['lecture'] = mydata
+        
 
-                return Response({'status':True,'data':data},status=200)
+        else:
+            data = Category.objects.filter(CategoryType="SubCategory").values('id',CategoryName=F('name'))
+
+            for i in range(len(data)):
+
+                mydata = ReviewModel.objects.filter(categories__id = data[i]['id']).values('id','title','images')
+                data[i]['lecture'] = mydata
+
+            return Response({'status':True,'data':data},status=200)
 
         
 
 
-        except Exception as e:
-            message = {'status':"error",'message':str(e)}
-            return Response(message,status=500)
+        # except Exception as e:
+        #     message = {'status':"error",'message':str(e)}
+        #     return Response(message,status=500)
 
         # else:
         #     return Response({'status':False,'message':'Unauthorized'},status=401)
@@ -1892,11 +1887,50 @@ class recentlyViewContenthistory(APIView):
 
             todaydata = RecentlyviewContent.objects.filter(created_at__range=(today_min, today_max),author__uid = my_token['id']).values(Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
 
+
+            for i in range(len(todaydata)):
+
+                mydata = CoursePriority.objects.filter(author__uid = my_token['id'],content_id__id=todaydata[i]['Content_id']).values('PriorityType',Contentid=F('content_id__id')).first()
+                if mydata:
+
+                    todaydata[i]['PriorityType'] = mydata['PriorityType']
+                else:
+                    todaydata[i]['PriorityType'] = "null"
+
+
+
             yesterddaydata = RecentlyviewContent.objects.filter(created_at__range=(yesterday, today),author__uid = my_token['id']).values(Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
+
+            for i in range(len(yesterddaydata)):
+
+                mydata = CoursePriority.objects.filter(author__uid = my_token['id'],content_id__id=yesterddaydata[i]['Content_id']).values('PriorityType',Contentid=F('content_id__id')).first()
+                if mydata:
+
+                    yesterddaydata[i]['PriorityType'] = mydata['PriorityType']
+                else:
+                    yesterddaydata[i]['PriorityType'] = "null"
 
             weeklydata = RecentlyviewContent.objects.filter(created_at__range=[weekly,today],author__uid = my_token['id']).values(Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
 
+            for i in range(len(weeklydata)):
+
+                mydata = CoursePriority.objects.filter(author__uid = my_token['id'],content_id__id=weeklydata[i]['Content_id']).values('PriorityType',Contentid=F('content_id__id')).first()
+                if mydata:
+
+                    weeklydata[i]['PriorityType'] = mydata['PriorityType']
+                else:
+                    weeklydata[i]['PriorityType'] = "null"
+
             monthlydata = RecentlyviewContent.objects.filter(created_at__range=[monthly,today],author__uid = my_token['id']).values(Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
+
+            for i in range(len(monthlydata)):
+
+                mydata = CoursePriority.objects.filter(author__uid = my_token['id'],content_id__id=monthlydata[i]['Content_id']).values('PriorityType',Contentid=F('content_id__id')).first()
+                if mydata:
+
+                    monthlydata[i]['PriorityType'] = mydata['PriorityType']
+                else:
+                    monthlydata[i]['PriorityType'] = "null"
 
            
 
@@ -2017,7 +2051,6 @@ class bookadd(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
 
-
 class addcontent(APIView):
     permission_classes = [authorization]
 
@@ -2068,8 +2101,6 @@ class addcontent(APIView):
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
-
-
 
 class feedbackrecord(APIView):
     permission_classes = [authorization]
@@ -2122,7 +2153,6 @@ class feedbackrecord(APIView):
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
-
 
 class GetPriorityCourse(APIView):
 
