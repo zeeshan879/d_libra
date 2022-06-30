@@ -1086,71 +1086,7 @@ class GetDashboardDataWithAuthorization(APIView):
 
 class recentlyViewCourseStatus(APIView):
 
-    # def get(self,request):
-
-    
-       
-    #     data = CourseRating.objects.all().values('rating',courseid=F('course_id__id'))
-    #     mydata = Category.objects.filter(CategoryType="Category").values('id','image',CategoryName=F('name'))
-
-    #     ##calculate total person and their rating
-    #     starobj = list()
-    #     for i in data:
-    #         for j in mydata:
-    #             if i['courseid'] == j['id']:
-    #                 starobj.append({"courseid":i['courseid'],"rating":i["rating"]})
-                   
-
-
-    #     ##populate the data
-
-    #     for k in mydata:
-    #         for l in starobj:
-    #             if l["courseid"] == k["id"]:
-    #                 if not k.get('rating',False):
-    #                     k["rating"] = l['rating']
-    #                     k["totalperson"] = 1
-    #                     k['totalratinng'] = k["rating"] / k["totalperson"]
-
-    #                 else:
-    #                     k["rating"] = k["rating"] + l['rating']
-    #                     k["totalperson"] = k["totalperson"] + 1
-    #                     k['totalratinng'] = k["rating"] / k["totalperson"]
-
-
-
-    #     ##Add keys
-    #     for k in mydata:
-    #         if not k.get('rating',False):
-    #             k["totalperson"] = 0
-    #             k['totalratinng'] = 0
-    #         else:
-    #             del k['rating']
-                
-            
-
-    #     Data = [{'status':True,'chapterName':"popular courses",'items':mydata}]
-
-    #     return Response(Data,status=200)
-
-    # def get(self,request):
-
-    #     role = request.GET['role']
-    #     my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
-    #     if my_token:
-
-    #         recentlyviewdata = RecentlyviewCourse.objects.filter(author__uid = my_token['id']).values(Courseid=F('course_id__id'),title=F('course_id__name'),images=F('course_id__image'),created = F('course_id__created_at'))
-
-
-    #         bookmarkContent = RecentlyviewCourse.objects.filter(author__uid = my_token['id'],BookmarkStatus = 1).values(Courseid=F('course_id__id'),title=F('course_id__name'),images=F('course_id__image'),created = F('course_id__created_at'))
-
-    #         data = [{'chapterName':"Recently Viewed Courses",'items':recentlyviewdata},{'chapterName': "Courses with Bookmark Contents",'items':bookmarkContent}]
-
-    #         return Response(data,status=200)
-
-
-    #     else:
-    #         return Response({'status':False,'message':'Unauthorized'},status=401)
+   
 
     def get(self,request):
 
