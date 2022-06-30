@@ -614,16 +614,11 @@ class GetParentCategories(APIView):
             return Response(message,status=500)
 
 class allcategories(APIView):
+    permission_classes = [authorization]
     def get(self,request):
         try:
-            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
-            if my_token:
-                data = Category.objects.filter(CategoryType = "Category").values('id','unique_identifier',category=F('name'))
-                return Response({'status':True,'data':data},status=200)
-
-            else:
-                return Response({'status':False,'message':'Unauthorized'})
-
+            data = Category.objects.filter(CategoryType = "Category").values('id','unique_identifier',category=F('name'))
+            return Response({'status':True,'data':data},status=200)
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
@@ -1903,7 +1898,7 @@ class recentlyViewContenthistory(APIView):
 
 
 
-            yesterddaydata = RecentlyviewContent.objects.filter(created_at__range=(yesterday, today),author__uid = my_token['id']).values(Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
+            yesterddaydata = RecentlyviewContent.objects.filter(created_at__range=(yesterday, today),author__uid = my_token['id']).values(chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
 
             for i in range(len(yesterddaydata)):
 
@@ -1914,7 +1909,7 @@ class recentlyViewContenthistory(APIView):
                 else:
                     yesterddaydata[i]['PriorityType'] = "null"
 
-            weeklydata = RecentlyviewContent.objects.filter(created_at__range=[weekly,today],author__uid = my_token['id']).values(Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
+            weeklydata = RecentlyviewContent.objects.filter(created_at__range=[weekly,today],author__uid = my_token['id']).values(chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
 
             for i in range(len(weeklydata)):
 
@@ -1925,7 +1920,7 @@ class recentlyViewContenthistory(APIView):
                 else:
                     weeklydata[i]['PriorityType'] = "null"
 
-            monthlydata = RecentlyviewContent.objects.filter(created_at__range=[monthly,today],author__uid = my_token['id']).values(Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
+            monthlydata = RecentlyviewContent.objects.filter(created_at__range=[monthly,today],author__uid = my_token['id']).values(chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
 
             for i in range(len(monthlydata)):
 
