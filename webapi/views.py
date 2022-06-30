@@ -2105,7 +2105,7 @@ class GetPriorityCourse(APIView):
 
             for i in range(len(mydata)):
 
-                data = CoursePriority.objects.filter(content_id__categories__id = mydata[i]['Courseid']).values(Courseid=F('content_id__categories__id'),contentid=F('content_id__id'),contentname=F('content_id__title'),contentimage=F('content_id__images'))
+                data = CoursePriority.objects.filter(content_id__categories__id = mydata[i]['Courseid']).values(Chapterid=F('content_id__categories__id'),contentid=F('content_id__id'),contentname=F('content_id__title'),contentimage=F('content_id__images'),Prioritytype=F('PriorityType'))
 
                 mydata[i]['Chapter'] = data
                 del mydata[i]['Courseid']
