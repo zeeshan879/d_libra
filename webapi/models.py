@@ -97,6 +97,8 @@ class parentCategory(models.Model):
         return self.name
 
 
+
+
 class Category(MPTTModel):
 
     name = models.CharField(max_length=200)

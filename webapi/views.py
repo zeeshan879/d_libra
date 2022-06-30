@@ -2101,7 +2101,7 @@ class GetPriorityCourse(APIView):
             data = CoursePriority.objects.filter(author__uid = request.GET['token']['id']).values_list('content_id__id',flat=True)
 
         
-            mydata = ReviewModel.objects.filter(id__in = data).values(Courseid=F('categories__id'),Coursename=F('categories__parent'))
+            mydata = ReviewModel.objects.filter(id__in = data).values(Courseid=F('categories__id'),Coursename=F('categories__parent__name'))
 
             for i in range(len(mydata)):
 
