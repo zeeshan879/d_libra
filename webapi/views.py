@@ -2018,7 +2018,7 @@ class addcontent(APIView):
 
                     else:
                         ##fetch all bookmarkname
-                        bookmarkname = bookmarkName.objects.filter(user = request.GET['token']['id']).values_list('name', flat=True).distinct()
+                        bookmarkname = bookmarkName.objects.filter(user = request.GET['token']['id']).values_list('name', flat=True).distinct().order_by('id')
                         
                         
                         if bookmarkname:
