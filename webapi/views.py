@@ -1520,11 +1520,8 @@ class GetTopicContent(APIView):
 class SearchCourse(APIView):
 
     def get(self,request):
-
-        role = request.GET.get('role',"superadmin")
-        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
-        if my_token:
-        
+        try:
+            role = request.GET.get('role',"superadmin")
             coursename = request.GET['coursename']
             data = ReviewModel.objects.filter(Q(title__icontains = coursename) | Q(tags__icontains = coursename)).values('id','title','images',chapterid=F('categories__id'))
             data = [{"items":data}]
@@ -1556,7 +1553,7 @@ class SearchCourse(APIView):
                                     data[i]['items'][j]['PriorityType'] = "null"
 
 
-               
+                
             except:
                 for i in range(len(data)):
                     for j in range(len(data[i]['items'])):
@@ -1566,8 +1563,12 @@ class SearchCourse(APIView):
             return Response({'status':True,'data':data},status=200)
 
 
-        else:
-            return Response({'status':False,'message':'Unauthorized'},status=401)
+
+
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
 
 class SetPriority(APIView):
 
