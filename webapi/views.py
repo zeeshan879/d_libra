@@ -2024,10 +2024,17 @@ class addcontent(APIView):
                         if bookmarkname:
                             prioritylist = prioritylist + list(bookmarkname)
 
+
+                        
                         if checkalreadyAd.PriorityType in prioritylist:
                             if len(prioritylist) != prioritylist.index(checkalreadyAd.PriorityType) + 1:
                                 checkalreadyAd.PriorityType = prioritylist[prioritylist.index(checkalreadyAd.PriorityType) + 1]
                                 checkalreadyAd.save()
+                            
+                            else:
+                                checkalreadyAd.PriorityType = prioritylist[0]
+                                checkalreadyAd.save()
+
 
                         
                         return Response({"status":False,"message":"Update bookmark"})   
