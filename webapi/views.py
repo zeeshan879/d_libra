@@ -959,7 +959,6 @@ class GetDashboardDataWithAuthorization(APIView):
 
                                                 data[i]['lecture'][j]['PriorityType'] = mydata[k]['PriorityType']
                                                 
-                                                print()
 
                                             else:
                                                 data[i]['lecture'][j]['PriorityType'] = "null"
@@ -1527,8 +1526,43 @@ class SearchCourse(APIView):
         if my_token:
         
             coursename = request.GET['coursename']
-            data = ReviewModel.objects.filter(Q(title__icontains = coursename) | Q(tags__icontains = coursename)).values('id','title','images')
+            data = ReviewModel.objects.filter(Q(title__icontains = coursename) | Q(tags__icontains = coursename)).values('id','title','images',chapterid=F('categories__id'))
             data = [{"items":data}]
+
+
+            ###priority
+
+            try:
+
+                my_token = uc.tokenauth(request.META.get('HTTP_AUTHORIZATION',False)[7:],role)
+                if my_token: 
+
+                    mydata = CoursePriority.objects.filter(author__uid = my_token['id']).values('PriorityType',Contentid=F('content_id__id'))
+
+                            
+                    for i in range(len(data)):
+                        
+                        for j in range(len(data[i]['items'])):
+                        
+                            for k in range(len(mydata)):
+                                
+                                if data[i]['items'][j]['id'] == mydata[k]['Contentid']:
+
+                                    data[i]['items'][j]['PriorityType'] = mydata[k]['PriorityType']
+                                    break
+                                    
+
+                                else:
+                                    data[i]['items'][j]['PriorityType'] = "null"
+
+
+               
+            except:
+                for i in range(len(data)):
+                    for j in range(len(data[i]['items'])):
+                        data[i]['items'][j]['PriorityType'] = "null"
+            
+            
             return Response({'status':True,'data':data},status=200)
 
 
