@@ -2021,6 +2021,27 @@ class bookadd(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
 
+
+    
+    def delete(self,request):
+        try:
+            requireFields = ['bookmarkid']
+            validator = uc.keyValidation(True,True,request.GET,requireFields)
+            if validator:
+                return Response(validator,status=200)
+            else:
+                bookmarkid = request.GET['bookmarkid']
+                fetchname = bookmarkName.objects.get(id = bookmarkid)
+                CoursePriority.objects.filter(author = request.GET['token']['id'],PriorityType = fetchname.name ).delete()
+                fetchname.delete()
+                return Response({"status":True,"message":"Delete successfully"})
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+
+
+
 class addcontent(APIView):
     permission_classes = [authorization]
 
