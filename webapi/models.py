@@ -133,7 +133,7 @@ class ReviewModel(models.Model):
     title = models.CharField(max_length=100)
     author = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, null=True)
     images = models.FileField(upload_to='media/uploads', blank=True ,validators=[FileExtensionValidator(['png','jpg','jpeg','svg'])])
-    categories = models.ForeignKey(Category, on_delete =models.CASCADE)
+    categories = models.ForeignKey(Category, on_delete =models.CASCADE,related_name='couse_topic')
     liked = models.ManyToManyField(User, blank=True, related_name='likes')
     only_to_my_page = models.BooleanField(default=False,)
     unique_identifier = models.BigIntegerField(unique=True,null=True, blank=True, help_text="You don't have to do it manually, & After you save it you can also edit")

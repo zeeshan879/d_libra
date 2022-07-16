@@ -430,10 +430,10 @@ class GetParentCategories(APIView):
         data = CourseRating.objects.all().values('rating',courseid=F('course_id__id'))
         query = request.GET.get("search",False)
         if not query:
-            mydata = Category.objects.filter(CategoryType="Category").values('id','image','Type',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'))
-
+            mydata = Category.objects.filter(CategoryType="Category").annotate(author = F('couse_topic__author__fname')).values('id','image','Type','author',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'))
+            
         else:
-            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).values('id','image',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'))
+            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).values('id','image','Type','author',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'))
 
 
         ##calculate total person and their rating
