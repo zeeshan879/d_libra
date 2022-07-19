@@ -433,7 +433,7 @@ class GetParentCategories(APIView):
             mydata = Category.objects.filter(CategoryType="Category").annotate(author = F('couse_topic__author__fname')).values('id','image','Type','author',CategoryName=F('name'),ParentCategoryType=F('parent_category__name')).distinct()
             
         else:
-            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).values('id','image','Type','author',CategoryName=F('name'),ParentCategoryType=F('parent_category__name')).distinct()
+            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).annotate(author = F('couse_topic__author__fname')).values('id','image','Type','author',CategoryName=F('name'),ParentCategoryType=F('parent_category__name')).distinct()
 
 
         ##calculate total person and their rating
@@ -872,27 +872,27 @@ class GetParentChildCategories(APIView):
     def get(self,request):
 
         try:
-            role = request.GET.get('role')
-            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
-            if my_token:
+            # role = request.GET.get('role')
+            # my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
+            # if my_token:
 
-                data = Category.objects.filter(CategoryType = "Category").values('id','image','created_at','updated_at','CategoryType','unique_identifier',CategoryName=F('name'))
-                if data:
-                    for i in range(len(data)):
+            data = Category.objects.filter(CategoryType = "Category").values('id','image','created_at','updated_at','CategoryType','unique_identifier',CategoryName=F('name'))
+            if data:
+                for i in range(len(data)):
 
-                        mydata  = Category.objects.filter(parent__id= data[i]['id']).values('id','image','unique_identifier','created_at','updated_at',CategoryName=F('name'))
+                    mydata  = Category.objects.filter(parent__id= data[i]['id']).values('id','image','unique_identifier','created_at','updated_at',CategoryName=F('name'))
 
-                        data[i]['SubCategory'] = mydata
+                    data[i]['SubCategory'] = mydata
 
-                    return Response({'status':True,'data':data},status=200)
-
-                else:
-                    return Response({'status':True,'data':[]},status=200)
-
-
+                return Response({'status':True,'data':data},status=200)
 
             else:
-                return Response({'status':False,'message':'Unauthorized'},status=401)
+                return Response({'status':True,'data':[]},status=200)
+
+
+
+            # else:
+            #     return Response({'status':False,'message':'Unauthorized'},status=401)
 
         except Exception as e:
             message = {'status':"error",'message':str(e)}
