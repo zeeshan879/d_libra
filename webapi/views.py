@@ -430,10 +430,10 @@ class GetParentCategories(APIView):
         data = CourseRating.objects.all().values('rating',courseid=F('course_id__id'))
         query = request.GET.get("search",False)
         if not query:
-            mydata = Category.objects.filter(CategoryType="Category").annotate(author = F('couse_topic__author__fname')).values('id','image','Type','author',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'))
+            mydata = Category.objects.filter(CategoryType="Category").annotate(author = F('couse_topic__author__fname')).values('id','image','Type','author',CategoryName=F('name'),ParentCategoryType=F('parent_category__name')).distinct()
             
         else:
-            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).values('id','image','Type','author',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'))
+            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).values('id','image','Type','author',CategoryName=F('name'),ParentCategoryType=F('parent_category__name')).distinct()
 
 
         ##calculate total person and their rating
@@ -872,8 +872,8 @@ class GetParentChildCategories(APIView):
     def get(self,request):
 
         try:
-
-            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+            role = request.GET.get('role')
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
             if my_token:
 
                 data = Category.objects.filter(CategoryType = "Category").values('id','image','created_at','updated_at','CategoryType','unique_identifier',CategoryName=F('name'))
