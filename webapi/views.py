@@ -654,6 +654,7 @@ class AddPost(APIView):
             # if my_token:
             postid = request.GET.get('id',False)
             categoryid = request.GET['categoryid']
+            courseid = request.GET.get('courseid',False)
             data = ReviewModel.objects.filter(categories = categoryid).values('id','title','images','categories__name','OGP','meta_description','content','tags',Categroyid=F('categories__id'))
 
             if data:
@@ -676,6 +677,9 @@ class AddPost(APIView):
 
                         else:
                             post = "null"
+                            # post = data.first()
+                else:
+                    post = data.first()
 
                 ##check bookmarktype
                 try:
@@ -689,8 +693,15 @@ class AddPost(APIView):
                 except:
                     bookmarkType = "null"
 
+                ## chapter name
+                if courseid:
+                    chapters = Category.objects.filter(parent__id = courseid,CategoryType="SubCategory").values('id',Chapters=F('name'))
 
-                return Response({'status':True,'post':post,'all':data,'nextcategory':nextindex,"bookmark":bookmarkType},status=200)
+                else:
+                    chapters = list()
+                    
+
+                return Response({'status':True,'post':post,'all':data,'nextcategory':nextindex,"bookmark":bookmarkType,"chapters":chapters},status=200)
 
 
             else:
@@ -1293,7 +1304,7 @@ class recentlyViewContentStatus(APIView):
                 checkContent = ReviewModel.objects.filter(id = content_id).first()
                 if checkContent:
 
-                    checkStatus = RecentlyviewContent.objects.filter(content_id__id = content_id).first()
+                    checkStatus = RecentlyviewContent.objects.filter(content_id__id = content_id,author = my_token['id']).first()
                     if not checkStatus:
 
                         data = RecentlyviewContent(author = User.objects.filter(uid = my_token['id']).first(),content_id = checkContent)
@@ -1301,7 +1312,9 @@ class recentlyViewContentStatus(APIView):
                         return Response({'status':True,'message':"Bookmark Successfully"},status=201)
 
                     else:
-                        return Response({'status':True,'message':"Already Bookmark"},status=200)
+                        checkStatus.created_at = datetime.datetime.now()
+                        checkStatus.save()
+                        return Response({'status':True,'message':"Update Bookmark"},status=200)
 
                 else:
 
@@ -1587,7 +1600,8 @@ class SetPriority(APIView):
                 mylistlist = []
                 for i in range(len(prioritylist)):
 
-                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values(Chapterid=F('content_id__categories__id'),Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))
+                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values(Chapterid=F('content_id__categories__id'),Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images')).distinct()
+                  
 
                     data = [{'PriorityType':prioritylist[i],'items':getdata}]
                     mylistlist.append(data)
@@ -2164,11 +2178,12 @@ class GetPriorityCourse(APIView):
             data = CoursePriority.objects.filter(author__uid = request.GET['token']['id']).values_list('content_id__id',flat=True)
 
         
-            mydata = ReviewModel.objects.filter(id__in = data).values(Courseid=F('categories__id'),Coursename=F('categories__parent__name'))
+            mydata = ReviewModel.objects.filter(id__in = data).values(Courseid=F('categories__id'),Coursename=F('categories__name')).distinct()
+
 
             for i in range(len(mydata)):
 
-                data = CoursePriority.objects.filter(content_id__categories__id = mydata[i]['Courseid']).values(Chapterid=F('content_id__categories__id'),contentid=F('content_id__id'),contentname=F('content_id__title'),contentimage=F('content_id__images'),Prioritytype=F('PriorityType'))
+                data = CoursePriority.objects.filter(content_id__categories__id = mydata[i]['Courseid'],author__uid = request.GET['token']['id']).values(Chapterid=F('content_id__categories__id'),contentid=F('content_id__id'),contentname=F('content_id__title'),contentimage=F('content_id__images'),Prioritytype=F('PriorityType'))
 
                 mydata[i]['Chapter'] = data
                 del mydata[i]['Courseid']
