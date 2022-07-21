@@ -425,8 +425,6 @@ class GetParentCategories(APIView):
 
     def get(self,request):
 
-        
-        
         data = CourseRating.objects.all().values('rating',courseid=F('course_id__id'))
         query = request.GET.get("search",False)
         if not query:

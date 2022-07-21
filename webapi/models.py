@@ -204,7 +204,3 @@ class CoursePriority(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, null=True)
     content_id = models.ForeignKey(ReviewModel, on_delete=models.CASCADE,blank=True, null=True)
     PriorityType = models.CharField(max_length=255,default="")
-
-
-    
-
