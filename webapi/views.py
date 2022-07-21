@@ -695,7 +695,8 @@ class AddPost(APIView):
 
                 ## chapter name
                 if courseid:
-                    chapters = Category.objects.filter(parent__id = courseid,CategoryType="SubCategory").values('id',Chapters=F('name'))
+                    chapters = Category.objects.filter(parent__id=courseid).values('id',CategoryName=F('name'))
+                   
 
                 else:
                     chapters = list()
