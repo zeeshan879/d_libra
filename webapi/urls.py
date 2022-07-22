@@ -46,7 +46,7 @@ path('logout',logout.as_view()),
 path('GetPriorityCourse',GetPriorityCourse.as_view()),
 
 
-
+path('backupdata',backupdata.as_view()),
 
 
 

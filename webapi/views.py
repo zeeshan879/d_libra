@@ -16,7 +16,7 @@ import api.emailpattern as em
 from datetime import timedelta
 from django.conf import settings
 from itertools import chain
-
+import subprocess
 # Create your views here.
 
 
@@ -2178,3 +2178,19 @@ class GetPriorityCourse(APIView):
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
 
+
+
+
+class backupdata(APIView):
+    def get(self,request):
+        action = request.GET.get('action')
+        if action == "backup":
+            subprocess.call(str(settings.BASE_DIR) + "/webapi/backup.sh", shell=True)
+            return Response({"status":True,"message":"Category table backup successfully"})
+
+        elif action == "loaddata":
+            subprocess.call(str(settings.BASE_DIR) + "/webapi/loaddata.sh", shell=True)
+            return Response({"status":True,"message":"loaddata successfully"})
+
+        else:
+            return Response({"status":False,"message":"Invalid action specified"})
