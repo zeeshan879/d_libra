@@ -47,6 +47,8 @@ path('GetPriorityCourse',GetPriorityCourse.as_view()),
 
 
 path('backupdata',backupdata.as_view()),
+path('exportcategory_or_course',exportcategory_or_course.as_view()),
+
 
 
 

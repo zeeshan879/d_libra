@@ -82,5 +82,6 @@ admin.site.register(blacklistToken)
 admin.site.register(bookmarkName)
 admin.site.register(parentCategory)
 admin.site.register(feedback)
+admin.site.register(fileBridge)
 
 

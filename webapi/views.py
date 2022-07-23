@@ -17,6 +17,8 @@ from datetime import timedelta
 from django.conf import settings
 from itertools import chain
 import subprocess
+import pandas as pd
+import math
 # Create your views here.
 
 
@@ -570,7 +572,7 @@ class GetParentCategories(APIView):
                                 })
                             
                             else:
-                                data = Category(name=name,slug=slug,image=image,unique_identifier = uniqueid,parent = fetchparent,Category="SubCategory")
+                                data = Category(name=name,slug=slug,image=image,unique_identifier = uniqueid,parent = fetchparent,CategoryType="SubCategory")
                                 data.save()
                                 return Response({'status':True,'message':"Add Chapters Successfully"},status=201)
 
@@ -922,7 +924,6 @@ class GetDashboardDataWithAuthorization(APIView):
 
 
                     if data:
-                        print("if")
                         for i in range(len(myCategorydata)):
 
                             
@@ -938,7 +939,6 @@ class GetDashboardDataWithAuthorization(APIView):
                         
                         data = list(myCategorydata)+list(data)
 
-                        print("before")
                         try:
                             my_token = uc.tokenauth(request.META.get('HTTP_AUTHORIZATION',False)[7:],role)
                             if my_token: 
@@ -982,7 +982,7 @@ class GetDashboardDataWithAuthorization(APIView):
                             }},status=200)
 
                     else:
-                        print("else")
+                        
                         myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'))
                         
                         if myCategorydata:
@@ -2188,3 +2188,79 @@ class backupdata(APIView):
 
         else:
             return Response({"status":False,"message":"Invalid action specified"})
+
+class exportcategory_or_course(APIView):
+    def post(self,request):
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+        if my_token:
+            requireFields = ['file']
+            validator = uc.keyValidation(True,True,request.data,requireFields)
+            if validator:
+                return Response(validator)
+            
+            else:
+                filepath = request.FILES.get('file')
+                columnFormat = ["name","image","parent","unique_identifier","slug","category"]
+                if filepath.name.endswith('xlsx'):
+                    datafile = fileBridge(files = filepath)
+                    datafile.save()
+
+                    ###then read this file with complete url
+                    objreadfile = fileBridge.objects.get(id = datafile.id)
+                    readfile = objreadfile.files
+                    datafetchfile = pd.read_excel(readfile)
+                    datafetchfile = pd.DataFrame(datafetchfile)
+                    dataColumns =  datafetchfile.columns
+                    if set(dataColumns) == set(columnFormat):
+                        ## filter parents
+                        for one,two,three,four,five,six in zip( datafetchfile['name'],datafetchfile['image'],datafetchfile['parent'],datafetchfile['unique_identifier'],datafetchfile['slug'],datafetchfile['category']):
+                        
+                            if type(three) == float:
+                                ##first insert parent means course
+                                fetchparentCategory = parentCategory.objects.filter(name = six).first()
+                                if fetchparentCategory:
+                                    ## check course is already exist  or not
+                                    alreadyexistCheck = Category.objects.filter(name = one).first()
+                                    if not alreadyexistCheck:
+
+                                        createParent = Category(name = one,parent_category = fetchparentCategory,slug = five,CategoryType = "Category",image = two,unique_identifier = four)
+                                        createParent.save()
+                                      
+
+
+                                        for subone,subtwo,subthree,subfour,subfive,subsix in zip( datafetchfile['name'],datafetchfile['image'],datafetchfile['parent'],datafetchfile['unique_identifier'],datafetchfile['slug'],datafetchfile['category']):
+
+                                            if type(subthree) != float:
+                                                if str(subfour).startswith(str(four)):
+                                                    Category(name = subone,slug = subfive,CategoryType = "SubCategory",image = subtwo,unique_identifier = subfour,parent = createParent).save()
+                                                   
+                                             
+
+
+
+                                        
+
+                                    else:
+                                        return Response({'status':False,'message':f'{one} Coursename already exists'})
+
+                                    
+
+                                else:
+                                    return Response({'status':False,'message':'Wrong category'})
+
+
+                               
+                        
+                        return Response({"status":True,"message":"Data Upload Successfully"})
+
+
+                    
+                    else:
+                        return Response({'status':'warning','message':"Column format is incorrect"})
+
+                else:
+                    return Response({'status':False,'message':'Only xlsx files are supported'})
+
+
+        else:
+            return Response({'status':False,'message':'Unauthorized'})
