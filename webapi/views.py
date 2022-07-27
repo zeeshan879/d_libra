@@ -657,6 +657,7 @@ class AddPost(APIView):
             # if my_token:
             postid = request.GET.get('id',False)
             categoryid = request.GET['categoryid']
+            courseid = request.GET.get('courseid',False)
             data = ReviewModel.objects.filter(categories = categoryid).values('id','title','images','categories__name','OGP','meta_description','content','tags',Categroyid=F('categories__id'))
 
             if data:
@@ -679,6 +680,9 @@ class AddPost(APIView):
 
                         else:
                             post = "null"
+                            # post = data.first()
+                else:
+                    post = data.first()
 
                 ##check bookmarktype
                 try:
@@ -692,8 +696,16 @@ class AddPost(APIView):
                 except:
                     bookmarkType = "null"
 
+                ## chapter name
+                if courseid:
+                    chapters = Category.objects.filter(parent__id=courseid).values('id',CategoryName=F('name'))
+                   
 
-                return Response({'status':True,'post':post,'all':data,'nextcategory':nextindex,"bookmark":bookmarkType},status=200)
+                else:
+                    chapters = list()
+                    
+
+                return Response({'status':True,'post':post,'all':data,'nextcategory':nextindex,"bookmark":bookmarkType,"chapters":chapters},status=200)
 
 
             else:
