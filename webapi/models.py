@@ -102,6 +102,7 @@ class parentCategory(models.Model):
 class Category(MPTTModel):
 
     name = models.CharField(max_length=200)
+    author = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, null=True)
     parent_category = models.ForeignKey(parentCategory, on_delete =models.CASCADE,blank=True, null=True)
     image = models.FileField(upload_to="category_pic", blank=True, null=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name= 'children', db_index=True, on_delete=models.CASCADE)
@@ -170,8 +171,8 @@ class RecentlyviewContent(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, null=True)
     content_id = models.ForeignKey(ReviewModel, on_delete=models.CASCADE,blank=True, null=True)
     BookmarkStatus = models.BooleanField(default=0)
-    # created_at = models.DateTimeField(auto_now_add=True)
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    # created_at = models.DateTimeField()
 
 class CourseRating(models.Model):
 

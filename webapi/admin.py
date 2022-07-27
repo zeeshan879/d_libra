@@ -15,7 +15,7 @@ class CategoryAdmin(ImportExportModelAdmin, DraggableMPTTAdmin, admin.ModelAdmin
 	# ordering = ('unique_identifier',)
 	search_fields = ['name', 'unique_identifier',]
 	# fields = (('name'), ('parent'),('unique_identifier'),('slug'),('CategoryType'),('image'),('Type'),('parent_category'))
-	fields = (('name'), ('parent'),('unique_identifier'),('slug'),('image'),('parent_category'),('CategoryType'))
+	fields = (('name'), ('parent'),('unique_identifier'),('slug'),('image'),('parent_category'),('CategoryType'),('author'))
 	mptt_level_indent = 40
 
 	def ceated_date(self, obj):

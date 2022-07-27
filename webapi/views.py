@@ -430,10 +430,10 @@ class GetParentCategories(APIView):
         data = CourseRating.objects.all().values('rating',courseid=F('course_id__id'))
         query = request.GET.get("search",False)
         if not query:
-            mydata = Category.objects.filter(CategoryType="Category").annotate(author = F('couse_topic__author__fname')).values('id','image','Type','author',CategoryName=F('name'),ParentCategoryType=F('parent_category__name')).distinct()
+            mydata = Category.objects.filter(CategoryType="Category").values('id','image','Type',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'),authorname = F('author__fname')).distinct()
             
         else:
-            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).values('id','image','Type','author',CategoryName=F('name'),ParentCategoryType=F('parent_category__name')).distinct()
+            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).values('id','image','Type',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'),authorname = F('author__fname')).distinct()
 
 
         ##calculate total person and their rating
@@ -504,6 +504,7 @@ class GetParentCategories(APIView):
 
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
+
                 requireFields = ['name','slug','image','uniqueidentity']
                 validator = uc.keyValidation(True,True,request.data,requireFields)
                 if validator:
@@ -552,7 +553,9 @@ class GetParentCategories(APIView):
                         else:
                             fetchParent = parentCategory.objects.filter(parentid = categoryid).first()
                             if fetchParent:
-                                data = Category(name=name,slug=slug,image=image,unique_identifier = uniqueid,CategoryType = "Category",parent_category = fetchParent)
+                                ##fetch author 
+                                authordata = User.objects.get(uid = my_token['id']) 
+                                data = Category(name=name,slug=slug,image=image,unique_identifier = uniqueid,CategoryType = "Category",parent_category = fetchParent,author = authordata)
                                 data.save()
                                 return Response({'status':True,'message':"Add Course Successfully"},status=201)
 
@@ -1284,8 +1287,7 @@ class recentlyViewContentStatus(APIView):
 
                 checkContent = ReviewModel.objects.filter(id = content_id).first()
                 if checkContent:
-
-                    checkStatus = RecentlyviewContent.objects.filter(content_id__id = content_id).first()
+                    checkStatus = RecentlyviewContent.objects.filter(content_id__id = content_id,author = my_token['id']).first()
                     if not checkStatus:
 
                         data = RecentlyviewContent(author = User.objects.filter(uid = my_token['id']).first(),content_id = checkContent)
@@ -1293,7 +1295,9 @@ class recentlyViewContentStatus(APIView):
                         return Response({'status':True,'message':"Bookmark Successfully"},status=201)
 
                     else:
-                        return Response({'status':True,'message':"Already Bookmark"},status=200)
+                        checkStatus.created_at = datetime.datetime.now().date()
+                        checkStatus.save()
+                        return Response({'status':True,'message':"update Bookmark"},status=200)
 
                 else:
 
@@ -1634,7 +1638,7 @@ class SetPriority(APIView):
             if not checkCourse:
                 return Response({'status':False,'message':'Content id is incorrect'})
 
-            checkPriority = CoursePriority.objects.filter(content_id__id = course_id,PriorityType=PriorityType).first()
+            checkPriority = CoursePriority.objects.filter(content_id__id = course_id,PriorityType=PriorityType,author = my_token['id']).first()
             if checkPriority:
 
                 return Response({'status':False,'message':'You have already set this priority'})
@@ -2080,8 +2084,9 @@ class addcontent(APIView):
                                 checkalreadyAd.save()
                             
                             else:
-                                checkalreadyAd.PriorityType = prioritylist[0]
-                                checkalreadyAd.save()
+                                # checkalreadyAd.PriorityType = prioritylist[0]
+                                # checkalreadyAd.save()
+                                checkalreadyAd.delete()
 
 
                         
@@ -2213,6 +2218,7 @@ class exportcategory_or_course(APIView):
                     dataColumns =  datafetchfile.columns
                     if set(dataColumns) == set(columnFormat):
                         ## filter parents
+                        authordata = User.objects.get(uid = my_token['id']) 
                         for one,two,three,four,five,six in zip( datafetchfile['name'],datafetchfile['image'],datafetchfile['parent'],datafetchfile['unique_identifier'],datafetchfile['slug'],datafetchfile['category']):
                         
                             if type(three) == float:
@@ -2223,7 +2229,7 @@ class exportcategory_or_course(APIView):
                                     alreadyexistCheck = Category.objects.filter(name = one).first()
                                     if not alreadyexistCheck:
 
-                                        createParent = Category(name = one,parent_category = fetchparentCategory,slug = five,CategoryType = "Category",image = two,unique_identifier = four)
+                                        createParent = Category(name = one,parent_category = fetchparentCategory,slug = five,CategoryType = "Category",image = two,unique_identifier = four,author = authordata)
                                         createParent.save()
                                       
 
