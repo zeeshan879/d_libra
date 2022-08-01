@@ -89,6 +89,7 @@ class parentCategory(models.Model):
     created_at = models.DateTimeField(auto_now_add=True,blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True,blank=True, null=True)
     # parent = TreeForeignKey('self', null=True, blank=True, related_name= 'children', db_index=True, on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', null=True, default=None, related_name='children', on_delete=models.CASCADE,blank=True)
 
 
     class Meta:

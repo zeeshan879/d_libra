@@ -354,7 +354,7 @@ class parentCategories(APIView):
         try:
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
             if my_token:
-                data = parentCategory.objects.values("parentid","name","unique_identifier")
+                data = parentCategory.objects.values("parentid","name","unique_identifier").order_by('-created_at')
                 return Response({"status":True,"data":data})
 
             else:
@@ -409,8 +409,14 @@ class parentCategories(APIView):
                             'message':'Please choose a unique id'
                         })
                     
+                    ## check parent category
+                    parent = request.data.get('parent',False)
+                    if not parent:
+                        data = parentCategory(name=name,slug=slug,image=image,unique_identifier = uniqueid)
+                    else:
+                        fetechparent = parentCategory.objects.get(parentid = parent)
+                        data = parentCategory(name=name,slug=slug,image=image,unique_identifier = uniqueid,parent = fetechparent)
                     
-                    data = parentCategory(name=name,slug=slug,image=image,unique_identifier = uniqueid)
                     data.save()
                     return Response({"status":True,"message":"Add successfully"})
 
@@ -658,7 +664,7 @@ class AddPost(APIView):
             postid = request.GET.get('id',False)
             categoryid = request.GET['categoryid']
             courseid = request.GET.get('courseid',False)
-            data = ReviewModel.objects.filter(categories = categoryid).values('id','title','images','categories__name','OGP','meta_description','content','tags',Categroyid=F('categories__id'))
+            data = ReviewModel.objects.filter(categories = categoryid).values('id','title','images','OGP','meta_description','content','tags',Categroyid=F('categories__id'),coursename = F('categories__parent__name'),chapter=F('categories__name'),slug = F('categories__slug'))
 
             if data:
                 nextcategory = Category.objects.all().values_list('id',flat=True)
