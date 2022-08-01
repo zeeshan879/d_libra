@@ -948,13 +948,13 @@ class GetDashboardDataWithAuthorization(APIView):
                         for i in range(len(myCategorydata)):
 
                             
-                            mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images')
+                            mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images',slug = F('categories__slug'),coursename = F('categories__parent__name'),chapter=F('categories__name'))
                             myCategorydata[i]['lecture'] = mydata
 
                         for j in range(len(data)):
                             
                         
-                            mydata = ReviewModel.objects.filter(categories__id = data[j]['id']).values('id','title','images')
+                            mydata = ReviewModel.objects.filter(categories__id = data[j]['id']).values('id','title','images',slug = F('categories__slug'),coursename = F('categories__parent__name'),chapter=F('categories__name'))
                             data[j]['lecture'] = mydata
 
                         
