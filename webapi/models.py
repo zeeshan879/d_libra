@@ -81,13 +81,14 @@ class MembershipPlan(models.Model):
 
 class parentCategory(models.Model):
     parentid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200,default="",null=True, blank=True)
     slug = models.SlugField(unique=True,db_index=True,help_text='slug is an Unique value for singel categories page URL, Same as category Name',blank=True)
     image = models.FileField(upload_to="category_pic", blank=True, null=True)
     unique_identifier = models.BigIntegerField(unique=True,null=True, blank=True,
     help_text="You don't have to do it manually, & After you save it you can also edit")
     created_at = models.DateTimeField(auto_now_add=True,blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True,blank=True, null=True)
+    # parent = TreeForeignKey('self', null=True, blank=True, related_name= 'children', db_index=True, on_delete=models.CASCADE)
 
 
     class Meta:
@@ -95,7 +96,6 @@ class parentCategory(models.Model):
 
     def __str__(self):
         return self.name
-
 
 
 
