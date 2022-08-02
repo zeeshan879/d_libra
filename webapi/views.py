@@ -1537,7 +1537,7 @@ class SearchCourse(APIView):
         try:
             role = request.GET.get('role',"superadmin")
             coursename = request.GET['coursename']
-            data = ReviewModel.objects.filter(Q(title__icontains = coursename) | Q(tags__icontains = coursename)).values('id','title','images',chapterid=F('categories__id'))
+            data = ReviewModel.objects.filter(Q(title__icontains = coursename) | Q(tags__icontains = coursename)).values('id','title','images',chapterid=F('categories__id'),chapter = F('categories__name'),coursename = F('categories__parent__name'),slug = F('categories__slug'),courseid = F('categories__parent__id'))
             data = [{"items":data}]
 
 
@@ -1628,7 +1628,7 @@ class SetPriority(APIView):
 
                 for i in range(len(prioritylist)):
 
-                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values(Chapterid=F('content_id__categories__id'),Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'),chapter=F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'))
+                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values('id',Chapterid=F('content_id__categories__id'),Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'),chapter=F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'))
 
                     data = [{'PriorityType':prioritylist[i],'items':getdata}]
                     mylistlist.append(data)
@@ -2182,13 +2182,20 @@ class GetPriorityCourse(APIView):
             
             mydata = ReviewModel.objects.filter(id__in = data).values(Courseid=F('categories__id'),Coursename=F('categories__parent__name'))
 
+
             for i in range(len(mydata)):
 
-                data = CoursePriority.objects.filter(content_id__categories__id = mydata[i]['Courseid']).values(Chapterid=F('content_id__categories__id'),contentid=F('content_id__id'),contentname=F('content_id__title'),contentimage=F('content_id__images'),Prioritytype=F('PriorityType'))
+                data = CoursePriority.objects.filter(author__uid = request.GET['token']['id'],content_id__categories__id = mydata[i]['Courseid']).values('id',Chapterid=F('content_id__categories__id'),contentid=F('content_id__id'),contentname=F('content_id__title'),contentimage=F('content_id__images'),Prioritytype=F('PriorityType'))
 
                 mydata[i]['Chapter'] = data
                 del mydata[i]['Courseid']
-            
+
+            for j in range(len(mydata)):
+                for k in range(len(data)):
+                    if mydata[j]['Coursename'] == None:
+                        dataObj = ReviewModel.objects.filter(id = mydata[j]['Chapter'][0]['contentid']).values(Courseid=F('categories__id'),Coursename=F('categories__name')).first()
+                        mydata[j]['Coursename'] = dataObj['Coursename']
+                        
 
             return Response({"status":True,"data":mydata})
 
