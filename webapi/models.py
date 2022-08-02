@@ -79,7 +79,7 @@ class MembershipPlan(models.Model):
 
 
 
-class parentCategory(models.Model):
+class parentCategory(MPTTModel):
     parentid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=200,default="",null=True, blank=True)
     slug = models.SlugField(unique=True,db_index=True,help_text='slug is an Unique value for singel categories page URL, Same as category Name',blank=True)
@@ -88,8 +88,8 @@ class parentCategory(models.Model):
     help_text="You don't have to do it manually, & After you save it you can also edit")
     created_at = models.DateTimeField(auto_now_add=True,blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True,blank=True, null=True)
-    # parent = TreeForeignKey('self', null=True, blank=True, related_name= 'children', db_index=True, on_delete=models.CASCADE)
-    parent = models.ForeignKey('self', null=True, default=None, related_name='children', on_delete=models.CASCADE,blank=True)
+    parent = TreeForeignKey('self', null=True, blank=True, related_name= 'children', db_index=True, on_delete=models.CASCADE)
+    # parent = models.ForeignKey('self', null=True, default=None, related_name='children', on_delete=models.CASCADE,blank=True)
 
 
     class Meta:

@@ -70,7 +70,15 @@ class ReviewModelAdmin(ImportExportModelAdmin):
 			return obj.updated_at.date() 
 	update_date.admin_order_field = 'updated_at'
 	
-	pass	
+	pass
+
+
+
+class parentCategoryAdmin(ImportExportModelAdmin, DraggableMPTTAdmin, admin.ModelAdmin):
+	search_fields = ['name', 'unique_identifier']
+	list_display = ['tree_actions','indented_title', 'unique_identifier' ,'image', 'created_at','updated_at']
+	mptt_level_indent = 40
+	pass
 
 admin.site.register(ReviewModel,ReviewModelAdmin)
 admin.site.register(RecentlyviewCourse)
@@ -80,7 +88,7 @@ admin.site.register(ContentRating)
 admin.site.register(CoursePriority)
 admin.site.register(blacklistToken)
 admin.site.register(bookmarkName)
-admin.site.register(parentCategory)
+admin.site.register(parentCategory,parentCategoryAdmin)
 admin.site.register(feedback)
 admin.site.register(fileBridge)
 
