@@ -1869,7 +1869,7 @@ class recentlyViewContenthistory(APIView):
             monthly = datetime.datetime.now().date() - timedelta(days=30)
      
 
-            todaydata = RecentlyviewContent.objects.filter(created_at__range=(today_min, today_max),author__uid = my_token['id']).values(chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
+            todaydata = RecentlyviewContent.objects.filter(created_at__range=(today_min, today_max),author__uid = my_token['id']).values(chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'),chapter = F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'))
 
 
             for i in range(len(todaydata)):
@@ -1883,7 +1883,7 @@ class recentlyViewContenthistory(APIView):
 
 
 
-            yesterddaydata = RecentlyviewContent.objects.filter(created_at__range=(yesterday, today),author__uid = my_token['id']).values(chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
+            yesterddaydata = RecentlyviewContent.objects.filter(created_at__range=(yesterday, today),author__uid = my_token['id']).values('id',chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'),chapter = F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'))
 
             for i in range(len(yesterddaydata)):
 
@@ -1894,7 +1894,7 @@ class recentlyViewContenthistory(APIView):
                 else:
                     yesterddaydata[i]['PriorityType'] = "null"
 
-            weeklydata = RecentlyviewContent.objects.filter(created_at__range=[weekly,today],author__uid = my_token['id']).values(chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
+            weeklydata = RecentlyviewContent.objects.filter(created_at__range=[weekly,today],author__uid = my_token['id']).values(chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'),chapter = F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'))
 
             for i in range(len(weeklydata)):
 
@@ -1905,7 +1905,7 @@ class recentlyViewContenthistory(APIView):
                 else:
                     weeklydata[i]['PriorityType'] = "null"
 
-            monthlydata = RecentlyviewContent.objects.filter(created_at__range=[monthly,today],author__uid = my_token['id']).values(chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'))
+            monthlydata = RecentlyviewContent.objects.filter(created_at__range=[monthly,today],author__uid = my_token['id']).values(chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'),chapter = F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'))
 
             for i in range(len(monthlydata)):
 
