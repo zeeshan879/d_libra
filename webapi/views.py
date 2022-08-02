@@ -1596,21 +1596,23 @@ class SetPriority(APIView):
 
             bookmarkdata = bookmarkName.objects.filter(user__uid = my_token['id']).values('name')
             if not bookmarkdata:
+                
 
 
                 mylistlist = []
                 for i in range(len(prioritylist)):
 
-                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values(Chapterid=F('content_id__categories__id'),Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))
+                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values(Chapterid=F('content_id__categories__id'),Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'),chapter=F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'))
 
                     data = [{'PriorityType':prioritylist[i],'items':getdata}]
                     mylistlist.append(data)
+
+
                     
 
                 return Response({'status':True,'data':mylistlist},status=200)
 
             else:
-                
                 if len(bookmarkdata) > 1:
 
                     for j in range(len(bookmarkdata)):
@@ -1626,7 +1628,7 @@ class SetPriority(APIView):
 
                 for i in range(len(prioritylist)):
 
-                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values(Chapterid=F('content_id__categories__id'),Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'))
+                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values(Chapterid=F('content_id__categories__id'),Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'),chapter=F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'))
 
                     data = [{'PriorityType':prioritylist[i],'items':getdata}]
                     mylistlist.append(data)
