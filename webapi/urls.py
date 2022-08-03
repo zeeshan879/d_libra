@@ -52,6 +52,12 @@ path('exportcategory_or_course',exportcategory_or_course.as_view()),
 
 
 
+path('exportcategory_and_course',exportcategory_and_course.as_view()),
+
+
+
+
+
 ]
 
 
