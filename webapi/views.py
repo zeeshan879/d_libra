@@ -2391,3 +2391,63 @@ class exportcategory_and_course(APIView):
 
         else:
             return Response({'status':False,'message':'Unauthorized'})
+
+
+
+
+
+class course_chapters(APIView):
+    def post(self, request):
+        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+        if my_token:
+            requireFields = ['file']
+            validator = uc.keyValidation(True,True,request.data,requireFields)
+            if validator:
+                return Response(validator)
+
+            else:
+                filepath = request.FILES.get('file')
+                columnFormat = ['capter_id', 'chapter_name', 'course_id', 'linked_content_id','linked_slide_file', 'slug']
+
+                if filepath.name.endswith('xlsx'):
+                    datafile = fileBridge(files = filepath)
+                    datafile.save()
+                    ###then read this file with complete url
+                    objreadfile = fileBridge.objects.get(id = datafile.id)
+                    readfile = objreadfile.files
+                    datafetchfile = pd.read_excel(readfile)
+                    datafetchfile = pd.DataFrame(datafetchfile)
+                    dataColumns =  datafetchfile.columns
+
+                    if set(dataColumns) == set(columnFormat):
+                        for one,two,three,four,five in (zip(datafetchfile['capter_id'],datafetchfile['chapter_name'],datafetchfile['course_id'],datafetchfile['linked_slide_file'],datafetchfile['slug'])):
+                            
+                            
+                            ##fetch course information
+                            three = int(three.replace('-',''))
+                            one = int(one.replace('-',''))
+
+                            fetchcourse = Category.objects.filter(unique_identifier = three ).first()
+                            if fetchcourse:
+                                print("data==>",fetchcourse)
+                                ##check if not exists critarea
+                                alreadyexistCritArea = Category.objects.filter(Q(unique_identifier = one) |Q(slug = five)).first()
+                                if not alreadyexistCritArea:
+                                    
+                                    createcourses = Category(unique_identifier = one,name = two,slug = five,image =  "chapters_topics/"+four,CategoryType = "SubCategory",parent = fetchcourse)
+                                    createcourses.save()
+
+                           
+                        
+                        
+                        
+                        return Response({"status":True,"message":"Data Upload Successfully"})
+
+                    else:
+                        return Response({'status':'warning','message':"Column format is incorrect"})
+
+                else:
+                    return Response({'status':False,'message':'Only xlsx files are supported'})
+
+        else:
+            return Response({'status':False,'message':'Unauthorized'})
