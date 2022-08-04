@@ -109,7 +109,9 @@ class Category(MPTTModel):
     parent = TreeForeignKey('self', null=True, blank=True, related_name= 'children', db_index=True, on_delete=models.CASCADE)
     unique_identifier = models.BigIntegerField(unique=True,null=True, blank=True,
     help_text="You don't have to do it manually, & After you save it you can also edit")
-    slug = models.SlugField(unique=True,db_index=True,help_text='slug is an Unique value for singel categories page URL, Same as category Name',blank=True)
+    # slug = models.SlugField(unique=True,db_index=True,help_text='slug is an Unique value for singel categories page URL, Same as category Name',blank=True)
+
+    slug = models.SlugField(db_index=True,help_text='slug is an Unique value for singel categories page URL, Same as category Name',blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     CategoryType = models.CharField(max_length=20,default="")

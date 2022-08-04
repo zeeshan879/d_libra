@@ -2431,11 +2431,17 @@ class course_chapters(APIView):
                             if fetchcourse:
                                 print("data==>",fetchcourse)
                                 ##check if not exists critarea
-                                alreadyexistCritArea = Category.objects.filter(Q(unique_identifier = one) |Q(slug = five)).first()
+                                # alreadyexistCritArea = Category.objects.filter(Q(unique_identifier = one) |Q(slug = five)).first()
+
+                                 
+                                alreadyexistCritArea = Category.objects.filter(unique_identifier = one).first()
                                 if not alreadyexistCritArea:
                                     
                                     createcourses = Category(unique_identifier = one,name = two,slug = five,image =  "chapters_topics/"+four,CategoryType = "SubCategory",parent = fetchcourse)
                                     createcourses.save()
+
+                                else:
+                                    print("else",one,"  ",five)
 
                            
                         
