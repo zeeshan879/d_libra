@@ -54,6 +54,7 @@ path('exportcategory_or_course',exportcategory_or_course.as_view()),
 
 path('exportcategory_and_course',exportcategory_and_course.as_view()),
 path('course_chapters',course_chapters.as_view()),
+path('exportpost',exportpost.as_view()),
 
 
 

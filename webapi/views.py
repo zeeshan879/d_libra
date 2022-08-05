@@ -2300,104 +2300,176 @@ class exportcategory_or_course(APIView):
 
 class exportcategory_and_course(APIView):
     def post(self,request):
-        my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
-        if my_token:
-            requireFields = ['file']
-            validator = uc.keyValidation(True,True,request.data,requireFields)
-            if validator:
-                return Response(validator)
-
-            else:
-                filepath = request.FILES.get('file')
-                columnFormat = ['Category level #', 'category_course_id', 'category_course_name','parent_category_id', 'slug', 'category_icon_img']
-
-                if filepath.name.endswith('xlsx'):
-                    datafile = fileBridge(files = filepath)
-                    datafile.save()
-                    ###then read this file with complete url
-                    objreadfile = fileBridge.objects.get(id = datafile.id)
-                    readfile = objreadfile.files
-                    datafetchfile = pd.read_excel(readfile)
-                    datafetchfile = pd.DataFrame(datafetchfile)
-                    dataColumns =  datafetchfile.columns
-
-                    if set(dataColumns) == set(columnFormat):
-                        
-                        ##author
-                        fetchauthor = User.objects.get(uid = my_token['id'])
-
-                        # selecting rows based on condition 
-                        rslt_df = datafetchfile[datafetchfile['parent_category_id'] == "-"]
-                        for one,two,three,four,five in (zip(rslt_df['category_course_id'],rslt_df['category_course_name'],rslt_df['parent_category_id'],rslt_df['slug'],rslt_df['category_icon_img'])):
-                            
-                            ## check if already 
-                            alreadyexistParent = parentCategory.objects.filter(unique_identifier = one).first()
-                            if not alreadyexistParent:
-                                createparent = parentCategory(unique_identifier = one,name = two,slug = four,image = "category_pic/"+five)
-                                createparent.save()
-
-                        
-                        # selecting rows based on condition 
-                        rslt_df = datafetchfile[datafetchfile['parent_category_id'] != "-"]
-                        for one,two,three,four,five in (zip(rslt_df['category_course_id'],rslt_df['category_course_name'],rslt_df['parent_category_id'],rslt_df['slug'],rslt_df['category_icon_img'])):
-                            
-                            if type(one) == int:
-                                #create category
-                                fetchParent = parentCategory.objects.filter(unique_identifier = three).first()
-                                if fetchParent:
-                                    # print("data",one,two,three,four,five)
-                                    ## check if already exist
-                                    alreadyslug = parentCategory.objects.filter(Q(unique_identifier = one) |Q(slug = four)).first()
-                                    
-                                    if not alreadyslug:
-
-                                        data = parentCategory(unique_identifier = one,name = two,slug = four,image = "category_pic/"+five,parent = fetchParent )
-                                        data.save()
-                                        # print('--------------------------')
-
-                            else:
-                                print("courses", one,two,three,four,five)
-                                ## create course
-                                fetchParent = parentCategory.objects.filter(unique_identifier = three).first()
-                                if fetchParent:
-                                    one = int(one.replace('-',''))
-
-                                    ##check if not exists critarea
-                                    alreadyexistCritArea = Category.objects.filter(Q(unique_identifier = one) |Q(slug = four)).first()
-                                    if not alreadyexistCritArea:
-                                        createcourses = Category(unique_identifier = one,name = two,parent_category = fetchParent,slug = four,image =  "category_pic/"+five,author = fetchauthor,CategoryType = "Category")
-                                        createcourses.save()
-                                    
-                                
-
-                                    
-
-                                
-
-
-
-                              
-
-                            
-
-
-                        return Response({"status":True,"message":"Data Upload Successfully"})
-
-                    else:
-                        return Response({'status':'warning','message':"Column format is incorrect"})
+        try:
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+            if my_token:
+                requireFields = ['file']
+                validator = uc.keyValidation(True,True,request.data,requireFields)
+                if validator:
+                    return Response(validator)
 
                 else:
-                    return Response({'status':False,'message':'Only xlsx files are supported'})
+                    filepath = request.FILES.get('file')
+                    columnFormat = ['Category level #', 'category_course_id', 'category_course_name','parent_category_id', 'slug', 'category_icon_img']
 
-        else:
-            return Response({'status':False,'message':'Unauthorized'})
+                    if filepath.name.endswith('xlsx'):
+                        datafile = fileBridge(files = filepath)
+                        datafile.save()
+                        ###then read this file with complete url
+                        objreadfile = fileBridge.objects.get(id = datafile.id)
+                        readfile = objreadfile.files
+                        datafetchfile = pd.read_excel(readfile)
+                        datafetchfile = pd.DataFrame(datafetchfile)
+                        dataColumns =  datafetchfile.columns
+
+                        if set(dataColumns) == set(columnFormat):
+                            
+                            ##author
+                            fetchauthor = User.objects.get(uid = my_token['id'])
+
+                            # selecting rows based on condition 
+                            rslt_df = datafetchfile[datafetchfile['parent_category_id'] == "-"]
+                            for one,two,three,four,five in (zip(rslt_df['category_course_id'],rslt_df['category_course_name'],rslt_df['parent_category_id'],rslt_df['slug'],rslt_df['category_icon_img'])):
+                                
+                                ## check if already 
+                                alreadyexistParent = parentCategory.objects.filter(unique_identifier = one).first()
+                                if not alreadyexistParent:
+                                    createparent = parentCategory(unique_identifier = one,name = two,slug = four,image = "category_pic/"+five)
+                                    createparent.save()
+
+                            
+                            # selecting rows based on condition 
+                            rslt_df = datafetchfile[datafetchfile['parent_category_id'] != "-"]
+                            for one,two,three,four,five in (zip(rslt_df['category_course_id'],rslt_df['category_course_name'],rslt_df['parent_category_id'],rslt_df['slug'],rslt_df['category_icon_img'])):
+                                
+                                if type(one) == int:
+                                    #create category
+                                    fetchParent = parentCategory.objects.filter(unique_identifier = three).first()
+                                    if fetchParent:
+                                        # print("data",one,two,three,four,five)
+                                        ## check if already exist
+                                        alreadyslug = parentCategory.objects.filter(Q(unique_identifier = one) |Q(slug = four)).first()
+                                        
+                                        if not alreadyslug:
+
+                                            data = parentCategory(unique_identifier = one,name = two,slug = four,image = "category_pic/"+five,parent = fetchParent )
+                                            data.save()
+                                            # print('--------------------------')
+
+                                else:
+                                    ## create course
+                                    fetchParent = parentCategory.objects.filter(unique_identifier = three).first()
+                                    if fetchParent:
+                                        one = int(one.replace('-',''))
+
+                                        ##check if not exists critarea
+                                        alreadyexistCritArea = Category.objects.filter(Q(unique_identifier = one) |Q(slug = four)).first()
+                                        if not alreadyexistCritArea:
+                                            createcourses = Category(unique_identifier = one,name = two,parent_category = fetchParent,slug = four,image =  "category_pic/"+five,author = fetchauthor,CategoryType = "Category")
+                                            createcourses.save()
+                                        
+                                    
+
+                                        
+
+                                    
 
 
 
+                                
+
+                                
+
+
+                            return Response({"status":True,"message":"Data Upload Successfully"})
+
+                        else:
+                            return Response({'status':'warning','message':"Column format is incorrect"})
+
+                    else:
+                        return Response({'status':False,'message':'Only xlsx files are supported'})
+
+            else:
+                return Response({'status':False,'message':'Unauthorized'})
+
+
+
+
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
 
 
 class course_chapters(APIView):
     def post(self, request):
+        try:
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
+            if my_token:
+                requireFields = ['file']
+                validator = uc.keyValidation(True,True,request.data,requireFields)
+                if validator:
+                    return Response(validator)
+
+                else:
+                    filepath = request.FILES.get('file')
+                    columnFormat = ['capter_id', 'chapter_name', 'course_id', 'linked_content_id','linked_slide_file', 'slug']
+
+                    if filepath.name.endswith('xlsx'):
+                        datafile = fileBridge(files = filepath)
+                        datafile.save()
+                        ###then read this file with complete url
+                        objreadfile = fileBridge.objects.get(id = datafile.id)
+                        readfile = objreadfile.files
+                        datafetchfile = pd.read_excel(readfile)
+                        datafetchfile = pd.DataFrame(datafetchfile)
+                        dataColumns =  datafetchfile.columns
+
+                        if set(dataColumns) == set(columnFormat):
+                            for one,two,three,four,five in (zip(datafetchfile['capter_id'],datafetchfile['chapter_name'],datafetchfile['course_id'],datafetchfile['linked_slide_file'],datafetchfile['slug'])):
+                                
+                                
+                                ##fetch course information
+                                three = int(three.replace('-',''))
+                                one = int(one.replace('-',''))
+
+                                fetchcourse = Category.objects.filter(unique_identifier = three ).first()
+                                if fetchcourse:
+                                    
+                                    ##check if not exists critarea
+                                    # alreadyexistCritArea = Category.objects.filter(Q(unique_identifier = one) |Q(slug = five)).first()
+
+                  
+                      
+                                        createcourses = Category(unique_identifier = one,name = two,slug = five,image =  "chapters_topics/"+four,CategoryType = "SubCategory",parent = fetchcourse)
+                                        createcourses.save()
+
+        
+                            
+                            
+                            
+                            return Response({"status":True,"message":"Data Upload Successfully"})
+
+                        else:
+                            return Response({'status':'warning','message':"Column format is incorrect"})
+
+                    else:
+                        return Response({'status':False,'message':'Only xlsx files are supported'})
+
+            else:
+                return Response({'status':False,'message':'Unauthorized'})
+
+
+
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+
+
+
+class exportpost(APIView):
+    def post(self,request):
         my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"editor")
         if my_token:
             requireFields = ['file']
@@ -2407,8 +2479,7 @@ class course_chapters(APIView):
 
             else:
                 filepath = request.FILES.get('file')
-                columnFormat = ['capter_id', 'chapter_name', 'course_id', 'linked_content_id','linked_slide_file', 'slug']
-
+                columnFormat = ['content_id', 'content_name', 'chapter_id', 'tag', 'meta_description','mainslide_img', 'content', 'slug', 'editor_id', 'only_to_editor','access_level', 'created_at', 'updated_at']
                 if filepath.name.endswith('xlsx'):
                     datafile = fileBridge(files = filepath)
                     datafile.save()
@@ -2420,30 +2491,27 @@ class course_chapters(APIView):
                     dataColumns =  datafetchfile.columns
 
                     if set(dataColumns) == set(columnFormat):
-                        for one,two,three,four,five in (zip(datafetchfile['capter_id'],datafetchfile['chapter_name'],datafetchfile['course_id'],datafetchfile['linked_slide_file'],datafetchfile['slug'])):
-                            
-                            
-                            ##fetch course information
+                        author = User.objects.get(uid = my_token['id'])
+
+                        for one,two,three,four,five,six,seven,eight,nine,ten,eleven in (zip(datafetchfile['content_id'],datafetchfile['content_name'],datafetchfile['chapter_id'],datafetchfile['tag'],datafetchfile['meta_description'],datafetchfile['mainslide_img'],datafetchfile['content'],datafetchfile['slug'],datafetchfile['created_at'],datafetchfile['updated_at'],datafetchfile['only_to_editor'])):
+
                             three = int(three.replace('-',''))
                             one = int(one.replace('-',''))
+                            ## fetch chapter
+                            fetchchapter = Category.objects.filter(unique_identifier = three).first()
+                            if fetchchapter:
+                                
+                                ##check if post not exists
+                                checkalreadypost = ReviewModel.objects.filter(unique_identifier = one).first()
+                                if not checkalreadypost:
+                                    createpost = ReviewModel(title = two,author =author,images = "MainSlideImages/"+ six,categories = fetchchapter,tags = four,meta_description = five,content = seven,created_at = nine,updated_at = ten,unique_identifier = one,only_to_my_page = eleven)
 
-                            fetchcourse = Category.objects.filter(unique_identifier = three ).first()
-                            if fetchcourse:
-                                print("data==>",fetchcourse)
-                                ##check if not exists critarea
-                                # alreadyexistCritArea = Category.objects.filter(Q(unique_identifier = one) |Q(slug = five)).first()
+                                    createpost.save()
+                             
+                          
 
-                                 
-                                alreadyexistCritArea = Category.objects.filter(unique_identifier = one).first()
-                                if not alreadyexistCritArea:
-                                    
-                                    createcourses = Category(unique_identifier = one,name = two,slug = five,image =  "chapters_topics/"+four,CategoryType = "SubCategory",parent = fetchcourse)
-                                    createcourses.save()
 
-                                else:
-                                    print("else",one,"  ",five)
-
-                           
+                            
                         
                         
                         
