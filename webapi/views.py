@@ -2441,7 +2441,7 @@ class course_chapters(APIView):
 
                   
                       
-                                        createcourses = Category(unique_identifier = one,name = two,slug = five,image =  "chapters_topics/"+four,CategoryType = "SubCategory",parent = fetchcourse)
+                                        createcourses = Category(unique_identifier = one,name = two,slug = five,image =  "MainSlideImages/"+four,CategoryType = "SubCategory",parent = fetchcourse)
                                         createcourses.save()
 
         
@@ -2493,7 +2493,7 @@ class exportpost(APIView):
                     if set(dataColumns) == set(columnFormat):
                         author = User.objects.get(uid = my_token['id'])
 
-                        for one,two,three,four,five,six,seven,eight,nine,ten,eleven in (zip(datafetchfile['content_id'],datafetchfile['content_name'],datafetchfile['chapter_id'],datafetchfile['tag'],datafetchfile['meta_description'],datafetchfile['mainslide_img'],datafetchfile['content'],datafetchfile['slug'],datafetchfile['created_at'],datafetchfile['updated_at'],datafetchfile['only_to_editor'])):
+                        for one,two,three,four,five,six,seven,eight,nine,ten,eleven,twelve in (zip(datafetchfile['content_id'],datafetchfile['content_name'],datafetchfile['chapter_id'],datafetchfile['tag'],datafetchfile['meta_description'],datafetchfile['mainslide_img'],datafetchfile['content'],datafetchfile['slug'],datafetchfile['created_at'],datafetchfile['updated_at'],datafetchfile['only_to_editor'],datafetchfile['slug'])):
 
                             three = int(three.replace('-',''))
                             one = int(one.replace('-',''))
@@ -2504,7 +2504,7 @@ class exportpost(APIView):
                                 ##check if post not exists
                                 checkalreadypost = ReviewModel.objects.filter(unique_identifier = one).first()
                                 if not checkalreadypost:
-                                    createpost = ReviewModel(title = two,author =author,images = "MainSlideImages/"+ six,categories = fetchchapter,tags = four,meta_description = five,content = seven,created_at = nine,updated_at = ten,unique_identifier = one,only_to_my_page = eleven)
+                                    createpost = ReviewModel(title = two,author =author,images = "MainSlideImages/"+ six,categories = fetchchapter,tags = four,meta_description = five,content = seven,created_at = nine,updated_at = ten,unique_identifier = one,only_to_my_page = eleven,slug = twelve)
 
                                     createpost.save()
                              

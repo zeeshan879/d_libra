@@ -148,6 +148,8 @@ class ReviewModel(models.Model):
     tags =   models.TextField(default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    slug = models.SlugField(db_index=True,help_text='slug is an Unique value for singel categories page URL, Same as category Name',blank=True)
+
 
 
 

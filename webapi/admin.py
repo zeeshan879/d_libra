@@ -38,7 +38,7 @@ class ReviewModelAdmin(ImportExportModelAdmin):
 	ordering = ('unique_identifier',)
 	search_fields = ['unique_identifier', 'title', 'author__username',]
 	list_filter = ['only_to_my_page', 'created_at',]
-	fields = (('only_to_my_page'),('title'),('tags'),('categories'),('author'),('unique_identifier'),('meta_keywords'),('meta_description'),('OGP'),('images'), ('content'))
+	fields = (('only_to_my_page'),('title'),('tags'),('categories'),('author'),('unique_identifier'),('meta_keywords'),('meta_description'),('OGP'),('images'), ('content'),('slug'))
 
 	def unique_identifiers(self, obj):
 		try:
