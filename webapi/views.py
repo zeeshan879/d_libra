@@ -995,7 +995,6 @@ class GetDashboardDataWithAuthorization(APIView):
                             obj = {"id":data[j]['id'],"CategoryName":data[j]['CategoryName']}
                             dropdown.append(obj)
                         
-                        
                         return Response({'status':True,'data':data,"dropdown":{
 
                                 "parent":{"id":data[0]['id'],"CategoryName":data[0]['CategoryName']},
@@ -1873,7 +1872,7 @@ class recentlyViewContenthistory(APIView):
             monthly = datetime.datetime.now().date() - timedelta(days=30)
      
 
-            todaydata = RecentlyviewContent.objects.filter(created_at__range=(today_min, today_max),author__uid = my_token['id']).values(chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'),chapter = F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'),category = F('content_id__categories__parent_category__name'))
+            todaydata = RecentlyviewContent.objects.filter(created_at__range=(today_min, today_max),author__uid = my_token['id']).values(chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'),chapter = F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'),category = F('content_id__categories__parent__parent_category__name'))
 
 
             for i in range(len(todaydata)):
@@ -2437,10 +2436,9 @@ class course_chapters(APIView):
                                 if fetchcourse:
                                     
                                     ##check if not exists critarea
-                                    # alreadyexistCritArea = Category.objects.filter(Q(unique_identifier = one) |Q(slug = five)).first()
+                                    alreadyexistCritArea = Category.objects.filter(Q(unique_identifier = one) |Q(slug = five)).first()
 
-                  
-                      
+                                    if not alreadyexistCritArea:
                                         createcourses = Category(unique_identifier = one,name = two,slug = five,image =  "MainSlideImages/"+four,CategoryType = "SubCategory",parent = fetchcourse)
                                         createcourses.save()
 
@@ -2504,7 +2502,7 @@ class exportpost(APIView):
                                 ##check if post not exists
                                 checkalreadypost = ReviewModel.objects.filter(unique_identifier = one).first()
                                 if not checkalreadypost:
-                                    createpost = ReviewModel(title = two,author =author,images = "MainSlideImages/"+ six,categories = fetchchapter,tags = four,meta_description = five,content = seven,created_at = nine,updated_at = ten,unique_identifier = one,only_to_my_page = eleven,slug = twelve)
+                                    createpost = ReviewModel(title = two,author =author,images = "MainSlideImages/"+ six,categories = fetchchapter,tags = four,meta_description = five,content = seven,created_at = nine,updated_at = ten,unique_identifier = one,only_to_my_page = eleven,postslug = twelve)
 
                                     createpost.save()
                              
