@@ -5,11 +5,10 @@ from webapi.models import *
 from decouple import config
 import jwt
 import webapi.usable as uc
-from django.db.models import Q
 import datetime
 from django.http import HttpResponse
 from django.shortcuts import redirect
-from django.db.models import F
+from django.db.models import F,Q,Count
 from rest_framework import status
 from .permission import authorization
 import api.emailpattern as em
@@ -19,6 +18,7 @@ from itertools import chain
 import subprocess
 import pandas as pd
 import math
+
 # Create your views here.
 
 
@@ -436,7 +436,8 @@ class GetParentCategories(APIView):
         data = CourseRating.objects.all().values('rating',courseid=F('course_id__id'))
         query = request.GET.get("search",False)
         if not query:
-            mydata = Category.objects.filter(CategoryType="Category").values('id','image','Type',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'),authorname = F('author__fname')).distinct()
+            mydata = Category.objects.filter(CategoryType="Category").annotate(views = Count('courseviewers__id')).values('id','image','Type','views',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'),authorname = F('author__fname'))
+
             
         else:
             mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).values('id','image','Type',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'),authorname = F('author__fname')).distinct()

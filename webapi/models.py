@@ -128,7 +128,7 @@ class Category(MPTTModel):
 
 
 class courseViews(models.Model):
-    courseid = models.ForeignKey(Category, on_delete=models.CASCADE,blank=True, null=True)
+    courseid = models.ForeignKey(Category,related_name="courseviewers", on_delete=models.CASCADE,blank=True, null=True)
     viewer = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, null=True)
 
 
