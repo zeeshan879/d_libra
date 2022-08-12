@@ -1886,7 +1886,7 @@ class recentlyViewContenthistory(APIView):
 
 
 
-            yesterddaydata = RecentlyviewContent.objects.filter(created_at__range=(yesterday, today),author__uid = my_token['id']).values('id',chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'),chapter = F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'),category = F('content_id__categories__parent_category__name'))
+            yesterddaydata = RecentlyviewContent.objects.filter(created_at__range=(yesterday, today),author__uid = my_token['id']).values(chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'),chapter = F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'),category = F('content_id__categories__parent__parent_category__name'))
 
             for i in range(len(yesterddaydata)):
 
@@ -1897,8 +1897,8 @@ class recentlyViewContenthistory(APIView):
                 else:
                     yesterddaydata[i]['PriorityType'] = "null"
 
-            weeklydata = RecentlyviewContent.objects.filter(created_at__range=[weekly,today],author__uid = my_token['id']).values(chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'),chapter = F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'),category = F('content_id__categories__parent_category__name'))
-
+           
+            weeklydata = RecentlyviewContent.objects.filter(created_at__range=[weekly,today],author__uid = my_token['id']).values(chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'),chapter = F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'),category = F('content_id__categories__parent__parent_category__name'))
             for i in range(len(weeklydata)):
 
                 mydata = CoursePriority.objects.filter(author__uid = my_token['id'],content_id__id=weeklydata[i]['Content_id']).values('PriorityType',Contentid=F('content_id__id')).first()
@@ -1908,7 +1908,7 @@ class recentlyViewContenthistory(APIView):
                 else:
                     weeklydata[i]['PriorityType'] = "null"
 
-            monthlydata = RecentlyviewContent.objects.filter(created_at__range=[monthly,today],author__uid = my_token['id']).values('id',chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'),chapter = F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'),category = F('content_id__categories__parent_category__name'))
+            monthlydata = RecentlyviewContent.objects.filter(created_at__range=[monthly,today],author__uid = my_token['id']).values(chapterid=F('content_id__categories'),Content_id=F('content_id__id'),title=F('content_id__title'),images=F('content_id__images'),created = F('content_id__created_at'),chapter = F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'),category = F('content_id__categories__parent__parent_category__name'))
 
             for i in range(len(monthlydata)):
 
@@ -2523,3 +2523,41 @@ class exportpost(APIView):
 
         else:
             return Response({'status':False,'message':'Unauthorized'})
+
+
+
+
+
+class courseviews(APIView):
+    def post(self, request):
+        try:
+            role = request.GET.get('role',False)
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
+            if my_token:
+                requireFields = ['courseid']
+                validator = uc.keyValidation(True,True,request.data,requireFields)
+                if validator:
+                    return Response(validator)
+
+                else:
+                    courseid = request.data['courseid']
+                    checkalreadyView = courseViews.objects.filter(courseid = courseid,viewer = my_token['id']).first()
+                    if not checkalreadyView:
+                        fetchcourse = Category.objects.filter(id = courseid).first()
+                        if fetchcourse:
+                            fetchviewer = User.objects.get(uid = my_token['id'])
+                            courseViews(courseid = fetchcourse,viewer = fetchviewer).save()
+                            return Response({"status":True,"message":"View recorded"})
+
+                        else:
+                            return Response({"status":False,"message":"courseid is incorrect"})
+
+                    else:
+                        return Response({"status":True,"message":"Already View"})
+
+            else:
+                return Response({'status':False,'message':'Unauthorized'})
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)

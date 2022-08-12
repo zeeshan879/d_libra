@@ -59,6 +59,11 @@ path('exportpost',exportpost.as_view()),
 
 
 
+path('courseviews',courseviews.as_view()),
+
+
+
+
 
 ]
 

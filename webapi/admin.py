@@ -91,5 +91,6 @@ admin.site.register(bookmarkName)
 admin.site.register(parentCategory,parentCategoryAdmin)
 admin.site.register(feedback)
 admin.site.register(fileBridge)
+admin.site.register(courseViews)
 
 
