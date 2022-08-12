@@ -440,7 +440,7 @@ class GetParentCategories(APIView):
 
             
         else:
-            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).values('id','image','Type',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'),authorname = F('author__fname')).distinct()
+            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).annotate(views = Count('courseviewers__id')).values('id','image','Type','views',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'),authorname = F('author__fname'))
 
 
         ##calculate total person and their rating
