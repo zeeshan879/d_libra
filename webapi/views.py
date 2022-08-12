@@ -944,7 +944,7 @@ class GetDashboardDataWithAuthorization(APIView):
                     if data:
                         for i in range(len(myCategorydata)):
 
-                            
+                           
                             mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images',slug = F('categories__slug'),coursename = F('categories__parent__name'),chapter=F('categories__name'))
                             myCategorydata[i]['lecture'] = mydata
                             
@@ -954,7 +954,7 @@ class GetDashboardDataWithAuthorization(APIView):
                         for j in range(len(data)):
                             
                         
-                            mydata = ReviewModel.objects.filter(categories__id = data[j]['id']).values('id','title','images',slug = F('categories__slug'),coursename = F('categories__parent__name'),chapter=F('categories__name'),category = F('categories__parent__parent_category__name'))
+                            mydata = ReviewModel.objects.filter(categories__id = data[j]['id']).values('id','title','images',slug = F('categories__slug'),coursename = F('categories__parent__name'),chapter=F('categories__name'),category = F('categories__parent__parent_category__name'),courseid = F('categories__parent__id'))
                             data[j]['lecture'] = mydata
 
                         
