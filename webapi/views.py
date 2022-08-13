@@ -8,7 +8,7 @@ import webapi.usable as uc
 import datetime
 from django.http import HttpResponse
 from django.shortcuts import redirect
-from django.db.models import F,Q,Count
+from django.db.models import F,Q,Count,Avg
 from rest_framework import status
 from .permission import authorization
 import api.emailpattern as em
@@ -432,77 +432,107 @@ class parentCategories(APIView):
 class GetParentCategories(APIView):
 
     def get(self,request):
-
-        data = CourseRating.objects.all().values('rating',courseid=F('course_id__id'))
+        mycategorylits = parentCategory.objects.filter(parent = None).values('unique_identifier','name')
         query = request.GET.get("search",False)
         if not query:
-            mydata = Category.objects.filter(CategoryType="Category").annotate(views = Count('courseviewers__id')).values('id','image','Type','views',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'),authorname = F('author__fname'))
+            mydata = Category.objects.filter(CategoryType="Category").annotate(views = Count('courseviewers__id'),totalratinng=Avg('courserating__rating')).values('id','image','Type','views','unique_identifier','totalratinng',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'),authorname = F('author__fname'))
 
             
         else:
-            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).annotate(views = Count('courseviewers__id')).values('id','image','Type','views',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'),authorname = F('author__fname'))
-
-
-        ##calculate total person and their rating
-        starobj = list()
-        for i in data:
-            for j in mydata:
-                if i['courseid'] == j['id']:
-                    starobj.append({"courseid":i['courseid'],"rating":i["rating"]})
-                   
-
-
-        ##populate the data
-
-        for k in mydata:
-            for l in starobj:
-                if l["courseid"] == k["id"]:
-                    if not k.get('rating',False):
-                        k["rating"] = l['rating']
-                        k["totalperson"] = 1
-                        k['totalratinng'] = k["rating"] / k["totalperson"]
-
-                    else:
-                        k["rating"] = k["rating"] + l['rating']
-                        k["totalperson"] = k["totalperson"] + 1
-                        k['totalratinng'] = k["rating"] / k["totalperson"]
-
-
-
-        ##Add keys
-        for k in mydata:
-            if not k.get('rating',False):
-                k["totalperson"] = 0
-                k['totalratinng'] = 0
-            else:
-                del k['rating']
-
-     
-
-        Categorylist = []
-        mylistlist = []
-
+            mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).annotate(views = Count('courseviewers__id'),totalratinng=Avg('courserating__rating')).values('id','image','Type','views','unique_identifier','totalratinng',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'),authorname = F('author__fname'))
         
 
-        mycategorylits = parentCategory.objects.values_list('name',flat=True)
-        unique_list = []
+        finalarray = list()
         for i in range(len(mycategorylits)):
             listcategory = list()
             for j in range(len(mydata)):
+                if str( mydata[j]['unique_identifier']).startswith(str(mycategorylits[i]['unique_identifier'])):
+                    print(str(mycategorylits[i]['unique_identifier']),"===",str( mydata[j]['unique_identifier']))
+        
+                    
+
+          
+        
+        
+        return Response({"status":True,"data":mydata})
+
+
+
+
+
+
+
+
+        # data = CourseRating.objects.all().values('rating',courseid=F('course_id__id'))
+        # query = request.GET.get("search",False)
+        # if not query:
+        #     mydata = Category.objects.filter(CategoryType="Category").annotate(views = Count('courseviewers__id')).values('id','image','Type','views',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'),authorname = F('author__fname'))
+
+            
+        # else:
+        #     mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).annotate(views = Count('courseviewers__id')).values('id','image','Type','views',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'),authorname = F('author__fname'))
+
+
+        # ##calculate total person and their rating
+        # starobj = list()
+        # for i in data:
+        #     for j in mydata:
+        #         if i['courseid'] == j['id']:
+        #             starobj.append({"courseid":i['courseid'],"rating":i["rating"]})
+                   
+
+
+        # ##populate the data
+
+        # for k in mydata:
+        #     for l in starobj:
+        #         if l["courseid"] == k["id"]:
+        #             if not k.get('rating',False):
+        #                 k["rating"] = l['rating']
+        #                 k["totalperson"] = 1
+        #                 k['totalratinng'] = k["rating"] / k["totalperson"]
+
+        #             else:
+        #                 k["rating"] = k["rating"] + l['rating']
+        #                 k["totalperson"] = k["totalperson"] + 1
+        #                 k['totalratinng'] = k["rating"] / k["totalperson"]
+
+
+
+        # ##Add keys
+        # for k in mydata:
+        #     if not k.get('rating',False):
+        #         k["totalperson"] = 0
+        #         k['totalratinng'] = 0
+        #     else:
+        #         del k['rating']
+
+     
+
+        # Categorylist = []
+        # mylistlist = []
+
+        
+
+        # mycategorylits = parentCategory.objects.values_list('name',flat=True)
+        # unique_list = []
+        # for i in range(len(mycategorylits)):
+        #     listcategory = list()
+        #     for j in range(len(mydata)):
 
                
-                if mycategorylits[i] == mydata[j]['ParentCategoryType']:
+        #         if mycategorylits[i] == mydata[j]['ParentCategoryType']:
                     
-                    listcategory.append(mydata[j])
+        #             listcategory.append(mydata[j])
             
                     
 
-            data = {'chaptername':mycategorylits[i],'items':listcategory}
-            mylistlist.append(data)
+        #     data = {'chaptername':mycategorylits[i],'items':listcategory}
+        #     mylistlist.append(data)
         
-        Data = [{'status':True,'data':mylistlist}]
+        # Data = [{'status':True,'data':mylistlist}]
 
-        return Response(Data,status=200)
+        # return Response(Data,status=200)
 
 
     def post(self,request):

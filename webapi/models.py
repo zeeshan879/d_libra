@@ -191,7 +191,7 @@ class RecentlyviewContent(models.Model):
 
 class CourseRating(models.Model):
 
-    course_id = models.ForeignKey(Category, on_delete=models.CASCADE,blank=True, null=True)
+    course_id = models.ForeignKey(Category, related_name="courserating",on_delete=models.CASCADE,blank=True, null=True)
     rating = models.IntegerField(default=0)
     comment = models.TextField(default="")
     ratingStatus = models.CharField(max_length=20,choices=RatingStatus,default="False")
