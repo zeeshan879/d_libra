@@ -939,7 +939,6 @@ class GetParentChildCategories(APIView):
             role = request.GET.get('role')
             my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
             if my_token:
-
                 data = Category.objects.filter(CategoryType = "Category").values('id','image','created_at','updated_at','CategoryType','unique_identifier',CategoryName=F('name'))
                 if data:
                     for i in range(len(data)):
@@ -1044,16 +1043,11 @@ class GetDashboardDataWithAuthorization(APIView):
                             }},status=200)
 
                     else:
-                        
-                        myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'))
+                       
                         
                         if myCategorydata:
 
                             for i in range(len(myCategorydata)):
-
-                            
-
-                                          
                                 mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images',slug = F('categories__slug'),coursename = F('categories__parent__name'),chapter=F('categories__name'),category = F('categories__parent__parent_category__name'))
                                 myCategorydata[i]['lecture'] = mydata
 
@@ -1096,8 +1090,7 @@ class GetDashboardDataWithAuthorization(APIView):
                                 obj = {"id":data[j]['id'],"CategoryName":data[j]['CategoryName']}
                                 dropdown.append(obj)
                             
-                            
-                            return Response({'status':True,'data':data,"dropdown":{
+                            return Response({'status':True,'data':data,"slugimg":myCategorydata[0]['slugimg'],"dropdown":{
 
                                 "parent":{"id":data[0]['id'],"CategoryName":data[0]['CategoryName']},
                                 "childs":dropdown
