@@ -981,8 +981,7 @@ class GetDashboardDataWithAuthorization(APIView):
                 if checkdata.CategoryType == "Category":
                     data = Category.objects.filter(parent__id=id,CategoryType="SubCategory").values('id',CategoryName=F('name'))
 
-                    myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'))
-
+                    myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'),slugimg = F('parent_category__image'))
 
                     if data:
                         for i in range(len(myCategorydata)):
@@ -1038,7 +1037,7 @@ class GetDashboardDataWithAuthorization(APIView):
                             obj = {"id":data[j]['id'],"CategoryName":data[j]['CategoryName']}
                             dropdown.append(obj)
                         
-                        return Response({'status':True,'data':data,"dropdown":{
+                        return Response({'status':True,"slugimg":myCategorydata[0]['slugimg'],'data':data,"dropdown":{
 
                                 "parent":{"id":data[0]['id'],"CategoryName":data[0]['CategoryName']},
                                 "childs":dropdown
