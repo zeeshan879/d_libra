@@ -433,19 +433,19 @@ class GetParentCategories(APIView):
 
     def get(self,request):
         try:
-            mycategorylits = parentCategory.objects.filter(parent = None).values('unique_identifier','name')
+            mycategorylits = parentCategory.objects.filter(parent = None).values('unique_identifier','name','image','unique_identifier','created_at','updated_at')
             query = request.GET.get("search",False)
             if not query:
-                mydata = Category.objects.filter(CategoryType="Category").annotate(views = Count('courseviewers__id'),totalratinng=Avg('courserating__rating'),totalperson = Count('courserating__rating')).values('id','image','Type','views','unique_identifier','totalratinng','totalperson',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'),authorname = F('author__fname'))
+                mydata = Category.objects.filter(CategoryType="Category").annotate(views = Count('courseviewers__id'),totalratinng=Avg('courserating__rating'),totalperson = Count('courserating__rating')).values('id','created_at','updated_at','image','Type','views','unique_identifier','totalratinng','totalperson',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'),authorname = F('author__fname'))
 
                 
             else:
-                mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).annotate(views = Count('courseviewers__id'),totalratinng=Avg('courserating__rating')).values('id','image','Type','views','unique_identifier','totalratinng',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'),authorname = F('author__fname'))
+                mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).annotate(views = Count('courseviewers__id'),totalratinng=Avg('courserating__rating')).values('id','created_at','updated_at','image','Type','views','unique_identifier','totalratinng',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'),authorname = F('author__fname'))
             
 
             finalarray = list()
             for i in range(len(mycategorylits)):
-                obj = {"chaptername":mycategorylits[i]['name']}
+                obj = {"chaptername":mycategorylits[i]['name'],"image":mycategorylits[i]['image'],"unique_identifier":mycategorylits[i]['unique_identifier'],"created_at":mycategorylits[i]['created_at'],"updated_at":mycategorylits[i]['updated_at']}
                 listcategory = list()
                 for j in range(len(mydata)):
                     if str( mydata[j]['unique_identifier']).startswith(str(mycategorylits[i]['unique_identifier'])):
