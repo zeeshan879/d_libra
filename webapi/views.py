@@ -710,7 +710,7 @@ class AddPost(APIView):
             data = ReviewModel.objects.filter(categories = categoryid).values('id','title','images','OGP','meta_description','content','tags',Categroyid=F('categories__id'),coursename = F('categories__parent__name'),chapter=F('categories__name'),slug = F('categories__slug'))
 
             if data:
-                nextcategory = Category.objects.all().values_list('id',flat=True)
+                nextcategory = Category.objects.filter(parent = courseid).values_list('id',flat=True)
                 nextindex = list(nextcategory).index(int(categoryid))
                 if int(categoryid) == list(nextcategory)[-1]:
                     nextindex = "null"
