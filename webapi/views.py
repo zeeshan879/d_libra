@@ -707,15 +707,21 @@ class AddPost(APIView):
             postid = request.GET.get('id',False)
             categoryid = request.GET['categoryid']
             courseid = request.GET.get('courseid',False)
-            data = ReviewModel.objects.filter(categories = categoryid).values('id','title','images','OGP','meta_description','content','tags',Categroyid=F('categories__id'),coursename = F('categories__parent__name'),chapter=F('categories__name'),slug = F('categories__slug'))
+            data = ReviewModel.objects.filter(categories = categoryid).values('id','title','images','OGP','meta_description','content','tags',Categroyid=F('categories__id'),category = F('categories__parent__parent_category__name'),coursename = F('categories__parent__name'),courseid = F('categories__parent__id'),chapter=F('categories__name'),slug = F('categories__slug'))
 
             if data:
                 nextcategory = Category.objects.filter(parent = courseid).values_list('id',flat=True)
+
                 nextindex = list(nextcategory).index(int(categoryid))
+                previous =  nextcategory[nextindex -1]
+
                 if int(categoryid) == list(nextcategory)[-1]:
                     nextindex = "null"
 
+
+
                 else:
+                    previous =  nextcategory[nextindex -1]
                     nextindex = nextcategory[nextindex + 1]
 
 
@@ -754,7 +760,7 @@ class AddPost(APIView):
                     chapters = list()
                     
 
-                return Response({'status':True,'post':post,'all':data,'nextcategory':nextindex,"bookmark":bookmarkType,"chapters":chapters},status=200)
+                return Response({'status':True,'post':post,'all':data,'nextcategory':nextindex,"previous":previous,"bookmark":bookmarkType,"chapters":chapters},status=200)
 
 
             else:
