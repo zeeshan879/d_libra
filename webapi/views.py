@@ -699,80 +699,86 @@ class AddPost(APIView):
 
     def get(self,request):
 
-        try:
+        # try:
 
-            role = request.GET['role']
-            # my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
-            # if my_token:
-            postid = request.GET.get('id',False)
-            categoryid = request.GET['categoryid']
-            courseid = request.GET.get('courseid',False)
-            data = ReviewModel.objects.filter(categories = categoryid).values('id','title','images','OGP','meta_description','content','tags',Categroyid=F('categories__id'),category = F('categories__parent__parent_category__name'),coursename = F('categories__parent__name'),courseid = F('categories__parent__id'),chapter=F('categories__name'),slug = F('categories__slug'))
+        role = request.GET['role']
+        # my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
+        # if my_token:
+        postid = request.GET.get('id',False)
+        categoryid = request.GET['categoryid']
+        courseid = request.GET.get('courseid',False)
+        data = ReviewModel.objects.filter(categories = categoryid).values('id','title','images','OGP','meta_description','content','tags',Categroyid=F('categories__id'),category = F('categories__parent__parent_category__name'),coursename = F('categories__parent__name'),courseid = F('categories__parent__id'),chapter=F('categories__name'),slug = F('categories__slug'))
 
-            if data:
-                nextcategory = Category.objects.filter(parent = courseid).values_list('id',flat=True)
-
-                nextindex = list(nextcategory).index(int(categoryid))
+        if data:
+            nextcategory = Category.objects.filter(parent = courseid).values_list('id',flat=True)
+            nextindex = list(nextcategory).index(int(categoryid))
+            previous = "null"
+            if nextindex > 0:
                 previous =  nextcategory[nextindex -1]
 
-                if int(categoryid) == list(nextcategory)[-1]:
-                    nextindex = "null"
+            if int(categoryid) == list(nextcategory)[-1]:
+                nextindex = "null"
+                
 
 
-
-                else:
-                    previous =  nextcategory[nextindex -1]
-                    nextindex = nextcategory[nextindex + 1]
-
-
-                ##if post id exist
-                post=""
-                if postid:
-                    for j in data:
-                        if j['id'] == int(postid):
-                            post = j
-                            break
-
-                        else:
-                            post = "null"
-                            # post = data.first()
-                else:
-                    post = data.first()
-
-                ##check bookmarktype
-                try:
-                    my_token = uc.tokenauth(request.META.get('HTTP_AUTHORIZATION',False)[7:],role)
-                    if my_token: 
-                        bookmarkType = CoursePriority.objects.filter(content_id = postid,author = my_token['id']).values('PriorityType').first()
-                    
-                    else:
-                        bookmarkType = "null"
-
-                except:
-                    bookmarkType = "null"
-
-                ## chapter name
-                if courseid:
-                    chapters = Category.objects.filter(parent__id=courseid).values('id',CategoryName=F('name'))
-                   
-
-                else:
-                    chapters = list()
-                    
-
-                return Response({'status':True,'post':post,'all':data,'nextcategory':nextindex,"previous":previous,"bookmark":bookmarkType,"chapters":chapters},status=200)
 
 
             else:
-                return Response({'status':True,'post':"null",'all':[],"bookmark":"null"},status=200)
+                if nextindex > 0:
+                    previous =  nextcategory[nextindex -1]
+                
+                
+                nextindex = nextcategory[nextindex + 1]
+
+
+            ##if post id exist
+            post=""
+            if postid:
+                for j in data:
+                    if j['id'] == int(postid):
+                        post = j
+                        break
+
+                    else:
+                        post = "null"
+                        # post = data.first()
+            else:
+                post = data.first()
+
+            ##check bookmarktype
+            try:
+                my_token = uc.tokenauth(request.META.get('HTTP_AUTHORIZATION',False)[7:],role)
+                if my_token: 
+                    bookmarkType = CoursePriority.objects.filter(content_id = postid,author = my_token['id']).values('PriorityType').first()
+                
+                else:
+                    bookmarkType = "null"
+
+            except:
+                bookmarkType = "null"
+
+            ## chapter name
+            if courseid:
+                chapters = Category.objects.filter(parent__id=courseid).values('id',CategoryName=F('name'))
+                
+
+            else:
+                chapters = list()
+                
+
+            return Response({'status':True,'post':post,'all':data,'nextcategory':nextindex,"previous":previous,"bookmark":bookmarkType,"chapters":chapters},status=200)
+
+
+        else:
+            return Response({'status':True,'post':"null",'all':[],"bookmark":"null"},status=200)
 
 
             # else:
             #     return Response({'status':False,'message':'Unauthorized'},status=401)
 
-        except Exception as e:
-            message = {'status':"error",'message':str(e)}
-            return Response(message,status=500)
+        # except Exception as e:
+        #     message = {'status':"error",'message':str(e)}
+        #     return Response(message,status=500)
 
     def post(self,request):
 
