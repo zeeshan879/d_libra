@@ -184,6 +184,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://the-d-libra.netlify.app",
     "https://libraa.ml",
+    "https://www.libraa.ml",
     "https://libraa-ml.netlify.app"
 ]
 
