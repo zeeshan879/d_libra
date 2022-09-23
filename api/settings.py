@@ -25,7 +25,7 @@ SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Live
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ['localhost','127.0.0.1','18.191.5.228','api.libraa.ml']
 
 
@@ -185,7 +185,9 @@ CORS_ALLOWED_ORIGINS = [
     "https://the-d-libra.netlify.app",
     "https://libraa.ml",
     "https://www.libraa.ml",
-    "https://libraa-ml.netlify.app"
+    "https://libraa-ml.netlify.app",
+    "https://libraaaa.herokuapp.com",
+    "https://dynamic-meta-tag.herokuapp.com"
 ]
 
 
