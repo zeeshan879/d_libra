@@ -998,7 +998,7 @@ class GetDashboardDataWithAuthorization(APIView):
                         for i in range(len(myCategorydata)):
 
                            
-                            mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images',slug = F('categories__slug'),coursename = F('categories__parent__name'),chapter=F('categories__name'))
+                            mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images','meta_keywords','meta_description',slug = F('categories__slug'),coursename = F('categories__parent__name'),chapter=F('categories__name'))
                             myCategorydata[i]['lecture'] = mydata
                             
                             for l in myCategorydata[i]['lecture']:
@@ -1007,7 +1007,7 @@ class GetDashboardDataWithAuthorization(APIView):
                         for j in range(len(data)):
                             
                         
-                            mydata = ReviewModel.objects.filter(categories__id = data[j]['id']).values('id','title','images',slug = F('categories__slug'),coursename = F('categories__parent__name'),chapter=F('categories__name'),category = F('categories__parent__parent_category__name'),courseid = F('categories__parent__id'))
+                            mydata = ReviewModel.objects.filter(categories__id = data[j]['id']).values('id','title','images','meta_keywords','meta_description',slug = F('categories__slug'),coursename = F('categories__parent__name'),chapter=F('categories__name'),category = F('categories__parent__parent_category__name'),courseid = F('categories__parent__id'))
                             data[j]['lecture'] = mydata
 
                         
@@ -1060,7 +1060,7 @@ class GetDashboardDataWithAuthorization(APIView):
                         if myCategorydata:
 
                             for i in range(len(myCategorydata)):
-                                mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images',slug = F('categories__slug'),coursename = F('categories__parent__name'),chapter=F('categories__name'),category = F('categories__parent__parent_category__name'))
+                                mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images','meta_keywords','meta_description',slug = F('categories__slug'),coursename = F('categories__parent__name'),chapter=F('categories__name'),category = F('categories__parent__parent_category__name'))
                                 myCategorydata[i]['lecture'] = mydata
 
                                 data = list(myCategorydata)
@@ -1585,7 +1585,7 @@ class SearchCourse(APIView):
         try:
             role = request.GET.get('role',"superadmin")
             coursename = request.GET['coursename']
-            data = ReviewModel.objects.filter(Q(title__icontains = coursename) | Q(tags__icontains = coursename)).values('id','title','images',chapterid=F('categories__id'),chapter = F('categories__name'),coursename = F('categories__parent__name'),slug = F('categories__slug'),courseid = F('categories__parent__id'),category=F('categories__parent__parent_category__name'))
+            data = ReviewModel.objects.filter(Q(title__icontains = coursename) | Q(tags__icontains = coursename)).values('id','title','images','meta_keywords','meta_description',chapterid=F('categories__id'),chapter = F('categories__name'),coursename = F('categories__parent__name'),slug = F('categories__slug'),courseid = F('categories__parent__id'),category=F('categories__parent__parent_category__name'))
             data = [{"items":data}]
 
 
@@ -1650,7 +1650,7 @@ class SetPriority(APIView):
                 mylistlist = []
                 for i in range(len(prioritylist)):
 
-                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values(Chapterid=F('content_id__categories__id'),Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'),chapter=F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'))
+                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values(Chapterid=F('content_id__categories__id'),Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'),chapter=F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'),metakeywords = F('content_id__meta_keywords'),meta_description = F('content_id__meta_description'))
 
                     data = [{'PriorityType':prioritylist[i],'items':getdata}]
                     mylistlist.append(data)
@@ -1676,7 +1676,7 @@ class SetPriority(APIView):
 
                 for i in range(len(prioritylist)):
 
-                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values('id',Chapterid=F('content_id__categories__id'),Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'),chapter=F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'),category = F('content_id__categories__parent__parent_category__name'))
+                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values('id',Chapterid=F('content_id__categories__id'),Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'),chapter=F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'),category = F('content_id__categories__parent__parent_category__name'),metakeywords = F('content_id__meta_keywords'),meta_description = F('content_id__meta_description'))
 
                     data = [{'PriorityType':prioritylist[i],'items':getdata}]
                     mylistlist.append(data)
@@ -2011,7 +2011,7 @@ class GetTopicData(APIView):
             
 
                 if data:
-                    mydata = ReviewModel.objects.filter(categories__id = data['id']).values('id','title','images')
+                    mydata = ReviewModel.objects.filter(categories__id = data['id']).values('id','title','images','meta_keywords','meta_description')
 
                     return Response({'status':True,"data":mydata},status=200)
 
@@ -2232,7 +2232,7 @@ class GetPriorityCourse(APIView):
 
             for i in range(len(mydata)):
 
-                data = CoursePriority.objects.filter(author__uid = request.GET['token']['id'],content_id__categories__parent__id = mydata[i]['Courseid']).values('id',Chapterid=F('content_id__categories__id'),contentid=F('content_id__id'),contentname=F('content_id__title'),contentimage=F('content_id__images'),Prioritytype=F('PriorityType'),chapter=F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'),category = F('content_id__categories__parent__parent_category__name'))
+                data = CoursePriority.objects.filter(author__uid = request.GET['token']['id'],content_id__categories__parent__id = mydata[i]['Courseid']).values('id',Chapterid=F('content_id__categories__id'),contentid=F('content_id__id'),contentname=F('content_id__title'),contentimage=F('content_id__images'),Prioritytype=F('PriorityType'),chapter=F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'),category = F('content_id__categories__parent__parent_category__name'),metakeywords = F('content_id__meta_keywords'),meta_description = F('content_id__meta_description'))
 
                 mydata[i]['Chapter'] = data
                 del mydata[i]['Courseid']
