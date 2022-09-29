@@ -2086,7 +2086,31 @@ class bookadd(APIView):
             return Response(message,status=500)
 
 
-    
+
+    def put(self,request):
+        try:
+            requireFields = ['id','name']
+            validator = uc.keyValidation(True,True,request.data,requireFields)
+            if validator:
+                return Response(validator,status=200)
+            
+            else:
+                data = bookmarkName.objects.filter(id = request.data['id'],user = request.GET['token']['id']).first()
+                if data:
+                    #check if already exists name
+                    checkdata = bookmarkName.objects.filter(name = request.data['name'],user = request.GET['token']['id']).first()
+                    if not checkdata:
+                        data.name = request.data['name']
+                        data.save()
+                    return Response({"status":True,"message":"Update successfully"})
+                else:
+                    return Response({"status":False,"message":"Incorrect id"})
+
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+
     def delete(self,request):
         try:
             requireFields = ['bookmarkid']
