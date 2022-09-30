@@ -73,7 +73,7 @@ class signup(APIView):
                     encryptPassword = handler.hash(password)
                     randomToken = uc.randomcodegenrator()
                     data = User(email=email,password=encryptPassword,username = username,Otp = randomToken)
-                    if settings.DEBUG:
+                    if not settings.DEBUG:
                         link = f"{request.META['HTTP_HOST']}/webapi/verification/{email}/{randomToken}"
 
                     else:
