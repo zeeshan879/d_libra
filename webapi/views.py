@@ -31,10 +31,10 @@ def verification(request,email,authtoken):
         data.status = "True"
         data.Otp = 0
         data.save()
-        return redirect("https://libraa.ml/login")
+        return redirect("https://libraa.ml")
 
     except:
-        return redirect("https://libraa.ml/login")
+        return redirect("https://libraa.ml")
 
 class signup(APIView):
     def post(self,request):
