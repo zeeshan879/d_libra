@@ -93,7 +93,7 @@ class parentCategory(MPTTModel):
 
 
     class Meta:
-        verbose_name = 'Category'
+        verbose_name = 'Category model'
 
     def __str__(self):
         return self.name
@@ -119,7 +119,7 @@ class Category(MPTTModel):
 
     
     class Meta:
-        verbose_name = 'Course_or_Chapter'
+        verbose_name = 'Course Chapter model'
     
     
     def __str__(self):
@@ -130,6 +130,10 @@ class Category(MPTTModel):
 class courseViews(models.Model):
     courseid = models.ForeignKey(Category,related_name="courseviewers", on_delete=models.CASCADE,blank=True, null=True)
     viewer = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, null=True)
+
+
+    class Meta:
+        verbose_name = 'Course view'
 
 
 
@@ -161,6 +165,9 @@ class ReviewModel(models.Model):
     postslug = models.SlugField(db_index=True,help_text='slug is an Unique value for singel categories page URL, Same as category Name',blank=True)
 
 
+
+    class Meta:
+        verbose_name = 'Topic model'
 
 
     def __str__(self):
@@ -221,6 +228,10 @@ class CoursePriority(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, null=True)
     content_id = models.ForeignKey(ReviewModel, on_delete=models.CASCADE,blank=True, null=True)
     PriorityType = models.CharField(max_length=255,default="")
+
+
+    class Meta:
+        verbose_name = 'Course prioritie'
 
 
 
