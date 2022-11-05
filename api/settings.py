@@ -170,13 +170,21 @@ CKEDITOR_CONFIGS = {
 
 ##Email configuration
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST_USER = config('fromemail')
-EMAIL_HOST_PASSWORD = config('fromemailpassword')
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.sendgrid.net'
+# EMAIL_USE_TLS = True
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = config('fromemail')
+# EMAIL_HOST_PASSWORD = config('fromemailpassword')
 
+
+DEFAULT_FROM_EMAIL = config('fromemail')
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'   
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('fromemailpassword')
 
 CORS_ALLOWED_ORIGINS = [
 
