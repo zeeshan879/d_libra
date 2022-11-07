@@ -79,11 +79,13 @@ class signup(APIView):
                     else:
                         link = f"https://{settings.ALLOWED_HOSTS[3]}/webapi/verification/{email}/{randomToken}"
                     
+                    
 
-                    print("link",link)
+
                     emailstatus = em.verificationEmail("Verification",config("fromemail"),email,link)
                     if emailstatus:
                         data.save()
+                        uc.createbookmart(data)
                         return Response({'status':True,'message':'Account Created Successfully'})
 
                     else:
@@ -113,24 +115,28 @@ class signupwithgoogle(APIView):
                 ##check if account is not created
                 data = User.objects.filter(Q(email = email) | Q(username = username)).first()
                 if data:
+                    if data.role == "normaluser":
                     
-                    ### Jwt creation
-                    access_token_payload = {
-                        'id': data.uid,
-                        'username': data.fname,
-                        'email':data.email,
-                        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
-                        'iat': datetime.datetime.utcnow(),
+                        ### Jwt creation
+                        access_token_payload = {
+                            'id': data.uid,
+                            'username': data.fname,
+                            'email':data.email,
+                            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
+                            'iat': datetime.datetime.utcnow(),
 
-                    }
-                    access_token = jwt.encode(access_token_payload,config('normaluserkey'), algorithm='HS256')
+                        }
+                        access_token = jwt.encode(access_token_payload,config('normaluserkey'), algorithm='HS256')
 
-                    userpayload = { 'id': data.uid,'username': data.username,'email':data.email,'fname':data.fname,'lname':data.lname,'profile':data.profile.url,'role':data.role}
-                    
-                    
-                    return Response({'status':True,'message':'login Successfully',"data":userpayload,"token":access_token})
+                        userpayload = { 'id': data.uid,'username': data.username,'email':data.email,'fname':data.fname,'lname':data.lname,'profile':data.profile.url,'role':data.role}
+                        
+                        
+                        return Response({'status':True,'message':'login Successfully',"data":userpayload,"token":access_token})
 
-                    return Response({'status':False,'data':"Email or Username already exist"})
+
+                    else:
+                        return Response({'status':False,'message':'You dont have excess to login with social auth'})
+                  
                 
                 
                 else:
@@ -138,6 +144,7 @@ class signupwithgoogle(APIView):
                     emailStatus = em.credentialsend("Confidentiality",config('fromemail'),email,{'username':username,'password':password})
                     if emailStatus:
                         fetchuser.save()
+                        uc.createbookmart(fetchuser)
 
                         ### Jwt creation
                         access_token_payload = {
@@ -1640,7 +1647,7 @@ class SetPriority(APIView):
         my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
         if my_token:
 
-            prioritylist = ['highpriority','reviewlist','futureread']
+            prioritylist = ['High Priority Review List','Review List','For future read']
 
             bookmarkdata = bookmarkName.objects.filter(user__uid = my_token['id']).values('name')
             if not bookmarkdata:
@@ -1696,7 +1703,7 @@ class SetPriority(APIView):
             course_id = request.data.get('content_id')
             PriorityType = request.data.get('PriorityType')
 
-            prioritylist = ['highpriority','reviewlist','futureread']
+            prioritylist = ['High Priority Review List','Review List','For future read']
 
             if PriorityType not in prioritylist:
 
@@ -2142,7 +2149,7 @@ class addcontent(APIView):
                 return Response(validator)
 
             else:
-                prioritylist = ['highpriority','reviewlist','futureread']
+                prioritylist = ['High Priority Review List','Review List','For future read']
                 
                 ##check if user firsttime add
                 
@@ -2163,11 +2170,12 @@ class addcontent(APIView):
                     else:
                         ##fetch all bookmarkname
                         bookmarkname = bookmarkName.objects.filter(user = request.GET['token']['id']).values_list('name', flat=True).distinct().order_by('id')
-                        
-                        
-                        if bookmarkname:
-                            prioritylist = prioritylist + list(bookmarkname)
 
+                        if bookmarkname:
+                            prioritylist = list(bookmarkname)
+
+                        
+        
 
                         
                         if checkalreadyAd.PriorityType in prioritylist:

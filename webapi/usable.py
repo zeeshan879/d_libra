@@ -165,3 +165,19 @@ def removeDuplicates(obj):
     
     except:
         return False
+
+
+
+
+def createbookmart(userobj):
+    bookmarknames = [{'name':'High Priority Review List','code':'#006AE1'},{'name':'Review List','code':'#119ABD'},{'name':'For future read','code':'#DE4040'}]
+    finallist = list()
+    for j in bookmarknames:
+        finallist.append(
+
+        bookmarkName(name = j['name'],colorcode = j['code'],user = userobj)
+
+        )
+
+    bookmarkName.objects.bulk_create(finallist)
+       
