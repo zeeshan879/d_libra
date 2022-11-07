@@ -2104,12 +2104,25 @@ class bookadd(APIView):
             else:
                 data = bookmarkName.objects.filter(id = request.data['id'],user = request.GET['token']['id']).first()
                 if data:
-                    #check if already exists name
+                    previousbookmark = data.name
                     checkdata = bookmarkName.objects.filter(name = request.data['name'],user = request.GET['token']['id']).first()
                     if not checkdata:
+                        
                         data.name = request.data['name']
                         data.save()
+                        
+                    # check if course priority is add so update
+                    checkalready = CoursePriority.objects.filter(PriorityType = previousbookmark,author = request.GET['token']['id'])
+                    
+                    if checkalready:
+                        checkalready.update(PriorityType = request.data['name'])
+                        
+
                     return Response({"status":True,"message":"Update successfully"})
+
+
+                    
+
                 else:
                     return Response({"status":False,"message":"Incorrect id"})
 
@@ -2149,7 +2162,12 @@ class addcontent(APIView):
                 return Response(validator)
 
             else:
-                prioritylist = ['High Priority Review List','Review List','For future read']
+                #prioritylist = ['High Priority Review List','Review List','For future read']
+                prioritylist = bookmarkName.objects.filter(user = request.GET['token']['id']).values_list('name', flat=True).distinct()
+                
+                #print(prioritylist[0])
+                #return Response("this")
+
                 
                 ##check if user firsttime add
                 
@@ -2169,7 +2187,7 @@ class addcontent(APIView):
 
                     else:
                         ##fetch all bookmarkname
-                        bookmarkname = bookmarkName.objects.filter(user = request.GET['token']['id']).values_list('name', flat=True).distinct().order_by('id')
+                        bookmarkname = prioritylist.order_by('id')
 
                         if bookmarkname:
                             prioritylist = list(bookmarkname)
