@@ -14,14 +14,8 @@ path('changepassword',changepassword.as_view()),
 path('GetParentCategories',GetParentCategories.as_view()),
 path('GetChildCategories',GetChildCategories.as_view()),
 path('allcategories',allcategories.as_view()),
-
-
 path('parentCategories',parentCategories.as_view()),
 path('feedbackrecord',feedbackrecord.as_view()),
-
-
-
-
 path('AddPost',AddPost.as_view()),
 path('GetDashboardData',GetDashboardData.as_view()),
 path('GetParentChildCategories',GetParentChildCategories.as_view()),
@@ -44,22 +38,13 @@ path('bookadd',bookadd.as_view()),
 path('addcontent',addcontent.as_view()),
 path('logout',logout.as_view()),
 path('GetPriorityCourse',GetPriorityCourse.as_view()),
-
-
 path('backupdata',backupdata.as_view()),
 path('exportcategory_or_course',exportcategory_or_course.as_view()),
-
-
-
-
 path('exportcategory_and_course',exportcategory_and_course.as_view()),
 path('course_chapters',course_chapters.as_view()),
 path('exportpost',exportpost.as_view()),
-
-
-
-
 path('courseviews',courseviews.as_view()),
+path('bookmarkseeder',bookmarkseeder.as_view()),
 
 
 

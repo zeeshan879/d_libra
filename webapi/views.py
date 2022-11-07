@@ -2640,3 +2640,17 @@ class courseviews(APIView):
         except Exception as e:
             message = {'status':"error",'message':str(e)}
             return Response(message,status=500)
+
+
+
+
+
+class bookmarkseeder(APIView):
+    def get(self,request):
+        fetchalluser = User.objects.all()
+        for i in fetchalluser:
+            checkalready = bookmarkName.objects.filter(user = i.uid)
+            if not checkalready:
+                uc.createbookmart(i)
+
+        return Response({"status":True,"message":"Data uploaded"})
