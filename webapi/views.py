@@ -447,6 +447,7 @@ class GetParentCategories(APIView):
 
                 
             else:
+        
                 mydata = Category.objects.filter(CategoryType="Category",name__icontains = query).annotate(views = Count('courseviewers__id'),totalratinng=Avg('courserating__rating')).values('id','created_at','updated_at','image','Type','views','unique_identifier','totalratinng',CategoryName=F('name'),ParentCategoryType=F('parent_category__name'),authorname = F('author__fname'))
             
 
@@ -714,7 +715,7 @@ class AddPost(APIView):
         postid = request.GET.get('id',False)
         categoryid = request.GET['categoryid']
         courseid = request.GET.get('courseid',False)
-        data = ReviewModel.objects.filter(categories = categoryid).values('id','title','images','OGP','meta_description','content','tags',Categroyid=F('categories__id'),category = F('categories__parent__parent_category__name'),coursename = F('categories__parent__name'),courseid = F('categories__parent__id'),chapter=F('categories__name'),slug = F('categories__slug'))
+        data = ReviewModel.objects.filter(categories = categoryid).values('id','title','unique_identifier','images','OGP','meta_description','content','tags',Categroyid=F('categories__id'),category = F('categories__parent__parent_category__name'),coursename = F('categories__parent__name'),courseid = F('categories__parent__id'),chapter=F('categories__name'),slug = F('categories__slug'))
 
         if data:
             nextcategory = Category.objects.filter(parent = courseid).values_list('id',flat=True)
@@ -1592,7 +1593,7 @@ class SearchCourse(APIView):
         try:
             role = request.GET.get('role',"superadmin")
             coursename = request.GET['coursename']
-            data = ReviewModel.objects.filter(Q(title__icontains = coursename) | Q(tags__icontains = coursename)).values('id','title','images','meta_keywords','meta_description',chapterid=F('categories__id'),chapter = F('categories__name'),coursename = F('categories__parent__name'),slug = F('categories__slug'),courseid = F('categories__parent__id'),category=F('categories__parent__parent_category__name'))
+            data = ReviewModel.objects.filter(Q(title__icontains = coursename) | Q(tags__icontains = coursename)).values('id','title','images','unique_identifier','meta_keywords','meta_description',chapterid=F('categories__id'),chapter = F('categories__name'),coursename = F('categories__parent__name'),slug = F('categories__slug'),courseid = F('categories__parent__id'),category=F('categories__parent__parent_category__name'))
             data = [{"items":data}]
 
 
@@ -1647,17 +1648,14 @@ class SetPriority(APIView):
         my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
         if my_token:
 
-            prioritylist = ['High Priority Review List','Review List','For future read']
+            mylistlist = list()
+            prioritylist = bookmarkName.objects.filter(user__uid = my_token['id']).values_list('name',flat=True).distinct()
 
-            bookmarkdata = bookmarkName.objects.filter(user__uid = my_token['id']).values('name')
-            if not bookmarkdata:
-                
-
-
-                mylistlist = []
+            if prioritylist:
+             
                 for i in range(len(prioritylist)):
 
-                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values(Chapterid=F('content_id__categories__id'),Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'),chapter=F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'),metakeywords = F('content_id__meta_keywords'),meta_description = F('content_id__meta_description'))
+                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values(Chapterid=F('content_id__categories__id'),Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'),chapter=F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'),metakeywords = F('content_id__meta_keywords'),meta_description = F('content_id__meta_description'),unique_identifier = F('content_id__unique_identifier'))
 
                     data = [{'PriorityType':prioritylist[i],'items':getdata}]
                     mylistlist.append(data)
@@ -1668,27 +1666,8 @@ class SetPriority(APIView):
                 return Response({'status':True,'data':mylistlist},status=200)
 
             else:
-                if len(bookmarkdata) > 1:
-
-                    for j in range(len(bookmarkdata)):
-
-                        prioritylist.append(bookmarkdata[j]['name'])
-
-                else:
-
-                    prioritylist.append(bookmarkdata[0]['name'])
-
                 
-                mylistlist = []
-
-                for i in range(len(prioritylist)):
-
-                    getdata = CoursePriority.objects.filter(author = my_token['id'],PriorityType=prioritylist[i]).values('id',Chapterid=F('content_id__categories__id'),Contentid=F('content_id__id'),Contenttitle=F('content_id__title'),Contentimage=F('content_id__images'),chapter=F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'),category = F('content_id__categories__parent__parent_category__name'),metakeywords = F('content_id__meta_keywords'),meta_description = F('content_id__meta_description'))
-
-                    data = [{'PriorityType':prioritylist[i],'items':getdata}]
-                    mylistlist.append(data)
-                    
-
+                mylistlist = [[{"PriorityType":"High Priority Review List","items":[]}],[{"PriorityType":"Review List","items":[]}],[{"PriorityType":"For future read","items":[]}]]
                 return Response({'status':True,'data':mylistlist},status=200)
 
         else:
@@ -2282,7 +2261,7 @@ class GetPriorityCourse(APIView):
 
             for i in range(len(mydata)):
 
-                data = CoursePriority.objects.filter(author__uid = request.GET['token']['id'],content_id__categories__parent__id = mydata[i]['Courseid']).values('id',Chapterid=F('content_id__categories__id'),contentid=F('content_id__id'),contentname=F('content_id__title'),contentimage=F('content_id__images'),Prioritytype=F('PriorityType'),chapter=F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'),category = F('content_id__categories__parent__parent_category__name'),metakeywords = F('content_id__meta_keywords'),meta_description = F('content_id__meta_description'))
+                data = CoursePriority.objects.filter(author__uid = request.GET['token']['id'],content_id__categories__parent__id = mydata[i]['Courseid']).values('id',Chapterid=F('content_id__categories__id'),contentid=F('content_id__id'),contentname=F('content_id__title'),contentimage=F('content_id__images'),Prioritytype=F('PriorityType'),chapter=F('content_id__categories__name'),coursename = F('content_id__categories__parent__name'),slug = F('content_id__categories__slug'),courseid = F('content_id__categories__parent__id'),category = F('content_id__categories__parent__parent_category__name'),metakeywords = F('content_id__meta_keywords'),meta_description = F('content_id__meta_description'),unique_identifier = F('content_id__unique_identifier'))
 
                 mydata[i]['Chapter'] = data
                 del mydata[i]['Courseid']
