@@ -998,15 +998,15 @@ class GetDashboardDataWithAuthorization(APIView):
             checkdata = Category.objects.filter(id=id).first()
             if checkdata:
                 if checkdata.CategoryType == "Category":
-                    data = Category.objects.filter(parent__id=id,CategoryType="SubCategory").values('id',CategoryName=F('name'))
+                    data = Category.objects.filter(parent__id=id,CategoryType="SubCategory").values('id','unique_identifier',CategoryName=F('name'))
 
-                    myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id',CategoryName=F('name'),slugimg = F('parent_category__image'))
+                    myCategorydata = Category.objects.filter(id=id,CategoryType="Category").values('id','unique_identifier',CategoryName=F('name'),slugimg = F('parent_category__image'))
 
                     if data:
                         for i in range(len(myCategorydata)):
 
                            
-                            mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images','meta_keywords','meta_description',slug = F('categories__slug'),coursename = F('categories__parent__name'),chapter=F('categories__name'))
+                            mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','unique_identifier','images','meta_keywords','meta_description',slug = F('categories__slug'),coursename = F('categories__parent__name'),chapter=F('categories__name'))
                             myCategorydata[i]['lecture'] = mydata
                             
                             for l in myCategorydata[i]['lecture']:
@@ -1015,7 +1015,7 @@ class GetDashboardDataWithAuthorization(APIView):
                         for j in range(len(data)):
                             
                         
-                            mydata = ReviewModel.objects.filter(categories__id = data[j]['id']).values('id','title','images','meta_keywords','meta_description',slug = F('categories__slug'),coursename = F('categories__parent__name'),chapter=F('categories__name'),category = F('categories__parent__parent_category__name'),courseid = F('categories__parent__id'))
+                            mydata = ReviewModel.objects.filter(categories__id = data[j]['id']).values('id','title','images','unique_identifier','meta_keywords','meta_description',slug = F('categories__slug'),coursename = F('categories__parent__name'),chapter=F('categories__name'),category = F('categories__parent__parent_category__name'),courseid = F('categories__parent__id'))
                             data[j]['lecture'] = mydata
 
                         
@@ -1068,7 +1068,7 @@ class GetDashboardDataWithAuthorization(APIView):
                         if myCategorydata:
 
                             for i in range(len(myCategorydata)):
-                                mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images','meta_keywords','meta_description',slug = F('categories__slug'),coursename = F('categories__parent__name'),chapter=F('categories__name'),category = F('categories__parent__parent_category__name'))
+                                mydata = ReviewModel.objects.filter(categories__id = myCategorydata[i]['id']).values('id','title','images','unique_identifier','meta_keywords','meta_description',slug = F('categories__slug'),coursename = F('categories__parent__name'),chapter=F('categories__name'),category = F('categories__parent__parent_category__name'))
                                 myCategorydata[i]['lecture'] = mydata
 
                                 data = list(myCategorydata)
