@@ -230,7 +230,7 @@ class userlogin(APIView):
 class userprofile(APIView):
     def get(self,request):
         try:
-            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],"normaluser")
+            my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],request.GET['role'])
             if my_token:
                 data = User.objects.filter(uid = my_token['id']).first()
                 if data:
@@ -985,7 +985,7 @@ class GetDashboardDataWithAuthorization(APIView):
 
     def get(self,request):
 
-        role = request.GET['role']
+        #role = request.GET['role']
         # my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
         # if my_token:
 
@@ -996,6 +996,7 @@ class GetDashboardDataWithAuthorization(APIView):
         
         if id:
             checkdata = Category.objects.filter(id=id).first()
+          
             if checkdata:
                 if checkdata.CategoryType == "Category":
                     data = Category.objects.filter(parent__id=id,CategoryType="SubCategory").values('id','unique_identifier',CategoryName=F('name'))
