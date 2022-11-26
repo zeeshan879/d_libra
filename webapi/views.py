@@ -709,7 +709,7 @@ class AddPost(APIView):
 
         # try:
 
-        role = request.GET['role']
+        role = request.GET.get('role')
         # my_token = uc.tokenauth(request.META['HTTP_AUTHORIZATION'][7:],role)
         # if my_token:
         postid = request.GET.get('id',False)
