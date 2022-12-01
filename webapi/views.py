@@ -2652,3 +2652,56 @@ class bookmarkseeder(APIView):
                 uc.createbookmart(i)
 
         return Response({"status":True,"message":"Data uploaded"})
+
+
+
+class courses_chapters(APIView):
+    permission_classes = [authorization]
+
+    def get(self, request):
+        try:
+            fetchcourses = Category.objects.filter(CategoryType = "Category").values('id','name','created_at','updated_at','unique_identifier','image')
+
+            for j in fetchcourses:
+                fetchchapters =  Category.objects.filter(CategoryType = "SubCategory",parent = j['id']).values('id','name','created_at','updated_at','unique_identifier','image')
+                if fetchchapters:
+                    j['chapters'] = fetchchapters
+
+                else:
+                    j['chapters'] = []
+            
+    
+            return Response({"status":True,"data":fetchcourses})
+
+        
+        
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500)
+   
+
+
+
+class chapter_topics(APIView):
+    permission_classes = [authorization]
+
+    def get(self,request):
+        try:
+            fetchchapters =  Category.objects.filter(CategoryType = "SubCategory").values('id','name','created_at','updated_at','unique_identifier','image')
+            
+            for j in fetchchapters:
+                fetchtopics = ReviewModel.objects.filter(categories = j['id']).values('id','title','created_at','updated_at','unique_identifier','images')
+                if fetchtopics:
+                    j['topics'] = fetchtopics
+
+                else:
+                    j['topics'] = []
+            
+            
+            return Response({"status":True,"data":fetchchapters})
+
+        
+
+        except Exception as e:
+            message = {'status':"error",'message':str(e)}
+            return Response(message,status=500) 

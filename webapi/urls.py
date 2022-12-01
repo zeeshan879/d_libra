@@ -45,6 +45,8 @@ path('course_chapters',course_chapters.as_view()),
 path('exportpost',exportpost.as_view()),
 path('courseviews',courseviews.as_view()),
 path('bookmarkseeder',bookmarkseeder.as_view()),
+path('courses_chapters',courses_chapters.as_view()),
+path('chapter_topics',chapter_topics.as_view()),
 
 
 
