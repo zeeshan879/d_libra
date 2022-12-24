@@ -23,7 +23,7 @@ import math
 
 
 def index(request):
-    return HttpResponse('<h1>Project libra</h1>')
+    return HttpResponse('<h1> Api server</h1>')
 
 def verification(request,email,authtoken):
     try:
