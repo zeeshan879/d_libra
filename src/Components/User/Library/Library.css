@@ -1,0 +1,203 @@
+.librarybookmarkicon {
+  padding: 0px 0px 5px 5px;
+}
+
+.libraryrootcontainer {
+  margin-top: 10px;
+}
+
+.librarybackbutton {
+  position: relative;
+  top: 0px;
+}
+
+.bookmarktext {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 21px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  letter-spacing: -0.015em;
+}
+
+.header_library_container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-left: -83px;
+  margin-top: 40px;
+}
+
+.library_root_container_simple {
+  display: flex;
+
+  margin-top: -25px;
+}
+
+.library_root_container {
+  display: flex;
+  background: #111111;
+  margin-top: -25px;
+
+  padding-bottom: 10px;
+  border: 1px solid #111111;
+  box-sizing: border-box;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.bycourse_button {
+  background: #4f4f4f !important;
+  border: 1px solid #999999 !important;
+  box-sizing: border-box !important;
+  border-radius: 15px !important;
+  width: 200px !important;
+  text-transform: none !important;
+  height: 30px !important;
+  margin-top: 10px !important;
+  font-weight: 300 !important;
+  font-size: 16px !important;
+  line-height: 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  text-align: center !important;
+  letter-spacing: -0.015em !important;
+}
+
+.bycourse_button_sub {
+  background: #006ae1 !important;
+  box-sizing: border-box !important;
+  border-radius: 15px !important;
+  width: 200px !important;
+  font-weight: 300 !important;
+  font-size: 16px !important;
+  line-height: 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  text-align: center !important;
+  letter-spacing: -0.015em !important;
+  text-transform: none !important;
+  height: 30px !important;
+  color: white !important;
+  margin-top: 10px !important;
+}
+
+.mylibrary_text {
+  padding-left: 10px;
+  font-weight: 700;
+  font-size: 21px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+}
+
+@media screen and (max-width: 1012px) {
+  .header_library_container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-left: -65px;
+    margin-top: 40px;
+  }
+
+}
+
+@media screen and (max-width: 677px) {
+  .library_root_container {
+    display: flex;
+    background: #111111;
+    padding-bottom: 10px;
+    border: 1px solid #111111;
+    box-sizing: border-box;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  }
+
+  .librarybookmarkicon {
+    padding: 0px 6px 5px 5px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .header_library_container {
+    margin-top: 10px;
+  }
+}
+
+@media screen and (max-width: 490px) {
+  .bycourse_button {
+    width: 115px !important;
+    height: 20px !important;
+    margin-right: -10px !important;
+    text-transform: none !important;
+    font-weight: 300 !important;
+    font-size: 12px !important;
+    line-height: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    text-align: center !important;
+    letter-spacing: -0.015em !important;
+  }
+
+  .bookmarktext {
+    font-style: normal;
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 16px;
+    display: flex;
+    align-items: center;
+    letter-spacing: -0.015em;
+  }
+
+  .bycourse_button_sub {
+    width: 115px !important;
+    height: 20px !important;
+    margin-right: -10px !important;
+    text-transform: none !important;
+    font-weight: 300 !important;
+    font-size: 12px !important;
+    line-height: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    text-align: center !important;
+    letter-spacing: -0.015em !important;
+  }
+  .header_library_container > span {
+    font-size: 14px;
+  }
+  .header_library_container {
+    margin-left: -65px;
+  }
+  .menubookicon_text {
+    font-size: 18px;
+    margin-bottom: -10px;
+  }
+
+  .mylibrary_text {
+    font-size: 16px;
+    margin-bottom: -10px;
+  }
+  .librarymainicon {
+    margin-top: 10px;
+  }
+  .library_root_container_simple {
+    background: #f3f6ff;
+    box-shadow: 0px 4px 4px rgba(214, 230, 255, 0.25);
+    padding-bottom: 12px !important;
+    margin-top: -5px;
+  }
+
+  .library_root_container {
+    margin-top: -5px;
+  }
+
+  .libraryrootcontainer {
+    margin-top: -10px;
+  }
+}

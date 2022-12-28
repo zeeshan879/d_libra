@@ -1,0 +1,69 @@
+/* body {
+  background-color: blue !important;
+} */
+
+
+.darkTheme {
+  background-color: #111111;
+  color: white;
+  padding-top: 58px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.lightTheme {
+  color: black;
+  padding-top: 58px;
+
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.CreamyTheme {
+  color: black;
+  padding-top: 58px;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #eeeeee !important;
+}
+* {
+  margin: 0;
+  /* padding: 0; */
+  box-sizing: border-box;
+  font-family: Helvetica !important;
+}
+
+@media screen and (max-width: 430px) {
+  .darkTheme {
+    /* padding: 40px 0px 0px 0px; */
+    height: 0vh;
+  }
+  .lightTheme {
+    /* padding: 40px 0px 0px 0px; */
+    height: 0vh;
+  }
+  .CreamyTheme {
+    /* padding: 40px 0px 0px 0px; */
+    height: 0vh;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .darkTheme {
+    padding: 40px 0px 0px 0px;
+    /* height: 0vh; */
+  }
+  .lightTheme {
+    padding: 40px 0px 0px 0px;
+    /* height: 0vh; */
+  }
+  .CreamyTheme {
+    padding: 40px 0px 0px 0px;
+    /* height: 0vh; */
+  }
+}

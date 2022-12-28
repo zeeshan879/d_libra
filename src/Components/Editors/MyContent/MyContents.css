@@ -1,0 +1,228 @@
+.underimagecontent {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.mycontenttagscontainer {
+  position: relative;
+}
+.bookmark_icon {
+  cursor: pointer;
+  width: 20px;
+  height: 20.4px;
+  margin-right: 30px;
+}
+
+.tagstwocontainerOne {
+  /* filter: invert(8%) sepia(100%) saturate(6481%) hue-rotate(246deg) brightness(102%) contrast(143%); 
+  */
+
+  /* filter: invert(90%) sepia(93%) saturate(636%) hue-rotate(338deg)
+    brightness(112%) contrast(102%);  */
+
+  /* filter: brightness(0.5) sepia(1) hue-rotate(-70deg) saturate(5); */
+  /* filter: brightness(0.5) sepia(1) hue-rotate(140deg) saturate(6);
+  filter: brightness(0.2) sepia(1) hue-rotate(180deg) saturate(5); */
+
+  /* https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-element*/
+}
+.tagstwocontainerTwo {
+  filter: brightness(0.5) sepia(1) hue-rotate(140deg) saturate(6);
+
+  /* https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-element*/
+}
+.tagstwocontainerThree {
+  filter: invert(90%) sepia(93%) saturate(636%) hue-rotate(338deg)
+    brightness(112%) contrast(102%);
+  /* https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-element*/
+}
+.mycontentcontainer {
+  display: flex;
+  justify-content: space-around;
+  padding: 20px 30px 0px 60px;
+  align-items: center;
+}
+.mainmycontentcontainer {
+  display: flex;
+  flex-direction: column;
+  padding-top: 30px;
+}
+.mainmycontentcontainertwo {
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+}
+
+.landingpage_images {
+  width: 100%;
+  /* height: 220px;
+  width: 300px; */
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.mycontentheadtwooo {
+  font-style: normal;
+  font-weight: 300;
+  font-size: 21px;
+  line-height: 24.15px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+}
+.mycontentheadthreee {
+  font-style: normal;
+  font-weight: 300;
+  font-size: 21px;
+  line-height: 24.15px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  letter-spacing: -0.015em;
+  color: #363636;
+}
+.mainContentContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  flex-direction: column;
+  margin-top: -10px;
+}
+.mycontentheadingone {
+  font-weight: 700;
+  font-size: 21px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+}
+.mycontentheadingtwo {
+  font-weight: 300;
+  font-size: 21px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+}
+.mycontentheadingsubone {
+  font-weight: 700;
+  font-size: 21px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  letter-spacing: -0.015em;
+  color: black;
+}
+.mycontentheadingsubtwo {
+  font-weight: 300;
+  font-size: 21px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  letter-spacing: -0.015em;
+  color: black;
+}
+.slick-next {
+  right: -14px !important;
+}
+.slick-prev {
+  left: -20px !important;
+}
+
+.coursepageguestsection {
+  /* border: 1px solid white; */
+  text-align: center;
+  padding-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.coursepageguesttext {
+  font-family: "Helvetica";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 16px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  letter-spacing: -0.015em;
+}
+
+/* ..................................RESPONSIVE DESIGN.................................. */
+
+@media screen and (max-width: 677px) {
+  .mainmycontentcontainer {
+    display: flex;
+    flex-direction: column-reverse;
+    padding-top: 0px;
+  }
+
+  .mainmycontentcontainertwo {
+    display: flex;
+    flex-direction: column;
+    padding-top: 00px;
+  }
+
+  .mycontentcontainer {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 10px 0px 10px;
+    align-items: center;
+  }
+  .mycontentheadtwooo {
+    font-weight: 300;
+    font-size: 18px;
+    line-height: 24px;
+    letter-spacing: -0.015em;
+    padding-bottom: -20px;
+    color: #ffffff;
+  }
+  .mycontentheadthreee {
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 21px;
+    letter-spacing: -0.015em;
+    padding-bottom: -20px;
+    text-shadow: 0px 0px #00000000;
+    background-color: #004cb6 !important;
+    display: inline-block;
+    background-image: -webkit-linear-gradient(
+      87.62deg,
+      #004cb6 -44.71%,
+      #009af9 100%
+    ) !important;
+    background-image: -webkit-conic-gradient(
+      87.62deg,
+      #004cb6 -44.71%,
+      #009af9 100%
+    ) !important;
+    -webkit-box-decoration-break: clone;
+    -webkit-background-clip: text !important;
+    -moz-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    -moz-text-fill-color: transparent !important;
+    -webkit-mask-image: linear-gradient(
+      87.62deg,
+      #004cb6 -44.71%,
+      #009af9 100%
+    );
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .mainmycontentcontainer {
+    padding-top: 0px;
+  }
+}

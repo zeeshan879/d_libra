@@ -1,0 +1,1017 @@
+.sidebarlightmodelogo {
+  width: 100px;
+  height: 20.47px;
+}
+
+.successMessage {
+  color: green !important;
+  padding: 10px;
+  width: 100%;
+  border: 2px solid green;
+  text-align: center;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.successMessageTwo {
+  color: white;
+  padding: 10px;
+  width: 100%;
+  border: 2px solid white;
+  text-align: center;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.errorMessage {
+  color: red;
+  padding: 10px;
+  border: 2px solid red;
+  text-align: center;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.sidebarsearchlogo {
+  position: absolute;
+  right: 20px;
+  width: 22px;
+  height: 22px;
+}
+
+.sidebarlistcontainer {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.logocontainer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.sidebarsignupicon {
+  width: 20px;
+  height: 20px;
+}
+
+.sidebarloginicon {
+  width: 18px;
+  height: 22.5px;
+}
+.sidebarlogouticon {
+  width: 18px;
+  height: 20.12px;
+}
+.sidebardarkicon {
+  width: 20px;
+  height: 19.95px;
+}
+.sidebarlibraryicon {
+  width: 22px;
+  height: 18px;
+}
+.sidebarratingicon {
+  width: 17.7px;
+  height: 16.96px;
+}
+.sidebarnighticon {
+  width: 18px;
+  height: 18px;
+}
+.sidebareditoricon {
+  width: 18px;
+  height: 19.2px;
+}
+
+.Searchb_main {
+  margin-top: -56px;
+}
+.logocontainertwo {
+  position: relative;
+  left: -40px;
+  top: 0;
+}
+.logocontainerone {
+  position: relative;
+  left: -30px;
+}
+.logocontainerseven {
+  position: relative;
+  left: -14px;
+}
+.logocontaineredit {
+  position: relative;
+  left: 7px;
+}
+.logocontainerthree {
+  position: relative;
+  left: -20px;
+  top: 0;
+}
+
+.logocontainereight {
+  position: relative;
+  left: -10px;
+}
+.logocontainernine {
+  position: relative;
+  left: -35px;
+}
+.logocontainerten {
+  position: relative;
+  left: -15px;
+}
+.logocontainereleven {
+  position: relative;
+  left: -14px;
+}
+.hamburgericonsidebar {
+  width: 30px !important;
+  height: 22.5px !important;
+}
+
+.hamburgericonsidebar:hover {
+  pointer-events: none;
+}
+
+/* .hamburgericonsidebarButton:hover {
+  pointer-events: none;
+} */
+
+.wrapthree {
+  display: none;
+}
+.editoriconsidebar {
+  width: 40px;
+  height: 40px;
+  position: relative;
+  left: 0px;
+}
+
+.logo_main_container_DarkEditor {
+  padding-left: 292px
+}
+
+.logo_main_container_LightEditor {
+  padding-left: 292px
+}
+
+.arrows_icon_sidebar {
+  width: 24.4px;
+  height: 22.91px;
+}
+.main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 48px;
+  padding-top: 5px;
+}
+.left_search {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20%;
+  cursor: pointer;
+}
+.right_search {
+  height: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 75%;
+  border-radius: 10px;
+}
+.left {
+  display: flex;
+  justify-content: flex-start;
+  width: 80%;
+}
+.searchbar_input {
+  border-radius: 5px 0px 0px 5px !important;
+  padding-left: 10% !important;
+  height: 32.5px !important;
+  border: none !important;
+  outline: none !important;
+  width: 100% !important;
+  font-weight: 300 !important;
+  font-size: 14px !important;
+  line-height: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  letter-spacing: -0.015em !important;
+
+  color: #ffffff !important;
+}
+.searchbar_input::placeholder {
+  font-weight: 300 !important;
+  font-size: 14px !important;
+  line-height: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  letter-spacing: -0.015em !important;
+  color: #ffffff !important;
+}
+.searchbar_input_two {
+  border-radius: 5px 0px 0px 5px !important;
+  padding-left: 10% !important;
+  height: 32.5px !important;
+  border: none !important;
+  outline: none !important;
+  width: 100% !important;
+  font-style: normal !important;
+  font-weight: 300 !important;
+  font-size: 14px !important;
+  line-height: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  letter-spacing: -0.015em !important;
+  color: #363636 !important;
+}
+.searchbar_input_two::placeholder {
+  font-style: normal !important;
+  font-weight: 300 !important;
+  font-size: 14px !important;
+  line-height: 16px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  letter-spacing: -0.015em !important;
+  color: #363636 !important;
+}
+.right {
+  height: 32.5px;
+  border-radius: 0px 5px 5px 0px;
+}
+.MuiAppBar-root {
+  box-shadow: none !important;
+}
+.subheadingsidebar {
+  margin-left: 20px;
+  font-style: normal;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 16px;
+  display: flex;
+  align-items: flex-end;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+  padding-top: 2px;
+}
+.profilesidebaricon {
+  margin-left: -9px;
+  width: 40px;
+  height: 40px;
+}
+.toolbar_rowreverse {
+  display: flex;
+}
+.wrap {
+  display: none;
+}
+.wraptwo {
+  display: none;
+}
+.wrap .search_icon {
+  height: 60px;
+  font-size: 14px;
+  border: none;
+  outline: none;
+  color: #555;
+  padding: 3px;
+  padding-right: 60px;
+  width: 0px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  z-index: 3;
+  transition: width 0.4s cubic-bezier(0, 0.795, 0, 1);
+  cursor: pointer;
+}
+.search_icon:focus:hover {
+  background: #4f4f4f;
+  box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.25);
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-top-right-radius: 10px;
+  border: none;
+  font-size: 18px;
+  padding-left: 10px;
+  height: 50px;
+  margin-top: 7px;
+  color: white;
+  outline: none;
+}
+.search_icon:focus {
+  width: 370px;
+  z-index: 1;
+  cursor: text;
+}
+.darkThemeBar:focus:hover {
+  background: white;
+  color: black;
+}
+.whitethemeBar:focus:hover {
+  background: #4f4f4f;
+  color: white;
+}
+.toolbarclassone {
+  background: #111111 !important;
+  min-height: 61px !important;
+}
+.toolbarclasstwo {
+  background: #f3f6ff !important;
+  min-height: 61px !important;
+}
+.sidebar_inputfield {
+  background: #4f4f4f;
+  border-radius: 5px;
+  border: none !important;
+  padding-left: 20px;
+  padding-right: 40px;
+  font-style: normal;
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 21px;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+  outline: none !important;
+  width: 320px;
+  height: 40.53px !important;
+}
+.sidebar_inputfield::placeholder {
+  font-style: normal;
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 21px;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+}
+.sidebar_inputfield_sub {
+  background: white;
+  border-radius: 5px;
+  border: none !important;
+  padding-right: 40px;
+  padding-left: 20px;
+  font-style: normal;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 16px;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.015em;
+  color: #363636;
+  outline: none !important;
+  width: 320px;
+  height: 40.53px !important;
+}
+.sidebar_inputfield_sub::placeholder {
+  font-style: normal;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 16px;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.015em;
+  color: #363636;
+}
+
+.mainsearchcontianer {
+  box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.25);
+  display: flex;
+  position: relative;
+}
+
+.input_field_icon_container {
+  width: 40px;
+  position: absolute;
+  right: -5px;
+  top: 9px;
+  z-index: 1;
+  height: 40.53px !important;
+}
+.input_field_icon_container_sub {
+  width: 40px;
+  position: absolute;
+  right: -5px;
+  top: 9px;
+  z-index: 1;
+  height: 40.53px !important;
+}
+.logo_main_container {
+  padding-left: 401px;
+  /* margin-left: 70px; */
+}
+.logo_main_container_editor {
+  padding-left: 375px !important;
+}
+
+.logo_main_container_some_pages {
+  padding-left: 410px;
+  /* margin-left: 70px; */
+}
+
+.logo_main_container_landing {
+  padding-left: 381px;
+}
+
+.firstTopic {
+  padding-left: 361px;
+}
+
+.logo_main_container_null {
+  padding-left: 385px;
+}
+.logo_main_container_landing_role {
+  padding-left: 425px;
+}
+
+.logo_main_container_landing_role_editor {
+  padding-left: 456px;
+}
+
+
+.logo_main_container_two {
+  padding-left: 380px;
+  /* border: 1px solid red; */
+}
+
+.logo_main_container_one {
+  padding-left: 345px;
+}
+.logo_main_container_three {
+  padding-left: 275px;
+}
+.inputfield_icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 10px;
+}
+
+.listitem_text {
+  font-style: normal;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 18px;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+}
+.listitem_text_disabled {
+  font-style: normal;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 18px;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.015em;
+  color: #4f4f4f;
+}
+
+.listitem_text_enabled {
+  font-style: normal;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 18px;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+}
+
+.sidenav_logo {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  position: relative;
+  right: -10px;
+  top: 0px;
+}
+.sidenav_logotwo {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  position: relative;
+  right: -6px;
+  margin-right: 20px;
+  top: 0px;
+}
+
+.sidenav_logothree {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  position: relative;
+  right: -10px;
+  top: 00px;
+  font-size: 2.4rem !important;
+}
+.sidenav_logofour {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  position: relative;
+  right: -6px;
+  margin-right: 10px;
+  top: 0px;
+  font-size: 2.4rem !important;
+}
+.container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 40px;
+  margin: auto;
+  text-align: center;
+}
+.switch input {
+  position: absolute;
+  opacity: 0;
+}
+.switch {
+  display: inline-block;
+  font-size: 20px;
+  height: 1em;
+  width: 2em;
+  background: #bdb9a6;
+  box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 133.981px;
+  border-radius: 1em;
+  border: 1px solid #ffffff;
+}
+
+.switch div {
+  height: 1em;
+  width: 1em;
+  border-radius: 1em;
+  background: #fff;
+  box-shadow: 0 0.1em 0.3em rgba(0, 0, 0, 0.3);
+  margin-top: -1px;
+  -webkit-transition: all 300ms;
+  -moz-transition: all 300ms;
+  transition: all 300ms;
+}
+
+.switch input:checked + div {
+  -webkit-transform: translate3d(100%, 0, 0);
+  -moz-transform: translate3d(100%, 0, 0);
+  transform: translate3d(100%, 0, 0);
+}
+
+.divider_class {
+  background-color: #e3e3e3 !important;
+  width: 197px !important;
+  margin-left: 20px !important;
+}
+
+.switch_class {
+  margin: 8px 0px 0px 30px;
+}
+
+.accordionbutton {
+  padding: 1px 0px 0px 0px !important;
+  border: none !important;
+  background: none;
+  /* margin-left: -16px; */
+  width: 40px;
+  height: 40px;
+}
+
+.editorHomeLogo {
+  padding-left: 40px;
+}
+.editorHomeLogoEditorMain {
+  padding-right: 20px;
+}
+
+.editorMyLibraryCourses {
+  padding-left: 49px;
+}
+.recentlyViewNormal {
+  padding-right: 10px;
+}
+@media screen and (max-width: 1012px) {
+  .mylibrarycoursesUser {
+    padding-left: 40px;
+  }
+  .recentlyViewNormal {
+    padding-right: 0px;
+  }
+  .normalUserHomePage {
+    padding-right: 49px;
+  }
+  .editorMyLibraryCourses {
+    padding-left: 90px;
+  }
+  .logo_main_container_landing_role {
+    padding-left: 350px;
+  }
+  .logo_main_container {
+    padding-left: 58px;
+    position: relative;
+    right: -100px;
+  }
+  .logo_main_container_landing {
+    padding-left: 92px;
+    position: relative;
+    right: -85px;
+  }
+  .logo_main_container_null {
+    padding-left: 0px;
+    position: relative;
+    right: -124px;
+    /* margin-right: 34px !important; */
+  }
+  .logocontaineredit {
+    position: relative;
+    left: -3px;
+  }
+  .logocontainereleven {
+    position: relative;
+    left: -20px;
+  }
+  .logocontainerone {
+    position: relative;
+    left: -40px;
+  }
+
+  .logocontainerthree {
+    position: relative;
+    left: -20px;
+    top: 0;
+  }
+
+  .logocontainerseven {
+    position: relative;
+    left: -3px;
+  }
+
+  .logocontainereight {
+    position: relative;
+    left: -20px;
+  }
+
+  .logocontainernine {
+    position: relative;
+    left: -40px;
+  }
+
+  .logocontainerten {
+    position: relative;
+    left: -5px;
+  }
+
+  .logocontainertwo {
+    position: relative;
+    left: -40px;
+    top: 0;
+  }
+  .logo_main_container_two {
+    padding-left: 0px;
+    margin-right: 10px;
+    position: relative;
+    right: -130px;
+  }
+  .logo_main_container_one {
+    padding-left: 0px;
+    margin-right: 25px;
+    position: relative;
+    right: -130px;
+  }
+  .logo_main_container_three {
+    padding-left: 0px;
+    margin-right: 105px;
+    position: relative;
+    right: -130px;
+  }
+
+  .firstTopic {
+    padding-left: 217px;
+  }
+
+  .sidebar_inputfield {
+    width: 180px;
+  }
+  .sidebar_inputfield_sub {
+    width: 180px;
+  }
+}
+
+@media screen and (max-width: 755px) {
+  .recentlyViewNormal {
+    padding-right: 10px;
+  }
+  .logocontaineredit {
+    position: relative;
+    left: 8px;
+  }
+  .logocontainerthree {
+    position: relative;
+    left: 0px;
+    top: 0;
+  }
+  .logocontainertwo {
+    position: relative;
+    left: -30px;
+    top: 0;
+  }
+  .logocontainerone {
+    position: relative;
+    left: -20px;
+  }
+
+  .logocontainereleven {
+    position: relative;
+    left: -5px;
+  }
+  .logocontainereight {
+    position: relative;
+    left: 0px;
+  }
+
+  .logocontainernine {
+    position: relative;
+    left: -22px;
+  }
+
+  .divider_class {
+    width: 197px !important;
+  }
+  .switch_class {
+    margin: 8px 0px 0px 30px;
+  }
+  .editoriconsidebar {
+    width: 30px;
+    height: 30px;
+    position: relative;
+    left: 0px;
+    margin-right: -10px;
+  }
+  .hamburgericonsidebar {
+    width: 20px !important;
+    height: 14.6px !important;
+    margin-left: 10px;
+  }
+  .searchiconsize {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+  }
+  .subheadingsidebar {
+    font-style: normal;
+    font-weight: 300;
+    font-size: 12px;
+    line-height: 14px;
+    display: flex;
+    align-items: flex-end;
+    letter-spacing: -0.015em;
+    color: #ffffff;
+    padding-bottom: 2px;
+  }
+
+  .prodilesidebaricon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .logo_main_container {
+    padding-left: 72px;
+    position: initial;
+    right: -100px;
+  }
+  .logo_main_container_landing {
+    padding-left: 4px;
+    position: relative;
+    right: -30px;
+  }
+
+  .logo_main_container_two {
+    padding-left: 0px;
+    margin-right: 10px;
+    position: initial;
+    right: -100px;
+  }
+
+  .logo_main_container_one {
+    padding-left: 0px;
+    margin-right: 25px;
+    position: initial;
+    right: -100px;
+  }
+
+  .logo_main_container_null {
+    padding-left: 0px;
+    position: relative;
+    right: -36px;
+    margin-right: 0 !important;
+  }
+
+  .logo_main_container_landing_role {
+    padding-left: 128px;
+    position: relative;
+    margin-right: 0 !important;
+  }
+
+  .logo_main_container_three {
+    padding-left: 0px;
+    margin-right: 65px;
+    position: initial;
+    right: -100px;
+  }
+  .firstTopic {
+    padding-left: 5px !important;
+    margin-right: 8px
+  }
+  .arrows_icon_sidebar {
+    width: 17.22px;
+    height: 16.47px;
+  }
+  .sidebar_inputfield {
+    display: none;
+  }
+  .sidebar_inputfield_sub {
+    display: none;
+  }
+  .input_field_icon_container {
+    display: none;
+  }
+  .input_field_icon_container_sub {
+    display: none;
+  }
+  .wrap {
+    display: block;
+    position: relative;
+    top: 21px;
+    margin-top: -32px;
+  }
+
+  .wraptwo {
+    display: block;
+    position: relative;
+    left: 0px;
+    top: 2px;
+    margin-top: 0px;
+  }
+
+  .toolbar_rowreverse {
+    flex-direction: row-reverse;
+    align-items: center;
+  }
+  .sidenav_logo {
+    margin-right: 14px;
+    width: 25px;
+    height: 25px;
+  }
+
+  .sidenav_logotwo {
+    margin-right: 14px;
+    width: 25px;
+    height: 25px;
+  }
+
+  .sidenav_logothree {
+    margin-right: 14px;
+    width: 25px;
+    height: 25px;
+    font-size: 1.6rem !important;
+  }
+  .sidenav_logofour {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    position: relative;
+    right: -6px;
+    margin-right: 10px;
+    top: 0px;
+    font-size: 1.6rem !important;
+  }
+
+  .listitem_text {
+    font-size: 14px;
+  }
+  .listitem_text_disabled {
+    font-size: 14px;
+  }
+  .accordionbutton {
+    margin-left: -20px !important;
+    height: 30px;
+    width: 30px;
+  }
+}
+
+@media (max-width: 1029px) {
+  .editorHomeLogo {
+    padding-left: 30px;
+  }
+}
+@media (max-width: 1012px) {
+  .editorHomeLogo {
+    padding-left: 0px;
+  }
+}
+@media (max-width: 755px) {
+  .editorMyLibraryCourses {
+    padding-left: 50px;
+  }
+}
+@media screen and (max-width: 600px) {
+  .recentlyViewNormal {
+    width: 120px;
+    height: 20.47px;
+  }
+
+  .logo_main_container {
+    padding-left: 65px;
+  }
+  .logo_main_container_landing_role {
+    padding-left: 101px;
+  }
+
+  .logo_main_container_landing_role_editor {
+    padding-left: 117px;
+
+    
+  }
+
+  .logo_main_container_DarkEditor {
+    padding-left: 25px;
+  }
+
+    .logo_main_container_LightEditor {
+    padding-left: 50px;
+  }
+
+  .logo_main_container_some_pages {
+    padding-left: 85px;
+  }
+  .profilesidebaricon {
+    margin-left: -4px;
+    width: 30px;
+    height: 30px;
+  }
+
+  .Searchb_main {
+    margin-top: -46px;
+  }
+
+  .switch_class {
+    margin: 8px 0px 0px 100px;
+  }
+
+  .toolbarclassone {
+    background: #111111 !important;
+    min-height: 42px !important;
+  }
+
+  .toolbarclasstwo {
+    background: #f3f6ff !important;
+    min-height: 42px !important;
+    border: 1px solid #f3f6ff;
+    box-sizing: border-box;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
+  }
+
+  .editorHomeLogo {
+    width: 120px;
+    height: 20.47px;
+    padding-left: 20px;
+  }
+  .editorHomeLogoEditorMain {
+    width: 120px;
+    height: 20.47px;
+    /* padding-left: 20px; */
+  }
+  .editorMyLibraryCourses {
+    width: 120px;
+    height: 20.47px;
+    /* padding-left: 20px; */
+  }
+
+  .normalUserHomePage {
+    width: 120px;
+    height: 20.47px;
+    padding-right: 0px;
+  }
+  .mylibrarycoursesUser {
+    width: 120px;
+    height: 20.47px;
+  }
+
+  .ratingSideBarUser {
+    width: 120px;
+    height: 20.47px;
+  }
+}
